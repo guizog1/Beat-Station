@@ -86,12 +86,13 @@ field_generator power level display
 	else if(istype(W, /obj/item/weapon/wrench))
 		switch(state)
 			if(FG_UNSECURED)
-				if(isinspace()) return
+				if(isinspace())	return
 				state = FG_SECURED
 				playsound(loc, 'sound/items/Ratchet.ogg', 75, 1)
 				user.visible_message("[user.name] secures [name] to the floor.", \
 					"<span class='notice'>You secure the external reinforcing bolts to the floor.</span>", \
 					"<span class='italics'>You hear ratchet.</span>")
+				anchored = 1
 			if(FG_SECURED)
 				state = FG_UNSECURED
 				playsound(loc, 'sound/items/Ratchet.ogg', 75, 1)
@@ -110,23 +111,23 @@ field_generator power level display
 				return
 
 			if(FG_SECURED)
-				if (WT.remove_fuel(0,user))
+				if(WT.remove_fuel(0,user))
 					playsound(loc, 'sound/items/Welder2.ogg', 50, 1)
 					user.visible_message("[user.name] starts to weld the [name] to the floor.", \
 						"<span class='notice'>You start to weld \the [src] to the floor...</span>", \
 						"<span class='italics'>You hear welding.</span>")
-					if (do_after(user,20, target = src))
+					if(do_after(user,20, target = src))
 						if(!src || !WT.isOn())
 							return
 						state = FG_WELDED
 						to_chat(user, "<span class='notice'>You weld the field generator to the floor.</span>")
 			if(FG_WELDED)
-				if (WT.remove_fuel(0,user))
+				if(WT.remove_fuel(0,user))
 					playsound(loc, 'sound/items/Welder2.ogg', 50, 1)
 					user.visible_message("[user.name] starts to cut the [name] free from the floor.", \
 						"<span class='notice'>You start to cut \the [src] free from the floor...</span>", \
 						"<span class='italics'>You hear welding.</span>")
-					if (do_after(user,20, target = src))
+					if(do_after(user,20, target = src))
 						if(!src || !WT.isOn())
 							return
 						state = FG_SECURED
