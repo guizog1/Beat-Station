@@ -132,7 +132,6 @@ var/world_topic_spam_protect_time = world.timeofday
 		s["vote"] = config.allow_vote_mode
 		s["ai"] = config.allow_ai
 		s["host"] = host ? host : null
-		s["players"] = list()
 		s["stationtime"] = worldtime2text()
 		s["players"] = players.len
 		s["admins"] = admins.len
@@ -150,10 +149,12 @@ var/world_topic_spam_protect_time = world.timeofday
 				// Shuttle timer, in seconds
 				s["shuttle_timer"] = shuttle_master.emergency.timeLeft()
 
-			for(var/i in 1 to admins.len)
-				var/list/A = admins[i]
-				s["admin[i - 1]"] = A[1]
-				s["adminrank[i - 1]"] = A[2]
+			for(var/i=1, i <= admins.len, i++)
+				var/client/C = admins[i]
+				s["admin[i - 1]"] = list()
+				s["admin[i - 1]"]["ckey"] = C.ckey
+				s["admin[i - 1]"]["rank"] = C.holder.rank
+				s["admin[i - 1]"] = list2params(s["admin[i - 1]"])
 
 		return list2params(s)
 
