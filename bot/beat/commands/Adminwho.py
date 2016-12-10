@@ -1,6 +1,6 @@
 from .Command import BeatCommand
 
-class commandWho(BeatCommand):
+class commandAdminwho(BeatCommand):
 	"""Admins on the server."""
 
 	@classmethod
