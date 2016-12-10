@@ -125,7 +125,6 @@ var/world_topic_spam_protect_time = world.timeofday
 
 	else if ("status" in input)
 		var/list/s = list()
-		var/list/admins = list()
 		s["version"] = game_version
 		s["mode"] = master_mode
 		s["respawn"] = config ? abandon_allowed : 0
