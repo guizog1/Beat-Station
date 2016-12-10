@@ -138,9 +138,9 @@
 	var/ghost_interaction = 0
 
 	var/comms_password = ""
-	var/discord_bot_host = "localhost"
-	var/discord_bot_port = 0
 	var/use_discord_bot = 0
+	var/bot_token = ""
+
 	var/python_path = "python" //Path to the python executable.  Defaults to "python" on windows and "/usr/bin/env python2" on unix
 
 	var/default_laws = 0 //Controls what laws the AI spawns with.
@@ -460,11 +460,8 @@
 				if("use_discord_bot")
 					config.use_discord_bot = value
 
-				if("discord_bot_host")
-					config.discord_bot_host = value
-
-				if("discord_bot_port")
-					config.discord_bot_port = value
+				if("bot_token")
+					config.bot_token = value
 
 				if("python_path")
 					if(value)

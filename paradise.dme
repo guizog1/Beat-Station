@@ -1377,6 +1377,7 @@
 #include "code\modules\garbage_collection\gc_testing.dm"
 #include "code\modules\holiday\christmas.dm"
 #include "code\modules\holiday\holiday.dm"
+#include "code\modules\http\post_request.dm"
 #include "code\modules\hydroponics\grown.dm"
 #include "code\modules\hydroponics\grown_inedible.dm"
 #include "code\modules\hydroponics\grown_predefined.dm"

@@ -1,35 +1,35 @@
 from .Command import BeatCommand
 
 class commandWho(BeatCommand):
-	"""Players on the server."""
+	"""Admins on the server."""
 
 	@classmethod
 	async def doCommand(cls, bot, message, params):
-		server_reply = bot.ping_server(b"who")
+		server_reply = bot.ping_server(b"adminwho")
 
 		if server_reply == None:
 			reply = "{0}, sorry! I was unable to ping the server!".format(message.author.mention)
 		else:
-			reply = "Current player list:\n\n```\n"
+			reply = "Current admin list:\n\n```\n"
 			if isinstance(server_reply, list)::
 				for value in server_reply:
 					reply += value
 					reply += "\n"
-				reply += "```\n**{0}** players on the server.".format(len(server_reply))
+				reply += "```\n**{0}** admins on the server.".format(len(server_reply))
 			else:
 				reply += server_reply
-				reply += "```\n**1** player on the server."
+				reply += "```\n**1** admin on the server."
 
 		await bot.send_message(message.channel, reply)
 		return
 
 	@classmethod
 	def getName(cls):
-		return "Who"
+		return "Adminwho"
 
 	@classmethod
 	def getDescription(cls):
-		return "Get players on the server."
+		return "Get admins on the server."
 
 	@classmethod
 	def getParams(cls):
