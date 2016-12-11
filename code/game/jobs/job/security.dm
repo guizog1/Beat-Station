@@ -190,7 +190,7 @@
 //var/global/lawyer = 0//Checks for another lawyer //This changed clothes on 2nd lawyer, both IA get the same dreds.
 /datum/job/iaa
 	title = "Internal Affairs Agent"
-	flag = LAWYER
+	flag = IAA
 	department_flag = ENGSEC
 	total_positions = 2
 	spawn_positions = 2
@@ -247,7 +247,7 @@
 			if(2) H.equip_or_collect(new /obj/item/weapon/storage/backpack(H), slot_back)
 			if(3) H.equip_or_collect(new /obj/item/weapon/storage/backpack/satchel_norm(H), slot_back)
 			if(4) H.equip_or_collect(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
-		H.equip_or_collect(new /obj/item/clothing/under/rank/lawyer/red(H), slot_w_uniform)
+		H.equip_or_collect(new /obj/item/clothing/under/lawyer/red(H), slot_w_uniform)
 		H.equip_or_collect(new /obj/item/clothing/suit/storage/lawyer/blackjacket(H), slot_wear_suit)
 		H.equip_or_collect(new /obj/item/clothing/shoes/brown(H), slot_shoes)
 		H.equip_or_collect(new /obj/item/clothing/glasses/hud/security/sunglasses(H), slot_glasses)

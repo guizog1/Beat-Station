@@ -1,6 +1,6 @@
 /datum/job/chief_engineer
 	title = "Chief Engineer"
-	flag = CHIEF
+	flag = CE
 	department_flag = ENGSEC
 	total_positions = 1
 	spawn_positions = 1
