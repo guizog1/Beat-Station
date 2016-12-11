@@ -458,7 +458,7 @@
 					config.comms_password = value
 
 				if("use_discord_bot")
-					config.use_discord_bot = value
+					config.use_discord_bot = 1
 
 				if("bot_token")
 					config.bot_token = value
