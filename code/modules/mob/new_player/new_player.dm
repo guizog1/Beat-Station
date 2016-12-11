@@ -296,7 +296,7 @@
 		to_chat(usr, "\blue There is an administrative lock on entering the game!")
 		return 0
 	if(!IsJobAvailable(rank))
-		to_chat(src, alert("[rank] is not available. Please try another."))
+		to_chat(usr, alert("[rank] is not available. Please try another."))
 		return 0
 
 	job_master.AssignRole(src, rank, 1)
@@ -433,7 +433,7 @@
 		"Synthetic" = list(jobs = list(), titles = nonhuman_positions, color = "#ccffcc"),
 		"Support / Service" = list(jobs = list(), titles = service_positions, color = "#cccccc"),
 		"Medical" = list(jobs = list(), titles = medical_positions, color = "#99ffe6", colBreak = 1),
-		"Science/Medical" = list(jobs = list(), titles = scimed_positions, color = "#33ffcc"),
+		//"Science/Medical" = list(jobs = list(), titles = scimed_positions, color = "#33ffcc"),
 		"Science" = list(jobs = list(), titles = science_positions, color = "#e6b3e6"),
 		"Supply" = list(jobs = list(), titles = supply_positions, color = "#ead4ae"),
 		)

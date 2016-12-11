@@ -52,7 +52,7 @@
 	selection_color = "#ffeeff"
 	idtype = /obj/item/weapon/card/id/research
 	access = list(access_robotics, access_tox, access_tox_storage, access_research, access_xenobiology, access_xenoarch, access_mineral_storeroom)
-	minimal_access = list(access_tox, access_tox_storage, access_research, access_xenobiology, access_xenoarch, access_maint_tunnels, access_mineral_storeroom)
+	minimal_access = list(access_robotics, access_tech_storage, access_morgue, access_tox, access_tox_storage, access_research, access_xenobiology, access_xenoarch, access_maint_tunnels, access_mineral_storeroom)
 	alt_titles = list("Xenoarcheologist", "Anomalist", "Plasma Researcher", "Xenobiologist", "Chemical Researcher")
 	minimal_player_age = 3
 
@@ -77,7 +77,7 @@
 		return 1
 
 
-
+/*
 /datum/job/roboticist
 	title = "Roboticist"
 	flag = ROBOTICIST
@@ -113,4 +113,4 @@
 			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H), slot_r_hand)
 		else
 			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
-		return 1
+		return 1*/

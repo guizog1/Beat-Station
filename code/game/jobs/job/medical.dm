@@ -48,7 +48,7 @@
 	selection_color = "#ffeef0"
 	idtype = /obj/item/weapon/card/id/medical
 	access = list(access_medical, access_morgue, access_surgery, access_chemistry, access_virology, access_genetics, access_mineral_storeroom)
-	minimal_access = list(access_medical, access_morgue, access_surgery, access_maint_tunnels)
+	minimal_access = list(access_medical, access_chemistry, access_mineral_storeroom, access_morgue, access_surgery, access_maint_tunnels)
 	alt_titles = list("Surgeon","Nurse","Coroner")
 	minimal_player_age = 3
 
@@ -99,7 +99,7 @@
 		return 1
 
 
-
+/*
 //Chemist is a medical job damnit	//YEAH FUCK YOU SCIENCE	-Pete	//Guys, behave -Erro
 /datum/job/chemist
 	title = "Chemist"
@@ -196,6 +196,7 @@
 			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
 		return 1
 
+
 /datum/job/psychiatrist
 	title = "Psychiatrist"
 	flag = PSYCHIATRIST
@@ -268,3 +269,4 @@
 			H.equip_or_collect(new /obj/item/weapon/storage/box/engineer(H.back), slot_in_backpack)
 			H.equip_or_collect(new /obj/item/device/healthanalyzer(H.back), slot_in_backpack)
 		return 1
+*/

@@ -143,7 +143,7 @@ var/list/uplink_items = list()
 	item = /obj/item/weapon/grenade/spawnergrenade/feral_cats
 	reference = "CCLG"
 	cost = 5
-	job = list("Psychiatrist")//why? Becuase its funny that a person in charge of your mental wellbeing has a cat granade..
+	job = list("Psychiatrist", "Medical Doctor")//why? Becuase its funny that a person in charge of your mental wellbeing has a cat granade..
 
 //Chef
 /datum/uplink_item/jobspecific/specialsauce
@@ -269,7 +269,7 @@ var/list/uplink_items = list()
 	reference = "PG"
 	item = /obj/item/clothing/gloves/color/yellow/power
 	cost = 10
-	job = list("Station Engineer","Chief Engineer")
+	job = list("Station Engineer", "Chief Engineer")
 
 //RD
 
@@ -308,7 +308,7 @@ var/list/uplink_items = list()
 	reference = "AIRJ"
 	item = /obj/item/clothing/under/contortionist
 	cost = 6
-	job = list("Life Support Specialist")
+	job = list("Life Support Specialist", "Station Engineer", "Chief Engineer")
 
 /datum/uplink_item/dangerous/energizedfireaxe
 	name = "Energized Fire Axe"
@@ -316,7 +316,7 @@ var/list/uplink_items = list()
 	reference = "EFA"
 	item = /obj/item/weapon/twohanded/energizedfireaxe
 	cost = 10
-	job = list("Life Support Specialist")
+	job = list("Life Support Specialist", "Station Engineer", "Chief Engineer")
 
 //Stimulants
 

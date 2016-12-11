@@ -117,9 +117,6 @@
 		H.equip_or_collect(new /obj/item/clothing/shoes/brown(H), slot_shoes)
 		H.equip_or_collect(new /obj/item/device/pda/detective(H), slot_wear_pda)
 		H.equip_or_collect(new /obj/item/toy/crayon/white(H), slot_l_store)
-/*		var/obj/item/clothing/mask/cigarette/CIG = new /obj/item/clothing/mask/cigarette(H)
-		CIG.light("")
-		H.equip_or_collect(CIG, slot_wear_mask)	*/
 		H.equip_or_collect(new /obj/item/clothing/glasses/sunglasses/noir(H),slot_glasses)
 		H.equip_or_collect(new /obj/item/clothing/gloves/color/black(H), slot_gloves)
 		if(H.mind.role_alt_title && H.mind.role_alt_title == "Forensic Technician")
@@ -189,6 +186,86 @@
 		H.sec_hud_set_implants()
 		return 1
 
+
+//var/global/lawyer = 0//Checks for another lawyer //This changed clothes on 2nd lawyer, both IA get the same dreds.
+/datum/job/iaa
+	title = "Internal Affairs Agent"
+	flag = IAA
+	department_flag = ENGSEC
+	total_positions = 2
+	spawn_positions = 2
+	supervisors = "the head of security"
+	selection_color = "#ddddff"
+	access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
+	minimal_access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
+	alt_titles = list("Public Defender")
+	minimal_player_age = 30
+	idtype = /obj/item/weapon/card/id/security
+
+	equip(var/mob/living/carbon/human/H)
+		if(!H)	return 0
+		H.equip_or_collect(new /obj/item/device/radio/headset/headset_sec/alt(H), slot_l_ear)
+		switch(H.backbag)
+			if(2) H.equip_or_collect(new /obj/item/weapon/storage/backpack(H), slot_back)
+			if(3) H.equip_or_collect(new /obj/item/weapon/storage/backpack/satchel_norm(H), slot_back)
+			if(4) H.equip_or_collect(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
+		H.equip_or_collect(new /obj/item/clothing/under/rank/internalaffairs(H), slot_w_uniform)
+		H.equip_or_collect(new /obj/item/clothing/suit/storage/internalaffairs(H), slot_wear_suit)
+		H.equip_or_collect(new /obj/item/clothing/shoes/brown(H), slot_shoes)
+		H.equip_or_collect(new /obj/item/clothing/glasses/hud/security/sunglasses(H), slot_glasses)
+		H.equip_or_collect(new /obj/item/device/pda/lawyer(H), slot_wear_pda)
+		H.equip_or_collect(new /obj/item/weapon/storage/briefcase(H), slot_l_hand)
+		H.equip_or_collect(new /obj/item/device/laser_pointer(H), slot_l_store)
+		H.equip_or_collect(new /obj/item/device/flash(H), slot_r_store)
+		if(H.backbag == 1)
+			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H), slot_r_hand)
+		else
+			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
+		var/obj/item/weapon/implant/loyalty/L = new/obj/item/weapon/implant/loyalty(H)
+		L.imp_in = H
+		L.implanted = 1
+		H.sec_hud_set_implants()
+		return 1
+
+/datum/job/lawyer
+	title = "Lawyer"
+	flag = LAWYER
+	department_flag = ENGSEC
+	total_positions = 1
+	spawn_positions = 1
+	supervisors = "the head of security"
+	selection_color = "#ddddff"
+	access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
+	minimal_access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
+	minimal_player_age = 30
+	idtype = /obj/item/weapon/card/id/security
+
+	equip(var/mob/living/carbon/human/H)
+		if(!H)	return 0
+		H.equip_or_collect(new /obj/item/device/radio/headset/headset_sec/alt(H), slot_l_ear)
+		switch(H.backbag)
+			if(2) H.equip_or_collect(new /obj/item/weapon/storage/backpack(H), slot_back)
+			if(3) H.equip_or_collect(new /obj/item/weapon/storage/backpack/satchel_norm(H), slot_back)
+			if(4) H.equip_or_collect(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
+		H.equip_or_collect(new /obj/item/clothing/under/lawyer/red(H), slot_w_uniform)
+		H.equip_or_collect(new /obj/item/clothing/suit/storage/lawyer/blackjacket(H), slot_wear_suit)
+		H.equip_or_collect(new /obj/item/clothing/shoes/brown(H), slot_shoes)
+		H.equip_or_collect(new /obj/item/clothing/glasses/hud/security/sunglasses(H), slot_glasses)
+		H.equip_or_collect(new /obj/item/device/pda/lawyer(H), slot_wear_pda)
+		H.equip_or_collect(new /obj/item/weapon/storage/briefcase(H), slot_l_hand)
+		H.equip_or_collect(new /obj/item/device/laser_pointer(H), slot_l_store)
+		H.equip_or_collect(new /obj/item/device/flash(H), slot_r_store)
+		if(H.backbag == 1)
+			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H), slot_r_hand)
+		else
+			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
+		var/obj/item/weapon/implant/loyalty/L = new/obj/item/weapon/implant/loyalty(H)
+		L.imp_in = H
+		L.implanted = 1
+		H.sec_hud_set_implants()
+		return 1
+
+/*
 /datum/job/brigdoc
 	title = "Brig Physician"
 	flag = BRIGDOC
@@ -262,3 +339,4 @@
 		L.implanted = 1
 		H.sec_hud_set_implants()
 		return 1
+*/

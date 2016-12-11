@@ -1,6 +1,6 @@
 /datum/job/chief_engineer
 	title = "Chief Engineer"
-	flag = CHIEF
+	flag = CE
 	department_flag = ENGSEC
 	total_positions = 1
 	spawn_positions = 1
@@ -51,7 +51,7 @@
 	selection_color = "#fff5cc"
 	idtype = /obj/item/weapon/card/id/engineering
 	access = list(access_eva, access_engine, access_engine_equip, access_tech_storage, access_maint_tunnels, access_external_airlocks, access_construction, access_atmospherics)
-	minimal_access = list(access_eva, access_engine, access_engine_equip, access_tech_storage, access_maint_tunnels, access_external_airlocks, access_construction)
+	minimal_access = list(access_eva, access_engine, access_engine_equip, access_tech_storage, access_atmospherics, access_maint_tunnels, access_external_airlocks, access_construction, access_emergency_storage)
 	alt_titles = list("Maintenance Technician","Engine Technician","Electrician")
 	minimal_player_age = 7
 
@@ -74,8 +74,7 @@
 			H.equip_or_collect(new /obj/item/weapon/storage/box/engineer(H.back), slot_in_backpack)
 		return 1
 
-
-
+/*
 /datum/job/atmos
 	title = "Life Support Specialist"
 	flag = ATMOSTECH
@@ -106,6 +105,7 @@
 		else
 			H.equip_or_collect(new /obj/item/weapon/storage/box/engineer(H.back), slot_in_backpack)
 		return 1
+
 
 /datum/job/mechanic
 	title = "Mechanic"
@@ -138,3 +138,4 @@
 		else
 			H.equip_or_collect(new /obj/item/weapon/storage/box/engineer(H.back), slot_in_backpack)
 		return 1
+*/
