@@ -19,10 +19,6 @@ class BotBeat(discord.Client):
 		self.config = Config(config_path)
 		self.config_thread = None
 
-		# beat.Nudge instance
-		self.nudge = Nudge(self.config)
-		self.nudge_thread = None
-
 		# Commands dictionary
 		self.commands = {}
 
@@ -48,13 +44,6 @@ class BotBeat(discord.Client):
 			self.logger.critical("Runtime error during config initialization: {0}".format(e.message))
 			raise RuntimeError("Runtime error during config initialization.")
 
-		try:
-			self.logger.info("Setting up nudge.")
-			self.nudge.setup(self, self.logger)
-		except RuntimeError as e:
-			self.logger.critical("Runtime error during nudge initialization: {0}".format(e.message))
-			raise RuntimeError("Runtime error during nudge initialization.")
-
 		self.loadCommands()
 
 		self.logger.info("Bot setup completed.")
@@ -63,10 +52,6 @@ class BotBeat(discord.Client):
 		"""Runs the bot."""
 
 		self.logger.info("Bot starting.")
-
-		if self.configValue("receive_nudges") == True:
-			self.logger.info("Starting nudge.")
-			self.nudge_thread = _thread.start_new_thread(self.nudge.start, ())
 
 		self.run(self.configValue("token"))
 

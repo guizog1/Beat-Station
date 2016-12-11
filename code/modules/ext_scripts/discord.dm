@@ -1,29 +1,21 @@
-#define CHAN_ADMIN "staff_chat"
-#define CHAN_BAN "bans"
-#define CHAN_GENERAL "general"
-#define CHAN_INFO "server_info"
+#define CHAN_ADMIN		"182239000063508480"
+#define CHAN_BAN		"182513192101085184"
+#define CHAN_GENERAL	"176500153492963328"
+#define CHAN_INFO		"204025230103019520"
 
-/proc/send_to_discord(var/channel, var/message)
+/proc/send_to_discord(channel_id, message)
 	if (!config.use_discord_bot)
 		return
-	if (!channel)
-		log_game("send_to_discord() called without channel arg.")
+	if (!channel_id)
+		log_debug("send_to_discord() called without channel_id arg.")
 		return
 	if (!message)
-		log_game("send_to_discord() called without message arg.")
+		log_debug("send_to_discord() called without message arg.")
 		return
 
-	var/arguments = " --key=\"[config.comms_password]\""
-	arguments += " --channel=\"[channel]\""
-	if (config.discord_bot_host)
-		arguments += " --host=\"[config.discord_bot_host]\""
-	if (config.discord_bot_port)
-		arguments += " --port=[config.discord_bot_port]"
+	var/result = send_post_request("https://discordapp.com/api/channels/[channel_id]/messages", " { \"content\" : \"[message]\" } ", "Content-Type: application/json", "Authorization: Bot [config.bot_token]")
 
-	message = replacetext(message, "\"", "\\\"")
-
-	ext_python("discordbot_message.py", "[arguments] [message]")
-	return
+	return result
 
 /proc/send_to_info_discord(var/message)
 	send_to_discord(CHAN_INFO, message)

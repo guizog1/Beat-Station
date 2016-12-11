@@ -94,44 +94,37 @@ var/world_topic_spam_protect_time = world.timeofday
 
 /world/Topic(T, addr, master, key)
 	var/list/players = list()
+	var/list/admins = list()
 
-	var/player_count = 0
 	for(var/client/C in clients)
-		if(C.holder && C.holder.big_brother) // BB doesn't show up at all
-			continue
-		players += C.ckey
-		player_count++
-
-	var/admin_count = 0
-	for(var/client/C)
-		if(C.holder)
-			if(C.holder.big_brother) // BB doesn't show up at all
+		if(C.holder) // BB doesn't show up at all
+			if(C.holder.big_brother)
 				continue
-			admin_count++
+			admins += C.ckey
+		players += C.ckey
 
 	diary << "TOPIC: \"[T]\", from:[addr], master:[master], key:[key]"
 
 	var/list/input = params2list(T)
 	var/key_valid = (config.comms_password && input["key"] == config.comms_password) //no password means no comms, not any password
 
-	if ("ping" in input)
-		var/x = 1
-		for (var/client/C)
+	if("ping" in input)
+		var/x = 0
+		for(var/client/C)
 			x++
 		return x
 
 	else if("players" in input)
-		return player_count
+		return players.len
 
 	else if ("admins" in input)
-		return admin_count
+		return admins.len
 
 	else if ("gamemode" in input)
 		return master_mode
 
 	else if ("status" in input)
 		var/list/s = list()
-		var/list/admins = list()
 		s["version"] = game_version
 		s["mode"] = master_mode
 		s["respawn"] = config ? abandon_allowed : 0
@@ -139,10 +132,9 @@ var/world_topic_spam_protect_time = world.timeofday
 		s["vote"] = config.allow_vote_mode
 		s["ai"] = config.allow_ai
 		s["host"] = host ? host : null
-		s["players"] = list()
 		s["stationtime"] = worldtime2text()
-		s["players"] = player_count
-		s["admins"] = admin_count
+		s["players"] = players.len
+		s["admins"] = admins.len
 		s["map_name"] = map_name ? map_name : "Unknown"
 
 		if(key_valid)
@@ -157,10 +149,12 @@ var/world_topic_spam_protect_time = world.timeofday
 				// Shuttle timer, in seconds
 				s["shuttle_timer"] = shuttle_master.emergency.timeLeft()
 
-			for(var/i in 1 to admins.len)
-				var/list/A = admins[i]
-				s["admin[i - 1]"] = A[1]
-				s["adminrank[i - 1]"] = A[2]
+			for(var/i=1, i <= admins.len, i++)
+				var/client/C = admins[i]
+				s["admin[i - 1]"] = list()
+				s["admin[i - 1]"]["ckey"] = C.ckey
+				s["admin[i - 1]"]["rank"] = C.holder.rank
+				s["admin[i - 1]"] = list2params(s["admin[i - 1]"])
 
 		return list2params(s)
 
@@ -269,14 +263,6 @@ var/world_topic_spam_protect_time = world.timeofday
 
 		return show_player_info_irc(input["notes"])
 
-	/*else if("announce" in input)
-		if(config.comms_password)
-			if(input["key"] != config.comms_password)
-				return "Bad Key"
-			else
-				for(var/client/C in clients)
-					to_chat(C, "<span class='announce'>PR: [input["announce"]]</span>")*/
-
 	else if ("announce" in input)
 		if(!key_valid)
 			return keySpamProtect(addr)
@@ -287,6 +273,9 @@ var/world_topic_spam_protect_time = world.timeofday
 
 	else if ("who" in input)
 		return list2params(players)
+
+	else if ("adminwho" in input)
+		return list2params(admins)
 
 /proc/do_topic_spam_protection(var/addr, var/key)
 	if (!config.comms_password || config.comms_password == "")
