@@ -11,7 +11,7 @@ class commandWho(BeatCommand):
 			reply = "{0}, sorry! I was unable to ping the server!".format(message.author.mention)
 		else:
 			reply = "Current player list:\n\n```\n"
-			if isinstance(server_reply, list)::
+			if isinstance(server_reply, list):
 				for value in server_reply:
 					reply += value
 					reply += "\n"
