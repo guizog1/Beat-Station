@@ -73,28 +73,28 @@ var/list/command_positions = list(
 var/list/engineering_positions = list(
 	"Chief Engineer",
 	"Station Engineer",
-	"Life Support Specialist",
-	"Mechanic"
+	//"Life Support Specialist",
+	//"Mechanic"
 )
 
 
 var/list/medical_positions = list(
 	"Chief Medical Officer",
 	"Medical Doctor",
-	"Psychiatrist",
-	"Chemist",
-	"Virologist",
-	"Paramedic"
+	//"Psychiatrist",
+	//"Chemist",
+	//"Virologist",
+	//"Paramedic"
 )
 
 var/list/scimed_positions = list(
-	"Geneticist",	//Part of both medical and science
+	//"Geneticist",	//Part of both medical and science
 )
 
 var/list/science_positions = list(
 	"Research Director",
 	"Scientist",
-	"Roboticist",
+	//"Roboticist",
 )
 
 //BS12 EDIT
@@ -105,22 +105,21 @@ var/list/support_positions = list(
 	"Chef",
 	"Janitor",
 	"Librarian",
-	"Quartermaster",
+	//"Quartermaster",
 	"Cargo Technician",
 	"Shaft Miner",
-	"Internal Affairs Agent",
 	"Chaplain",
 	"Clown",
-	"Mime",
-	"Barber",
-	"Magistrate",
+	//"Mime",
+	//"Barber",
+	//"Magistrate",
 	"Nanotrasen Representative",
 	"Blueshield"
 )
 
 var/list/supply_positions = list(
 	"Head of Personnel",
-	"Quartermaster",
+	//"Quartermaster",
 	"Cargo Technician",
 	"Shaft Miner"
 )
@@ -133,8 +132,10 @@ var/list/security_positions = list(
 	"Warden",
 	"Detective",
 	"Security Officer",
-	"Brig Physician",
-	"Security Pod Pilot"
+	//"Brig Physician",
+	//"Security Pod Pilot",
+	"Internal Affairs Agent",
+	"Lawyer"
 )
 
 
@@ -152,11 +153,11 @@ var/list/nonhuman_positions = list(
 var/list/whitelisted_positions = list(
 	"Blueshield",
 	"Nanotrasen Representative",
-	"Barber",
-	"Mechanic",
-	"Brig Physician",
-	"Magistrate",
-	"Security Pod Pilot",
+	//"Barber",
+	//"Mechanic",
+	//"Brig Physician",
+	//"Magistrate",
+	//"Security Pod Pilot",
 )
 
 

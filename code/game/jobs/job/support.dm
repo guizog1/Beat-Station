@@ -104,7 +104,7 @@
 		return 1
 
 
-
+/*
 //Cargo
 /datum/job/qm
 	title = "Quartermaster"
@@ -136,7 +136,7 @@
 		else
 			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
 		return 1
-
+*/
 
 
 /datum/job/cargo_tech
@@ -145,7 +145,7 @@
 	department_flag = SUPPORT
 	total_positions = 2
 	spawn_positions = 2
-	supervisors = "the quartermaster"
+	supervisors = "the head of personnel"
 	selection_color = "#dddddd"
 	idtype = /obj/item/weapon/card/id/supply
 	access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_qm, access_mint, access_mining, access_mining_station, access_mineral_storeroom)
@@ -176,7 +176,7 @@
 	department_flag = SUPPORT
 	total_positions = 3
 	spawn_positions = 3
-	supervisors = "the quartermaster"
+	supervisors = "the head of personnel"
 	selection_color = "#dddddd"
 	idtype = /obj/item/weapon/card/id/supply
 	access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_qm, access_mint, access_mining, access_mining_station, access_mineral_storeroom)
@@ -254,7 +254,7 @@
 		return 1
 
 
-
+/*
 /datum/job/mime
 	title = "Mime"
 	flag = MIME
@@ -292,7 +292,7 @@
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/mime/speak(null))
 			H.mind.miming = 1
 		return 1
-
+*/
 
 
 /datum/job/janitor
@@ -356,6 +356,7 @@
 		H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
 		return 1
 
+/*
 /datum/job/barber
 	title = "Barber"
 	flag = BARBER
@@ -385,3 +386,4 @@
 		H.equip_or_collect(new /obj/item/weapon/storage/box/barber(H.back), slot_in_backpack)
 		H.equip_or_collect(new /obj/item/weapon/storage/box/lip_stick(H.back), slot_in_backpack)
 		return 1
+*/
