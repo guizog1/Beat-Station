@@ -60,6 +60,15 @@ var/const/BLUESHIELD		=(1<<1)
 var/list/assistant_occupations = list(
 )
 
+var/list/heads_positions = list(
+	"Captain",
+	"Head of Personnel",
+	"Head of Security",
+	"Chief Engineer",
+	"Research Director",
+	"Chief Medical Officer",
+)
+
 
 var/list/command_positions = list(
 	"Captain",
@@ -67,7 +76,9 @@ var/list/command_positions = list(
 	"Head of Security",
 	"Chief Engineer",
 	"Research Director",
-	"Chief Medical Officer"
+	"Chief Medical Officer",
+	"Blueshield",
+	"Nanotrasen Representative",
 )
 
 
@@ -114,15 +125,15 @@ var/list/support_positions = list(
 	//"Mime",
 	//"Barber",
 	//"Magistrate",
-	"Nanotrasen Representative",
-	"Blueshield"
+	//"Nanotrasen Representative",
+	//"Blueshield"
 )
 
 var/list/supply_positions = list(
 	"Head of Personnel",
-	//"Quartermaster",
 	"Cargo Technician",
-	"Shaft Miner"
+	"Shaft Miner",
+	//"Quartermaster",
 )
 
 var/list/service_positions = support_positions - supply_positions + list("Head of Personnel")
@@ -133,10 +144,10 @@ var/list/security_positions = list(
 	"Warden",
 	"Detective",
 	"Security Officer",
-	//"Brig Physician",
-	//"Security Pod Pilot",
 	"Internal Affairs Agent",
 	"Lawyer"
+	//"Brig Physician",
+	//"Security Pod Pilot",
 )
 
 
