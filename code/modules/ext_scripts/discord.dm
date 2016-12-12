@@ -13,25 +13,19 @@
 		log_debug("send_to_discord() called without message arg.")
 		return
 
-	var/result = send_post_request("https://discordapp.com/api/channels/[channel_id]/messages", " { \"content\" : \"[message]\" } ", "Content-Type: application/json", "Authorization: Bot [config.bot_token]")
-
-	return result
+	return POST("https://discordapp.com/api/channels/[channel_id]/messages", " { \"content\" : \"[message]\" } ", "Content-Type: application/json", "Authorization: Bot [config.bot_token]")
 
 /proc/send_to_admin_discord(message)
-	if(send_to_discord(CHAN_ADMIN, message) == 200)
-		return 1
+	send_to_discord(CHAN_ADMIN, message)
 
 /proc/send_to_ban_discord(message)
-	if(send_to_discord(CHAN_BAN, message) == 200)
-		return 1
+	send_to_discord(CHAN_BAN, message)
 
 /proc/send_to_main_discord(message)
-	if(send_to_discord(CHAN_GENERAL, message) == 200)
-		return 1
+	send_to_discord(CHAN_GENERAL, message)
 
 /proc/send_to_info_discord(message)
-	if(send_to_discord(CHAN_INFO, message) == 200)
-		return 1
+	send_to_discord(CHAN_INFO, message)
 
 #undef CHAN_INFO
 #undef CHAN_GENERAL
