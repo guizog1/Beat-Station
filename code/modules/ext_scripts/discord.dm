@@ -4,12 +4,12 @@
 #define CHAN_INFO		"204025230103019520"
 
 /proc/send_to_discord(channel_id, message)
-	if (!config.use_discord_bot)
+	if(!config.use_discord_bot)
 		return
-	if (!channel_id)
+	if(!channel_id)
 		log_debug("send_to_discord() called without channel_id arg.")
 		return
-	if (!message)
+	if(!message)
 		log_debug("send_to_discord() called without message arg.")
 		return
 
@@ -17,17 +17,21 @@
 
 	return result
 
-/proc/send_to_info_discord(var/message)
-	send_to_discord(CHAN_INFO, message)
+/proc/send_to_admin_discord(message)
+	if(send_to_discord(CHAN_ADMIN, message) == 200)
+		return 1
 
-/proc/send_to_main_discord(var/message)
-	send_to_discord(CHAN_GENERAL, message)
+/proc/send_to_ban_discord(message)
+	if(send_to_discord(CHAN_BAN, message) == 200)
+		return 1
 
-/proc/send_to_admin_discord(var/message)
-	send_to_discord(CHAN_ADMIN, message)
+/proc/send_to_main_discord(message)
+	if(send_to_discord(CHAN_GENERAL, message) == 200)
+		return 1
 
-/proc/send_to_ban_discord(var/message)
-	send_to_discord(CHAN_BAN, message)
+/proc/send_to_info_discord(message)
+	if(send_to_discord(CHAN_INFO, message) == 200)
+		return 1
 
 #undef CHAN_INFO
 #undef CHAN_GENERAL

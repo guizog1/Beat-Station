@@ -1,26 +1,30 @@
-
 var/const/ENGSEC			=(1<<0)
 
 var/const/CAPTAIN			=(1<<0)
+
 var/const/HOS				=(1<<1)
 var/const/WARDEN			=(1<<2)
 var/const/DETECTIVE			=(1<<3)
 var/const/OFFICER			=(1<<4)
+var/const/LAWYER			=(1<<7)
+var/const/IAA				=(1<<8)
+
 var/const/CE				=(1<<5)
 var/const/ENGINEER			=(1<<6)
 //var/const/ATMOSTECH		=(1<<7)
-var/const/AI				=(1<<7)
-var/const/CYBORG			=(1<<8)
 
-var/const/CENTCOM			=(1<<9)
+var/const/AI				=(1<<9)
+var/const/CYBORG			=(1<<10)
+
+var/const/CENTCOM			=(1<<11)
 
 var/const/MEDSCI			=(1<<1)
 
 var/const/RD				=(1<<0)
 var/const/SCIENTIST			=(1<<1)
-//var/const/CHEMIST			=(1<<2)
 var/const/CMO				=(1<<2)
 var/const/DOCTOR			=(1<<3)
+//var/const/CHEMIST			=(1<<4)
 //var/const/GENETICIST		=(1<<5)
 //var/const/VIROLOGIST		=(1<<6)
 //var/const/PSYCHIATRIST	=(1<<7)
@@ -36,11 +40,11 @@ var/const/BOTANIST			=(1<<2)
 var/const/CHEF				=(1<<3)
 var/const/JANITOR			=(1<<4)
 var/const/LIBRARIAN			=(1<<5)
+
 //var/const/QUARTERMASTER	=(1<<6)
 var/const/CARGOTECH			=(1<<6)
 var/const/MINER				=(1<<7)
-var/const/LAWYER			=(1<<8)
-var/const/IAA				=(1<<9)
+
 var/const/CHAPLAIN			=(1<<10)
 var/const/CLOWN				=(1<<11)
 //var/const/MIME			=(1<<12)

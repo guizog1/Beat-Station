@@ -195,7 +195,7 @@
 	total_positions = 2
 	spawn_positions = 2
 	supervisors = "the head of security"
-	selection_color = "#ddddff"
+	selection_color = "#ffeeee"
 	access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
 	minimal_access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
 	alt_titles = list("Public Defender")
@@ -234,7 +234,7 @@
 	total_positions = 1
 	spawn_positions = 1
 	supervisors = "the head of security"
-	selection_color = "#ddddff"
+	selection_color = "#ffeeee"
 	access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
 	minimal_access = list(access_lawyer, access_court, access_sec_doors, access_maint_tunnels)
 	minimal_player_age = 30
