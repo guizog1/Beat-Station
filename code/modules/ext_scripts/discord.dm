@@ -13,7 +13,7 @@
 		log_debug("send_to_discord() called without message arg.")
 		return
 
-	return POST("https://discordapp.com/api/channels/[channel_id]/messages", " { \"content\" : \"[message]\" } ", "Content-Type: application/json", "Authorization: Bot [config.bot_token]")
+	return POST("https://discordapp.com/api/channels/[channel_id]/messages", {" { \\"content\\" : \\"[message]\\" } "}, "Content-Type: application/json", "Authorization: Bot [config.bot_token]")
 
 /proc/send_to_admin_discord(message)
 	send_to_discord(CHAN_ADMIN, message)
