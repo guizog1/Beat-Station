@@ -34,8 +34,8 @@
 
 	var/vampire_amount = 4
 
-/datum/game_mode/vampire/announce()
-	var/text = "<B>The current game mode is - Vampires!</B><br>"
+/datum/game_mode/vampire/announce(text)
+	text = "<B>The current game mode is - Vampires!</B><br>"
 	text += "<B>There are Vampires from Space Transylvania on the station, keep your blood close and neck safe!</B>"
 	..(text)
 
@@ -115,8 +115,7 @@
 				text += "<br><font color='red'><B>The [special_role_text] has failed!</B></font>"
 				feedback_add_details("traitor_success","FAIL")
 		to_chat(world, text)
-		text = html2discord(text)
-		send_to_info_discord(text)
+		send_to_info_discord(html2discord(text))
 	return 1
 
 /datum/game_mode/proc/auto_declare_completion_enthralled()

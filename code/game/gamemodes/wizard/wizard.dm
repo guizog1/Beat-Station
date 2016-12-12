@@ -12,8 +12,8 @@
 	var/finished = 0
 	var/but_wait_theres_more = 0
 
-/datum/game_mode/wizard/announce()
-	var/text = "<B>The current game mode is - Wizard!</B><br>"
+/datum/game_mode/wizard/announce(text)
+	text = "<B>The current game mode is - Wizard!</B><br>"
 	text += "<B>There is a <font color='red'>SPACE WIZARD</font> on the station. You can't let him achieve his objective!</B>"
 	..(text)
 
@@ -226,7 +226,7 @@
 
 
 
-/datum/game_mode/wizard/declare_completion(var/ragin = 0)
+/datum/game_mode/wizard/declare_completion(ragin = 0)
 	var/text = ""
 	if(finished && !ragin)
 		feedback_set_details("round_end_result","loss - wizard killed")
@@ -283,8 +283,7 @@
 			text += "<br>"
 
 		to_chat(world, text)
-		text = html2discord(text)
-		send_to_info_discord(text)
+		send_to_info_discord(html2discord(text))
 	return 1
 
 //OTHER PROCS

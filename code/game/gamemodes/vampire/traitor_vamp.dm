@@ -9,8 +9,8 @@
 	recommended_enemies = 3
 	var/protected_species_vampire = list("Machine")
 
-/datum/game_mode/traitor/vampire/announce()
-	var/text = "<B>The current game mode is - Traitor+Vampire!</B><br>"
+/datum/game_mode/traitor/vampire/announce(text)
+	text = "<B>The current game mode is - Traitor+Vampire!</B><br>"
 	text += "<B>There is a Vampire from Space Transylvania on the station along with some syndicate operatives out for their own gain! Do not let the vampire and the traitors succeed!</B>"
 	..(text)
 

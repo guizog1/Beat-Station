@@ -20,12 +20,10 @@
 	var/const/traitor_scaling_coeff = 5.0 //how much does the amount of players get divided by to determine traitors
 
 
-/datum/game_mode/traitor/announce(var/text="")
-	var/out = "<B>The current game mode is - Traitor!</B><br>"
-	out += "<B>There is a syndicate traitor on the station. Do not let the traitor succeed!</B>"
-	if(text)
-		out += "<br>" + text
-	..(out)
+/datum/game_mode/traitor/announce(text)
+	text = "<B>The current game mode is - Traitor!</B><br>"
+	text += "<B>There is a syndicate traitor on the station. Do not let the traitor succeed!</B>"
+	..(text)
 
 
 /datum/game_mode/traitor/pre_setup()
@@ -283,8 +281,7 @@
 
 
 		to_chat(world, text)
-		text = html2discord(text)
-		send_to_info_discord(text)
+		send_to_info_discord(html2discord(text))
 	return 1
 
 

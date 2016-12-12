@@ -27,8 +27,8 @@
 ///////////////////////////
 //Announces the game type//
 ///////////////////////////
-/datum/game_mode/revolution/announce()
-	var/text = "<B>The current game mode is - Revolution!</B><br>"
+/datum/game_mode/revolution/announce(text)
+	text = "<B>The current game mode is - Revolution!</B><br>"
 	text += "<B>Some crewmembers are attempting to start a revolution!<BR>\nRevolutionaries - Kill the Captain, HoP, HoS, CE, RD and CMO. Convert other crewmembers (excluding the heads of staff, and security officers) to your cause by flashing them. Protect your leaders.<BR>\nPersonnel - Protect the heads of staff. Kill the leaders of the revolution, and brainwash the other revolutionaries (by beating them in the head).</B>"
 	..(text)
 
@@ -322,14 +322,13 @@
 //////////////////////////////////////////////////////////////////////
 //Announces the end of the game with all relavent information stated//
 //////////////////////////////////////////////////////////////////////
-/datum/game_mode/revolution/declare_completion()
-	var/text = ""
+/datum/game_mode/revolution/declare_completion(text)
 	if(finished == 1)
 		feedback_set_details("round_end_result","win - heads killed")
-		text += "<span class='redtext'>The heads of staff were killed or exiled! The revolutionaries win!</span>"
+		text = "<span class='redtext'>The heads of staff were killed or exiled! The revolutionaries win!</span>"
 	else if(finished == 2)
 		feedback_set_details("round_end_result","loss - rev heads killed")
-		text += "<span class='redtext'>The heads of staff managed to stop the revolution!</span>"
+		text = "<span class='redtext'>The heads of staff managed to stop the revolution!</span>"
 	to_chat(world, text)
 	..(text)
 	return 1
@@ -353,6 +352,7 @@
 			text += printplayer(headrev, 1)
 		text += "<br>"
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
 	if(revolutionaries.len || GAMEMODE_IS_REVOLUTION)
 		text = "<br><font size=3><b>The revolutionaries were:</b></font>"
@@ -360,6 +360,7 @@
 			text += printplayer(rev, 1)
 		text += "<br>"
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
 	if(head_revolutionaries.len || revolutionaries.len || GAMEMODE_IS_REVOLUTION )
 		text = "<br><font size=3><b>The heads of staff were:</b></font>"
@@ -371,14 +372,7 @@
 			text += printplayer(head, 1)
 		text += "<br>"
 		to_chat(world, text)
-	text = replacetext(text, "<span class='boldannounce'>", "**")
-	text = replacetext(text, "</span>", "**")
-	text = replacetext(text, "<B>", "**")
-	text = replacetext(text, "</B>", "**")
-	text = replacetext(text, "<font size=3>", "")
-	text = replacetext(text, "</font>", "*")
-	text = replacetext(text, "<br>", "\n")
-	send_to_info_discord(text)
+		send_to_info_discord(html2discord(text))
 
 /datum/game_mode/revolution/set_scoreboard_gvars()
 	var/foecount = 0
@@ -459,11 +453,4 @@
 	dat += "<b>Revolution Successful:</b> [score_traitorswon ? "Yes" : "No"] (-[score_traitorswon * 10000] Points)<br>"
 	dat += "<HR>"
 
-	dat = replacetext(dat, "<u>", "")
-	dat = replacetext(dat, "</u>", "")
-	dat = replacetext(dat, "<HR>", "")
-	dat = replacetext(dat, "<b>", "**")
-	dat = replacetext(dat, "</b>", "**")
-	dat = replacetext(dat, "<br>", "\n")
-	send_to_info_discord(dat)
 	return dat

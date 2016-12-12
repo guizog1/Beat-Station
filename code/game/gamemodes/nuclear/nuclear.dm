@@ -18,8 +18,8 @@ proc/issyndicate(mob/living/M as mob)
 	var/syndies_didnt_escape = 0 //Used for tracking if the syndies got the shuttle off of the z-level
 
 
-/datum/game_mode/nuclear/announce()
-	var/text = "<B>The current game mode is - Nuclear Emergency!</B><br>"
+/datum/game_mode/nuclear/announce(text)
+	text = "<B>The current game mode is - Nuclear Emergency!</B><br>"
 	text += "<B>A [syndicate_name()] Strike Force is approaching [station_name()]!</B><br>"
 	text += "A nuclear explosive was being transported by Nanotrasen to a military base. The transport ship mysteriously lost contact with Space Traffic Control (STC). About that time a strange disk was discovered around [station_name()]. It was identified by Nanotrasen as a nuclear authentication disk and now Syndicate Operatives have arrived to retake the disk and detonate SS13! There are most likely Syndicate starships are in the vicinity, so take care not to lose the disk!\n<B>Syndicate</B>: Reclaim the disk and detonate the nuclear bomb anywhere on SS13.\n<B>Personnel</B>: Hold the disk and <B>escape with the disk</B> on the shuttle!"
 	..(text)
@@ -293,7 +293,7 @@ proc/issyndicate(mob/living/M as mob)
 	return 1
 
 
-/datum/game_mode/nuclear/declare_completion()
+/datum/game_mode/nuclear/declare_completion(text = "")
 	var/disk_rescued = 1
 	for(var/obj/item/weapon/disk/nuclear/D in world)
 		var/disk_area = get_area(D)
@@ -303,7 +303,6 @@ proc/issyndicate(mob/living/M as mob)
 			disk_rescued = 0
 			break
 	var/crew_evacuated = (shuttle_master.emergency.mode >= SHUTTLE_ESCAPE)
-	var/text = ""
 	//var/operatives_are_dead = is_operatives_are_dead()
 
 

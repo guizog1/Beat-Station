@@ -30,12 +30,13 @@ var/global/list/global_handofgod_structuretypes = list()
 	restricted_jobs = list("Chaplain","AI", "Cyborg", "Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Head of Personnel")
 
 
-/datum/game_mode/hand_of_god/announce()
-	to_chat(world, "<B>The current game mode is - Hand of God!</B>")
-	to_chat(world, "<B>Two cults are onboard the station, seeking to overthrow the other, and anyone who stands in their way.</B>")
-	to_chat(world, "<B>Followers</B> - Complete your deity's objectives. Convert crewmembers to your cause by using your deity's nexus. Remember - there is no you, there is only the cult.")
-	to_chat(world, "<B>Prophets</B> - Command your cult by the will of your deity.  You are a high-value target, so be careful!")
-	to_chat(world, "<B>Personnel</B> - Do not let any cult succeed in its mission. Mindshield implants and holy water will revert them to neutral, hopefully nonviolent crew.")
+/datum/game_mode/hand_of_god/announce(text)
+	text = "<B>The current game mode is - Hand of God!</B>"
+	text += "<B>Two cults are onboard the station, seeking to overthrow the other, and anyone who stands in their way.</B>"
+	text += "<B>Followers</B> - Complete your deity's objectives. Convert crewmembers to your cause by using your deity's nexus. Remember - there is no you, there is only the cult."
+	text += "<B>Prophets</B> - Command your cult by the will of your deity.  You are a high-value target, so be careful!"
+	text += "<B>Personnel</B> - Do not let any cult succeed in its mission. Mindshield implants and holy water will revert them to neutral, hopefully nonviolent crew."
+	..(text)
 
 
 /////////////
@@ -332,9 +333,9 @@ var/global/list/global_handofgod_structuretypes = list()
 //////////////////////
 
 
-/datum/game_mode/hand_of_god/declare_completion()
+/datum/game_mode/hand_of_god/declare_completion(text)
 	if(red_deities.len)
-		var/text = "<BR><font size=3 color='red'><B>The red cult:</b></font>"
+		text = "<BR><font size=3 color='red'><B>The red cult:</b></font>"
 		for(var/datum/mind/red_god in red_deities)
 			var/godwin = 1
 
@@ -385,7 +386,7 @@ var/global/list/global_handofgod_structuretypes = list()
 		to_chat(world, text)
 
 	if(blue_deities.len)
-		var/text = "<BR><font size=3 color='red'><B>The blue cult:</b></font>"
+		text = "<BR><font size=3 color='red'><B>The blue cult:</b></font>"
 		for(var/datum/mind/blue_god in blue_deities)
 			var/godwin = 1
 
@@ -435,7 +436,7 @@ var/global/list/global_handofgod_structuretypes = list()
 
 		to_chat(world, text)
 
-	..()
+	..(text)
 	return 1
 
 

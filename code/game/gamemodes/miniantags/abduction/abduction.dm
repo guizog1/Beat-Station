@@ -17,8 +17,8 @@
 	var/finished = 0
 	var/list/datum/mind/possible_abductors = list()
 
-/datum/game_mode/abduction/announce()
-	var/text = "<B>The current game mode is - Abduction!</B><br>"
+/datum/game_mode/abduction/announce(text)
+	text = "<B>The current game mode is - Abduction!</B><br>"
 	text += "There are alien <b>abductors</b> sent to [world.name] to perform nefarious experiments!<br>"
 	text += "<b>Abductors</b> - kidnap the crew and replace their organs with experimental ones.<br>"
 	text += "<b>Crew</b> - don't get abducted and stop the abductors."
@@ -277,18 +277,16 @@
 				return ..()
 	return ..()
 
-/datum/game_mode/abduction/declare_completion()
-
-	var/text=""
+/datum/game_mode/abduction/declare_completion(text = "")
 	for(var/team_number=1,team_number<=abductor_teams,team_number++)
 		var/obj/machinery/abductor/console/console = get_team_console(team_number)
 		var/datum/objective/objective = team_objectives[team_number]
 		var/team_name = team_names[team_number]
 		if(console.experiment.points >= objective.target_amount)
-			text+="<span class='greenannounce'>[team_name] team fullfilled its mission!</span><br>"
+			text += "<span class='greenannounce'>[team_name] team fullfilled its mission!</span><br>"
 			send_to_info_discord("[team_name] team fullfilled its mission!")
 		else
-			text+="<span class='boldannounce'>[team_name] team failed its mission.</span><br>"
+			text += "<span class='boldannounce'>[team_name] team failed its mission.</span><br>"
 			send_to_info_discord("[team_name] team failed its mission.")
 	to_chat(world, text)
 	..(text)
@@ -309,8 +307,7 @@
 				text += printobjectives(abductee_mind)
 	text += "<br>"
 	to_chat(world, text)
-	text = html2discord(text)
-	send_to_info_discord(text)
+	send_to_info_discord(html2discord(text))
 
 //Landmarks
 // TODO: Split into seperate landmarks for prettier ships
