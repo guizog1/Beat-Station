@@ -138,7 +138,7 @@ class BotBeat(discord.Client):
 		return
 
 	async def alertMaintainer(self, message):
-		await self.forwardMessage("channel_log", message)
+		await self.forwardMessage("server_info", message)
 
 	def loadCommands(self):
 
