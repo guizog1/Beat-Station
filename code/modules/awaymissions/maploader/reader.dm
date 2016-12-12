@@ -216,12 +216,12 @@ var/global/dmm_suite/preloader/_preloader = new
 ////////////////
 
 //Instance an atom at (x,y,z) and gives it the variables in attributes
-/dmm_suite/proc/instance_atom(path,list/attributes, x, y, z)
+/dmm_suite/proc/instance_atom(path, list/attributes, x, y, z)
 	var/atom/instance
 	_preloader.setup(attributes, path)
 
 	var/turf/T = locate(x,y,z)
-	if(T)
+	if(T && path)
 		instance = new path (T)//first preloader pass
 
 	if(use_preloader && instance)//second preloader pass, for those atoms that don't ..() in New()
