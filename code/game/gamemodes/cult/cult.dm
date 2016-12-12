@@ -49,8 +49,8 @@
 	var/acolytes_survived = 0
 
 
-/datum/game_mode/cult/announce()
-	var/text = "<B>The current game mode is - Cult!</B><br>"
+/datum/game_mode/cult/announce(text)
+	text = "<B>The current game mode is - Cult!</B><br>"
 	text += "<B>Some crewmembers are attempting to start a cult!<BR>\nCultists - complete your objectives. Convert crewmembers to your cause by using the convert rune. Remember - there is no you, there is only the cult.<BR>\nPersonnel - Do not let the cult succeed in its mission. Brainwashing them with the chaplain's bible reverts them to whatever CentComm-allowed faith they had.</B>"
 	..(text)
 
@@ -286,7 +286,7 @@
 	investigate_log(message, "cult")
 
 
-/datum/game_mode/cult/declare_completion()
+/datum/game_mode/cult/declare_completion(text)
 
 	if(!check_cult_victory())
 		feedback_set_details("round_end_result","win - cult win")
@@ -297,7 +297,7 @@
 		feedback_set("round_end_result",acolytes_survived)
 		to_chat(world, "\red <FONT size = 3><B> The staff managed to stop the cult!</B></FONT>")
 
-	var/text = "<b>Cultists escaped:</b> [acolytes_survived]"
+	text = "<b>Cultists escaped:</b> [acolytes_survived]"
 
 	if(objectives.len)
 		text += "<br><b>The cultists' objectives were:</b>"
@@ -354,3 +354,4 @@
 			text += ")"
 
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))

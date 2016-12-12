@@ -87,8 +87,8 @@ var/list/blob_nodes = list()
 
 
 
-/datum/game_mode/blob/announce()
-	var/text = "<B>The current game mode is - <font color='green'>Blob</font>!</B><br>"
+/datum/game_mode/blob/announce(text)
+	text = "<B>The current game mode is - <font color='green'>Blob</font>!</B><br>"
 	text += "<B>A dangerous alien organism is rapidly spreading throughout the station!</B><br>"
 	text += "You must kill it all while minimizing the damage to the station."
 	..(text)

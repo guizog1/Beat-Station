@@ -16,8 +16,8 @@
 
 	var/list/found_vents = list()
 
-/datum/game_mode/borer/announce()
-	var/text = "<B>The current game mode is - Cortical Borer!</B><br>"
+/datum/game_mode/borer/announce(text)
+	text = "<B>The current game mode is - Cortical Borer!</B><br>"
 	text += "<B>An unknown creature has infested the mind of a crew member. Find and destroy it by any means necessary.</B>"
 	..(text)
 
@@ -150,9 +150,9 @@
 			text += "<B>The borer has failed!<B>"
 			feedback_add_details("borer_success","FAIL")
 
-		to_chat(world, text)
-		text = html2discord(text)
-		send_to_info_discord(text)
+		if(text && text != "")
+			to_chat(world, text)
+			send_to_info_discord(html2discord(text))
 	return 1
 
 /datum/game_mode/proc/forge_borer_objectives(var/datum/mind/borer, var/datum/mind/first_host)

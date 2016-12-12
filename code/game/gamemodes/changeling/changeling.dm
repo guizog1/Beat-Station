@@ -33,8 +33,8 @@ var/list/possible_changeling_IDs = list("Alpha","Beta","Gamma","Delta","Epsilon"
 
 	var/changeling_amount = 4
 
-/datum/game_mode/changeling/announce()
-	var/text = "<B>The current game mode is - Changeling!</B><br>"
+/datum/game_mode/changeling/announce(text)
+	text = "<B>The current game mode is - Changeling!</B><br>"
 	text += "<B>There are alien changelings on the station. Do not let the changelings succeed!</B>"
 	..(text)
 

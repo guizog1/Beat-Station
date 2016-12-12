@@ -8,8 +8,7 @@
 	return ..()
 
 
-/datum/game_mode/blob/declare_completion()
-	var/text = ""
+/datum/game_mode/blob/declare_completion(text="")
 	if(blobwincount <= blobs.len)
 		feedback_set_details("round_end_result","win - blob took over")
 		text += "<FONT size = 3><B>The blob has taken over the station!</B></FONT>"

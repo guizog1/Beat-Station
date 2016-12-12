@@ -74,8 +74,8 @@ Made by Xhuis
 	restricted_jobs = list("AI", "Cyborg")
 	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Brig Physician", "Internal Affairs Agent", "Nanotrasen Navy Officer", "Special Operations Officer")
 
-/datum/game_mode/shadowling/announce()
-	var/text = "<b>The current game mode is - Shadowling!</b><br>"
+/datum/game_mode/shadowling/announce(text)
+	text = "<b>The current game mode is - Shadowling!</b><br>"
 	text += "<b>There are alien <span class='deadsay'>shadowlings</span> on the station. Crew: Kill the shadowlings before they can eat or enthrall the crew. Shadowlings: Enthrall the crew while remaining in hiding.</b>"
 	..(text)
 
@@ -239,16 +239,15 @@ Made by Xhuis
 	return success
 
 
-/datum/game_mode/shadowling/declare_completion()
-	var/text = ""
+/datum/game_mode/shadowling/declare_completion(text)
 	if(check_shadow_victory() && shuttle_master.emergency.mode >= SHUTTLE_ESCAPE) //Doesn't end instantly - this is hacky and I don't know of a better way ~X
-		text += "<span class='greentext'><b>The shadowlings have ascended and taken over the station!</b></span>"
+		text = "<span class='greentext'><b>The shadowlings have ascended and taken over the station!</b></span>"
 	else if(shadowling_dead && !check_shadow_victory()) //If the shadowlings have ascended, they can not lose the round
-		text += "<span class='redtext'><b>The shadowlings have been killed by the crew!</b></span>"
+		text = "<span class='redtext'><b>The shadowlings have been killed by the crew!</b></span>"
 	else if(!check_shadow_victory() && shuttle_master.emergency.mode >= SHUTTLE_ESCAPE)
-		text += "<span class='redtext'><b>The crew escaped the station before the shadowlings could ascend!</b></span>"
+		text = "<span class='redtext'><b>The crew escaped the station before the shadowlings could ascend!</b></span>"
 	else
-		text += "<span class='redtext'><b>The shadowlings have failed!</b></span>"
+		text = "<span class='redtext'><b>The shadowlings have failed!</b></span>"
 	to_chat(world, text)
 	..(text)
 	return 1
@@ -287,8 +286,7 @@ Made by Xhuis
 				text += ")"
 	text += "<br>"
 	to_chat(world, text)
-	text = html2discord(text)
-	send_to_info_discord(text)
+	send_to_info_discord(html2discord(text))
 
 
 /*

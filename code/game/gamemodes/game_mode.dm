@@ -37,10 +37,9 @@
 	var/const/waittime_l = 600  //lower bound on time before intercept arrives (in tenths of seconds)
 	var/const/waittime_h = 1800 //upper bound on time before intercept arrives (in tenths of seconds)
 
-/datum/game_mode/proc/announce(var/text="<B>Notice</B>: [src] did not define announce()") //to be calles when round starts
+/datum/game_mode/proc/announce(text="<B>Notice</B>: [src] did not define announce()") //to be calles when round starts
 	to_chat(world, text)
-	text = html2discord(text)
-	send_to_info_discord(text)
+	send_to_info_discord(html2discord(text))
 	return
 
 
@@ -147,9 +146,7 @@
 /datum/game_mode/proc/cleanup()	//This is called when the round has ended but not the game, if any cleanup would be necessary in that case.
 	return
 
-/datum/game_mode/proc/declare_completion(var/text="")
-	text = html2discord(text)
-	send_to_info_discord(text)
+/datum/game_mode/proc/declare_completion(text="")
 	var/clients = 0
 	var/surviving_humans = 0
 	var/surviving_total = 0
@@ -207,7 +204,9 @@
 	feedback_set("escaped_on_pod_3",escaped_on_pod_3)
 	feedback_set("escaped_on_pod_5",escaped_on_pod_5)
 
-	send_to_info_discord("A round of [src.name] has ended - [surviving_total] survivors, [ghosts] ghosts.")
+	if(text && text != "")
+		send_to_info_discord(html2discord(text))
+	send_to_info_discord("A round of [name] has ended - [surviving_total] survivors, [ghosts] ghosts.")
 	return 0
 
 

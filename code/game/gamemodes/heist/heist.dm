@@ -20,8 +20,8 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 	var/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' objective.
 	var/win_button_triggered = 0
 
-/datum/game_mode/heist/announce()
-	var/text = "<B>The current game mode is - Heist!</B><br>"
+/datum/game_mode/heist/announce(text)
+	text = "<B>The current game mode is - Heist!</B><br>"
 	text += "<B>An unidentified bluespace signature has slipped past the Icarus and is approaching [station_name()]!</B><br>"
 	text += "Whoever they are, they're likely up to no good. Protect the crew and station resources against this dastardly threat!<br>"
 	text += "<B>Raiders:</B> Loot [station_name()] for anything and everything you need, or choose the peaceful route and attempt to trade with them.<br>"
@@ -185,13 +185,12 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 	spawn(25)
 		show_objectives(raider)
 
-/datum/game_mode/heist/declare_completion()
+/datum/game_mode/heist/declare_completion(text = "")
 	//No objectives, go straight to the feedback.
 	if(!(raid_objectives.len)) return ..()
 
 	var/win_type = "Major"
 	var/win_group = "Crew"
-	var/text = ""
 
 	var/success = raid_objectives.len
 
@@ -278,6 +277,7 @@ datum/game_mode/proc/auto_declare_completion_heist()
 			text += ")"
 
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
 	return 1
 
