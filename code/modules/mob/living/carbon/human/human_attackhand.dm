@@ -109,7 +109,9 @@
 			else
 				src.grabbedby(M)
 				return 1
-
+			if(M == src && M.swallow_controller.belly_contents.len > 0)
+				M.swallow_controller.regurgitate(M.swallow_controller.belly_contents[1])
+				return
 		if(I_HARM)
 			if(attacker_style && attacker_style.harm_act(H, src))
 				return 1

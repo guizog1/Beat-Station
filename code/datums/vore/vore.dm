@@ -14,7 +14,8 @@
 
 /datum/vore_controller/proc/digest(mob/living/carbon/human/prey)
 	var/bruteloss = 10
-	prey.adjustBruteLoss(bruteloss)
+	while(prey.health > -90)
+		prey.adjustBruteLoss(bruteloss)
 	if(prey.health <= -90) // 0 = critical, -90 = death
 		absorb(prey)
 
