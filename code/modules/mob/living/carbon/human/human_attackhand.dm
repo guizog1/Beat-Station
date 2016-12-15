@@ -109,7 +109,7 @@
 			else
 				src.grabbedby(M)
 				return 1
-			if(m.zone_sel && M.zone_sel.selecting == "upper body" && M.swallow_controller.belly_contents.len > 0)
+			if(M.zone_sel && M.zone_sel.selecting == "upper body" && M.swallow_controller.belly_contents.len > 0)
 				M.swallow_controller.regurgitate(M.swallow_controller.belly_contents[1])
 				return
 		if(I_HARM)
