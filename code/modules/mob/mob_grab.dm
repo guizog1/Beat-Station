@@ -419,6 +419,11 @@
 						qdel(src)
 					else
 						attacker.visible_message("<span class='notice'>[affecting] escapes from [attacker]'s grip!</span>", "<span class='notice'>[affecting] escapes from your grip!</span>")
+				if(3)
+					attacker.visible_message("<span class='notice'>[attacker] is vomiting [affecting]!</span>", "<span class='notice'>You start vomiting [affecting] out!</span>")
+					if(do_after(attacker, checktime(user, affecting), target = affecting))
+						attacker.visible_message("<span class='notice'>[attacker] vomits [affecting] out!</span>", "<span class='notice'>You vomit [affecting] out!</span>")
+						attacker.swallow_controller.regurgitate(affecting)
 
 /obj/item/weapon/grab/proc/checkvalid(var/mob/attacker, var/mob/prey) //does all the checking for the attack proc to see if a mob can eat another with the grab
 	if(ishuman(attacker) && (/datum/dna/gene/basic/grant_spell/mattereater in attacker.active_genes)) // MATTER EATER CARES NOT OF YOUR FORM
@@ -429,6 +434,9 @@
 
 	if(ishuman(attacker))
 		return 2
+
+	if(attacker.swallow_controller.belly_contents.len > 0)
+		return 3
 
 	if(isalien(attacker) && iscarbon(prey)) //Xenomorphs eating carbon mobs
 		return 1
