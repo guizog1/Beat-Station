@@ -16,7 +16,7 @@
 	var/bruteloss = 10
 	spawn while(prey.health > -90)
 		sleep(50)
-		prey.AdjustBruteLoss(bruteloss)
+		prey.adjustBruteLoss(bruteloss)
 	if(prey.health <= -90) // 0 = critical, -90 = death
 		absorb(prey)
 
