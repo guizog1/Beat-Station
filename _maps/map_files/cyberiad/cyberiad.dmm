@@ -344,7 +344,7 @@
 "agF" = (/turf/simulated/wall/r_wall,/area/security/securearmoury)
 "agG" = (/obj/structure/grille,/obj/structure/sign/securearea{name = "\improper ARMORY"; pixel_y = 32},/turf/space,/area/space)
 "agH" = (/obj/structure/grille,/turf/space,/area/space)
-"agI" = (/obj/structure/closet/secure_closet/hos,/obj/item/clothing/accessory/storage/black_vest,/obj/item/clothing/under/rank/head_of_security/jensen,/turf/simulated/floor/plasteel{icon_state = "dark"},/area/security/hos)
+"agI" = (/obj/structure/closet/secure_closet/hos,/obj/item/clothing/accessory/storage/black_vest,/obj/item/clothing/under/rank/head_of_security/jensen,/obj/item/clothing/accessory/holster,/turf/simulated/floor/plasteel{icon_state = "dark"},/area/security/hos)
 "agJ" = (/obj/machinery/computer/security{network = list("SS13","Research Outpost","Mining Outpost")},/obj/machinery/requests_console{announcementConsole = 1; department = "Head of Security's Desk"; departmentType = 5; name = "Head of Security Requests Console"; pixel_y = 30},/turf/simulated/floor/plasteel{icon_state = "dark"},/area/security/hos)
 "agK" = (/obj/machinery/computer/secure_data,/obj/structure/cable{d1 = 1; d2 = 2; icon_state = "1-2"; tag = ""},/turf/simulated/floor/plasteel{icon_state = "dark"},/area/security/hos)
 "agL" = (/obj/structure/table/woodentable,/obj/item/weapon/folder/red,/obj/item/weapon/folder/red,/obj/item/weapon/cartridge/detective,/obj/item/device/megaphone,/turf/simulated/floor/plasteel{icon_state = "dark"},/area/security/hos)
