@@ -32,9 +32,9 @@
 	// comment out the line below when debugging locally to enable the options & messages menu
 	//control_freak = 1
 
-	var/received_irc_pm = -99999
-	var/irc_admin			//IRC admin that spoke with them last.
-	var/mute_irc = 0
+	var/received_discord_pm = -99999
+	var/discord_admin			//IRC admin that spoke with them last.
+	var/mute_discord = 0
 
 
 		////////////////////////////////////
@@ -85,3 +85,7 @@
 
 	//datum that controls the displaying and hiding of tooltips
 	var/datum/tooltip/tooltips
+
+	// Their chat window, sort of important.
+	// See /goon/code/datums/browserOutput.dm
+	var/datum/chatOutput/chatOutput

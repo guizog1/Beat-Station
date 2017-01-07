@@ -40,10 +40,6 @@
 			return list[index]
 	return
 
-/proc/islist(list/list)
-	if(istype(list))
-		return 1
-	return 0
 
 //Return either pick(list) or null if list is not of type /list or is empty
 /proc/safepick(list/list)
@@ -63,12 +59,6 @@
 		if(istype(A, type))
 			return 1
 	return 0
-
-//Empties the list by setting the length to 0. Hopefully the elements get garbage collected
-/proc/clearlist(list/list)
-	if(istype(list))
-		list.len = 0
-	return
 
 //Removes any null entries from the list
 /proc/listclearnulls(list/list)

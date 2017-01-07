@@ -1,18 +1,16 @@
 /datum/game_mode/meteor
 	name = "meteor"
-	config_tag = "meteor"
+//	config_tag = "meteor"
 	var/const/initialmeteordelay = 6000
 	var/wave = 1
 	required_players = 35
-
-	uplink_welcome = "EVIL METEOR Uplink Console:"
-	uplink_uses = 10
+	votable = 0
 
 
-/datum/game_mode/meteor/announce()
-	to_chat(world, "<B>The current game mode is - Meteor!</B>")
-	to_chat(world, "<B>The space station has been stuck in a major meteor shower. You must escape from the station or at least live.</B>")
-
+/datum/game_mode/meteor/announce(text)
+	text = "<B>The current game mode is - Meteor!</B><br>"
+	text += "<B>The space station has been stuck in a major meteor shower. You must escape from the station or at least live.</B>"
+	..(text)
 
 /datum/game_mode/meteor/post_setup()
 	spawn(rand(waittime_l, waittime_h))
@@ -33,8 +31,7 @@
 	sleep(waitduration)
 	sendmeteors()
 
-/datum/game_mode/meteor/declare_completion()
-	var/text
+/datum/game_mode/meteor/declare_completion(text)
 	var/survivors = 0
 	for(var/mob/living/player in player_list)
 		if(player.stat != DEAD)
@@ -53,12 +50,12 @@
 			survivors++
 
 	if(survivors)
-		to_chat(world, "\blue <B>The following survived the meteor storm</B>:[text]")
+		to_chat(world, "<span class='notice'><B>The following survived the meteor storm</B>:[text]</span>")
 	else
-		to_chat(world, "\blue <B>Nobody survived the meteor storm!</B>")
+		to_chat(world, "<span class='notice'><B>Nobody survived the meteor storm!</B></span>")
 
 	feedback_set_details("round_end_result","end - evacuation")
 	feedback_set("round_end_result",survivors)
 
-	..()
+	..(text)
 	return 1

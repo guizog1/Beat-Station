@@ -104,14 +104,13 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Admin Room"
 	icon_state = "start"
 	requires_power = 0
-	lighting_use_dynamic = 0
-
+	dynamic_lighting = 0
 
 /area/adminconstruction
 	name = "\improper Admin Testing Area"
 	icon_state = "start"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/space
 	icon_state = "space"
@@ -295,6 +294,10 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Special Ops Shuttle"
 	icon_state = "shuttlered2"
 
+/area/shuttle/syndicate_elite
+	name = "\improper Syndicate Elite Shuttle"
+	icon_state = "shuttlered"
+
 /area/shuttle/syndicate_elite/mothership
 	name = "\improper Syndicate Elite Shuttle"
 	icon_state = "shuttlered"
@@ -438,6 +441,14 @@ var/list/ghostteleportlocs = list()
 	name = "Syndicate Infiltrator"
 	icon_state = "shuttle"
 
+/area/shuttle/trade
+	name = "Trade Shuttle"
+	icon_state = "shuttle"
+	requires_power = 0
+
+/area/shuttle/trade/sol
+	name = "Sol Freighter"
+
 /area/airtunnel1/      // referenced in airtunnel.dm:759
 
 /area/dummy/           // Referenced in engine.dm:261
@@ -447,7 +458,7 @@ var/list/ghostteleportlocs = list()
 	icon_state = "start"
 	requires_power = 0
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	has_gravity = 1
 
 // === end remove
@@ -463,7 +474,7 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Centcom"
 	icon_state = "centcom"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/centcom/control
 	name = "\improper Centcom Control"
@@ -539,8 +550,7 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Thunderdome"
 	icon_state = "thunder"
 	requires_power = 0
-	lighting_use_dynamic = 0
-
+	dynamic_lighting = 0
 
 /area/tdome/arena_source
 	name = "\improper Thunderdome Arena Template"
@@ -624,7 +634,7 @@ var/list/ghostteleportlocs = list()
 	icon_state = "yellow"
 	requires_power = 0
 	has_gravity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/wizard_station
 	name = "\improper Wizard's Den"
@@ -647,7 +657,7 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Vox Base"
 	icon_state = "yellow"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	no_teleportlocs = 1
 
 /area/vox_station/transit
@@ -674,6 +684,14 @@ var/list/ghostteleportlocs = list()
 	name = "\improper Aft Starboard Solars"
 	icon_state = "southeast"
 	requires_power = 0
+
+/area/trader_station
+	name = "Trade Base"
+	icon_state = "yellow"
+	requires_power = 0
+
+/area/trader_station/sol
+	name = "Jupiter Station 6"
 
 /area/vox_station/mining
 	name = "\improper Nearby Mining Asteroid"
@@ -931,6 +949,10 @@ var/list/ghostteleportlocs = list()
 	power_equip = 0
 	power_light = 0
 	power_environ = 0
+
+/area/maintenance/consarea
+	name = "Alternate Construction Area"
+	icon_state = "yellow"
 
 
 //Hallway
@@ -1192,7 +1214,7 @@ var/list/ghostteleportlocs = list()
 /area/holodeck
 	name = "\improper Holodeck"
 	icon_state = "Holodeck"
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/holodeck/alphadeck
 	name = "\improper Holodeck Alpha"
@@ -1329,7 +1351,7 @@ var/list/ghostteleportlocs = list()
 
 /area/solar
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 	auxport
 		name = "\improper Fore Port Solar Array"
@@ -2224,25 +2246,25 @@ area/security/podbay
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/AIsatextFS
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/AIsatextAS
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/AIsatextAP
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/NewAIMain
 	name = "\improper AI Main New"
@@ -2419,7 +2441,7 @@ area/security/podbay
 	name = "Beach"
 	icon_state = "beach"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	requires_power = 0
 	ambientsounds = list('sound/ambience/shore.ogg', 'sound/ambience/seag1.ogg','sound/ambience/seag2.ogg','sound/ambience/seag2.ogg')
 

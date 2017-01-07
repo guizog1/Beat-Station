@@ -230,6 +230,16 @@ steam.start() -- spawns the effect
 					qdel(sparks)
 					src.total_sparks--
 
+
+//electricity
+
+/obj/effect/effect/sparks/electricity
+	name = "lightning"
+	icon_state = "electricity"
+
+///datum/effect_system/lightning_spread
+//	effect_type = /obj/effect/effect/sparks/electricity
+
 /////////////////////////////////////////////
 //// SMOKE SYSTEMS
 // direct can be optinally added when set_up, to make the smoke always travel in one direction
@@ -515,7 +525,7 @@ steam.start() -- spawns the effect
 			chemholder.reagents.reaction(A)
 			if(iscarbon(A))
 				var/mob/living/carbon/C = A
-				if(!(C.wear_mask && (C.internals != null || C.wear_mask.flags & BLOCK_GAS_SMOKE_EFFECT)))
+				if(C.can_breathe_gas())
 					chemholder.reagents.copy_to(C, chemholder.reagents.total_volume)
 			if(istype(A, /obj/machinery/portable_atmospherics/hydroponics))
 				var/obj/machinery/portable_atmospherics/hydroponics/tray = A
@@ -673,7 +683,7 @@ steam.start() -- spawns the effect
 	for(var/mob/living/carbon/human/R in get_turf(src))
 		if (R.internal != null && usr.wear_mask && (R.wear_mask.flags & AIRTIGHT) && R.wear_suit != null && !istype(R.wear_suit, /obj/item/clothing/suit/storage/labcoat) && !istype(R.wear_suit, /obj/item/clothing/suit/straight_jacket) && !istype(R.wear_suit, /obj/item/clothing/suit/straight_jacket && !istype(R.wear_suit, /obj/item/clothing/suit/armor)))
 		else
-			R.burn_skin(0.75)
+			R.adjustFireLoss(0.75)
 			if (R.coughedtime != 1)
 				R.coughedtime = 1
 				R.emote("gasp")
@@ -687,7 +697,7 @@ steam.start() -- spawns the effect
 	if (istype(R, /mob/living/carbon/human))
 		if (R.internal != null && usr.wear_mask && (R.wear_mask.flags & AIRTIGHT) && R.wear_suit != null && !istype(R.wear_suit, /obj/item/clothing/suit/storage/labcoat) && !istype(R.wear_suit, /obj/item/clothing/suit/straight_jacket) && !istype(R.wear_suit, /obj/item/clothing/suit/straight_jacket && !istype(R.wear_suit, /obj/item/clothing/suit/armor)))
 			return
-		R.burn_skin(0.75)
+		R.adjustFireLoss(0.75)
 		if (R.coughedtime != 1)
 			R.coughedtime = 1
 			R.emote("gasp")

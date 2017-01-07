@@ -64,7 +64,7 @@ var/global/sent_strike_team = 0
 				new_commando.key = pick(commandos)
 				commandos -= new_commando.key
 				new_commando.internal = new_commando.s_store
-				new_commando.internals.icon_state = "internal1"
+				new_commando.update_internals_hud_icon(1)
 
 			//So they don't forget their code or mission.
 			if(nuke_code)
@@ -115,7 +115,7 @@ var/global/sent_strike_team = 0
 	//Creates mind stuff.
 	new_commando.mind_initialize()
 	new_commando.mind.assigned_role = "MODE"
-	new_commando.mind.special_role = "Death Commando"
+	new_commando.mind.special_role = SPECIAL_ROLE_DEATHSQUAD
 	ticker.mode.traitors |= new_commando.mind//Adds them to current traitor list. Which is really the extra antagonist list.
 	new_commando.equip_death_commando(leader_selected)
 	return new_commando
@@ -144,7 +144,7 @@ var/global/sent_strike_team = 0
 	equip_to_slot_or_del(new /obj/item/weapon/storage/box/flashbangs(src), slot_in_backpack)
 	equip_to_slot_or_del(new /obj/item/device/flashlight(src), slot_in_backpack)
 	if (!leader_selected)
-		equip_to_slot_or_del(new /obj/item/weapon/c4(src), slot_in_backpack)
+		equip_to_slot_or_del(new /obj/item/weapon/grenade/plastic/c4(src), slot_in_backpack)
 	else
 		equip_to_slot_or_del(new /obj/item/weapon/pinpointer(src), slot_in_backpack)
 		equip_to_slot_or_del(new /obj/item/weapon/disk/nuclear(src), slot_in_backpack)
@@ -154,7 +154,7 @@ var/global/sent_strike_team = 0
 	equip_to_slot_or_del(new /obj/item/weapon/tank/emergency_oxygen/double/full(src), slot_s_store)
 	equip_to_slot_or_del(new /obj/item/weapon/gun/projectile/revolver/mateba(src), slot_belt)
 
-	equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse_rifle(src), slot_r_hand)
+	equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse(src), slot_r_hand)
 
 
 	var/obj/item/weapon/implant/loyalty/L = new/obj/item/weapon/implant/loyalty(src)//Here you go Deuryn

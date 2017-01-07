@@ -67,8 +67,23 @@
 		target.update_markings()
 
 		playsound(src.loc, 'sound/items/Welder2.ogg', 20, 1)
-		icon_state = "tatgun_used"
 		used = 1
+		update_icon()
+
+/obj/item/device/fluff/tattoo_gun/update_icon()
+	..()
+
+	overlays.Cut()
+
+	if(!used)
+		var/image/ink = image(src.icon, src, "ink_overlay")
+		ink.icon += rgb(tattoo_r, tattoo_g, tattoo_b, 190)
+		overlays += ink
+
+/obj/item/device/fluff/tattoo_gun/New()
+	..()
+	update_icon()
+
 
 /obj/item/weapon/claymore/fluff // MrBarrelrolll: Maximus Greenwood
 	name = "Greenwood's Blade"
@@ -77,7 +92,7 @@
 	sharp = 0
 	edge = 0
 
-/obj/item/weapon/claymore/fluff/IsShield()
+/obj/item/weapon/claymore/fluff/hit_reaction()
 	return 0
 
 /obj/item/weapon/crowbar/fluff/zelda_creedy_1 // Zomgponies: Griffin Rowley
@@ -205,7 +220,7 @@
 	icon_state = "kidosvest"
 	item_state = "kidosvest"
 	ignore_suitadjust = 1
-	action_button_name = null
+	actions_types = list()
 	adjust_flavour = null
 
 /obj/item/clothing/suit/fluff/kluys // Kluys: Cripty Pandaen
@@ -293,6 +308,16 @@
 	src.item_state = "[item_color]"
 	usr.update_inv_w_uniform()
 
+/obj/item/clothing/under/fluff/honourable // MrBarrelrolll: Maximus Greenwood
+	name = "Viridi Protegat"
+	desc = "A set of chainmail adorned with a hide mantle. \"Greenwood\" is engraved into the right breast."
+	icon = 'icons/obj/clothing/uniforms.dmi'
+	icon_state = "roman"
+	item_state = "maximus_armor"
+	item_color = "maximus_armor"
+	displays_id = 0
+	strip_delay = 100
+
 //////////// Masks ////////////
 
 //////////// Shoes ////////////
@@ -306,7 +331,7 @@
 	icon_state = "fox_jacket"
 	item_state = "fox_jacket"
 	ignore_suitadjust = 1
-	action_button_name = null
+	actions_types = list()
 	adjust_flavour = null
 
 /obj/item/clothing/under/fluff/fox
@@ -340,9 +365,9 @@
 	flags_inv = HIDEFACE
 
 /obj/item/weapon/nullrod/fluff/chronx //chronx100: Hughe O'Splash
-	transform_into = /obj/item/weapon/nullrod/sword/fluff/chronx
+	fluff_transformations = list(/obj/item/weapon/nullrod/fluff/chronx/scythe)
 
-/obj/item/weapon/nullrod/sword/fluff/chronx
+/obj/item/weapon/nullrod/fluff/chronx/scythe
 	name = "Soul Collector"
 	desc = "An ancient scythe used by the worshipers of Cthulhu. Tales say it is used to prepare souls for Cthulhu's great devouring. Someone carved their name into the handle: Hughe O'Splash"
 	icon = 'icons/obj/custom_items.dmi'
@@ -356,28 +381,27 @@
 	icon_state = "chronx_hood"
 	item_state = "chronx_hood"
 	flags = HEADCOVERSEYES | BLOCKHAIR
-	action_button_name = "Transform Hood"
+	actions_types = list(/datum/action/item_action/toggle)
 	var/adjusted = 0
 
 /obj/item/clothing/head/fluff/chronx/ui_action_click()
 	adjust()
 
-/obj/item/clothing/head/fluff/chronx/verb/adjust()
-	set name = "Transform Hood"
-	set category = "Object"
-	set src in usr
-	if(isliving(usr) && !usr.incapacitated())
-		if(adjusted)
-			icon_state = initial(icon_state)
-			item_state = initial(item_state)
-			to_chat(usr, "You untransform \the [src].")
-			adjusted = 0
-		else
-			icon_state += "_open"
-			item_state += "_open"
-			to_chat(usr, "You transform \the [src].")
-			adjusted = 1
-		usr.update_inv_head()
+/obj/item/clothing/head/fluff/chronx/proc/adjust()
+	if(adjusted)
+		icon_state = initial(icon_state)
+		item_state = initial(item_state)
+		to_chat(usr, "You untransform \the [src].")
+		adjusted = 0
+	else
+		icon_state += "_open"
+		item_state += "_open"
+		to_chat(usr, "You transform \the [src].")
+		adjusted = 1
+	usr.update_inv_head()
+	for(var/X in actions)
+		var/datum/action/A = X
+		A.UpdateButtonIcon()
 
 /obj/item/clothing/suit/chaplain_hoodie/fluff/chronx //chronx100: Hughe O'Splash
 	name = "Cthulhu's Robes"
@@ -385,22 +409,10 @@
 	icon = 'icons/obj/custom_items.dmi'
 	icon_state = "chronx_robe"
 	item_state = "chronx_robe"
-	flags = ONESIZEFITSALL
-	action_button_name = "Transform Robes"
+	flags_size = ONESIZEFITSALL
+	actions_types = list(/datum/action/item_action/toggle)
 	adjust_flavour = "untransform"
 	ignore_suitadjust = 0
-
-/obj/item/clothing/suit/chaplain_hoodie/fluff/chronx/New()
-	..()
-	verbs -= /obj/item/clothing/suit/verb/openjacket
-
-/obj/item/clothing/suit/chaplain_hoodie/fluff/chronx/verb/adjust()
-	set name = "Transform Robes"
-	set category = "Object"
-	set src in usr
-	if(!istype(usr, /mob/living))
-		return
-	adjustsuit(usr)
 
 /obj/item/clothing/shoes/black/fluff/chronx //chronx100: Hughe O'Splash
 	name = "Cthulhu's Boots"
@@ -422,24 +434,34 @@
 	icon_state = "chaps"
 	item_color = "combat_pants"
 
-/obj/item/clothing/suit/jacket/fluff/windbreaker // DaveTheHeadcrab: Elliot Campbell
+/obj/item/clothing/suit/jacket/fluff/elliot_windbreaker // DaveTheHeadcrab: Elliot Campbell
 	name = "nylon windbreaker"
 	desc = "A cheap nylon windbreaker, according to the tag it was manufactured in New Chiba, Earth.<br>The color reminds you of a television tuned to a dead channel."
 	icon = 'icons/obj/custom_items.dmi'
-	icon_state = "elliot_windbreaker"
-	item_state = "elliot_windbreaker"
+	icon_state = "elliot_windbreaker_open"
+	item_state = "elliot_windbreaker_open"
 	adjust_flavour = "unzip"
+	suit_adjusted = 1
 
-/obj/item/clothing/ears/earring/fluff/industrial_piercing
-	name = "industrial piercing and stud earring"
-	desc = "A set of ear piercings containing an industrial rod and a small stud. They appear to be made out of some form of non-magnetic metal."
-	icon = 'icons/obj/custom_items.dmi'
-	icon_state = "elliot_earring"
-
-/obj/item/device/fluff/tattoo_gun/cybernetic_tat
-	desc = "A cheap plastic tattoo application pen.<br>This one seems to have light blue ink."
+/obj/item/device/fluff/tattoo_gun/elliot_cybernetic_tat
+	desc = "A cheap plastic tattoo application pen.<br>This one seems heavily used."
 	tattoo_name = "circuitry tattoo"
 	tattoo_icon = "Elliot Circuit Tattoo"
-	tattoo_r = 100
-	tattoo_g = 150
-	tattoo_b = 255
+	tattoo_r = 48
+	tattoo_g = 138
+	tattoo_b = 176
+
+/obj/item/device/fluff/tattoo_gun/elliot_cybernetic_tat/attack_self(mob/user as mob)
+	if(!used)
+		var/ink_color = input("Please select an ink color.", "Tattoo Ink Color", rgb(tattoo_r, tattoo_g, tattoo_b)) as color|null
+		if(ink_color && !(user.incapacitated() || used) )
+			tattoo_r = hex2num(copytext(ink_color, 2, 4))
+			tattoo_g = hex2num(copytext(ink_color, 4, 6))
+			tattoo_b = hex2num(copytext(ink_color, 6, 8))
+
+			to_chat(user, "<span class='notice'>You change the color setting on the [src].</span>")
+
+			update_icon()
+
+	else
+		to_chat(user, "<span class='notice'>The [src] is out of ink!</span>")

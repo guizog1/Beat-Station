@@ -14,6 +14,7 @@
 	var/toner = 30 //how much toner is left! woooooo~
 	var/maxcopies = 10	//how many copies can be copied at once- idea shamelessly stolen from bs12's copier!
 	var/mob/living/ass = null
+	var/form_index = 0 //Index of current form (how many forms have we printed).
 
 /obj/machinery/photocopier/attack_ai(mob/user as mob)
 	return attack_hand(user)
@@ -22,6 +23,7 @@
 	user.set_machine(src)
 
 	var/dat = "Photocopier<BR><BR>"
+	dat += "<a href='byond://?src=\ref[src];form=1'>Print Form</a><BR>"
 	if(copyitem || (ass && (ass.loc == src.loc)))
 		dat += "<a href='byond://?src=\ref[src];remove=1'>Remove Item</a><BR>"
 		if(toner)
@@ -36,7 +38,9 @@
 	dat += "Current toner level: [toner]"
 	if(!toner)
 		dat +="<BR>Please insert a new toner cartridge!"
-	user << browse(dat, "window=copier")
+	var/datum/browser/popup = new(user, "copier", name, 400, 400)
+	popup.set_content(dat)
+	popup.open(0)
 	onclose(user, "copier")
 	return
 
@@ -68,6 +72,57 @@
 
 			use_power(active_power_usage)
 		updateUsrDialog()
+	else if(href_list["form"])
+		if(stat & (BROKEN|NOPOWER))
+			return
+
+		//The form selection stuff
+		var/dat = "<tt><center><h1><b>Form Selection Menu</b></h1></center>"
+		dat += "<table style='width:100%; padding:4px;'><tr>"
+		for(var/i = 1, i <= public_forms.len, i++)
+			dat += "[public_forms[i]]	"
+			dat += "<a href='byond://?src=\ref[src];preform=[public_forms[i]]'>view</a>"
+			dat += " - "
+			dat += "<a href='byond://?src=\ref[src];selform=[public_forms[i]]'>print</a><BR>"
+		usr << browse(dat, "window=formSelectScreen;size=600x750")
+
+	//Form preview window opens
+	else if(!isnull(href_list["preform"]) && href_list["preform"] in public_forms)
+		var/form = href_list["preform"]
+		var/formContent = public_forms[form]
+		formContent = simpleparsepapercode(formContent)
+
+		//The form view stuff
+		var/dat = "<tt><center>Form Preview</center>"
+		dat += formContent
+		dat += "<BR><a href='byond://?src=\ref[src];selform=[form]'>Print</a>"
+		usr << browse(dat, "window=formPreviewScreen")
+
+	//Print selected form
+	else if(!isnull(href_list["selform"]) && href_list["selform"] in public_forms)
+		var/form = href_list["selform"]
+		var/copies = input("Number of copies ?") as null|num
+		if(isnull(form)||isnull(copies))
+			usr << "<span class='warning'>User input error!</span>"
+			return
+		if(copies > toner)
+			usr << "<span class='warning'>Not enough toner for the amount of copies selected.</span>"
+			return
+
+		var/formContent = public_forms[form]
+
+		for(var/i = 0, i < copies, i++)
+			//This should never happen but you never know what magic people may pull.
+			if(toner <= 0)
+				break
+				usr << "<span class='warning'>The [src] is out of toner.</span>"
+			var/obj/item/weapon/paper/form/publicForm/pForm = new(formContent, usr, form_index)
+			pForm.loc = src.loc
+			pForm.name = form
+			toner -= 1
+			form_index += 1
+			sleep(15)
+
 	else if(href_list["remove"])
 		if(copyitem)
 			copyitem.loc = usr.loc
@@ -229,6 +284,17 @@
 	if(!check_ass()) //You have to be sitting on the copier and either be a xeno or a human without clothes on.
 		return
 
+	if(emagged)
+		if(ishuman(ass))
+			var/mob/living/carbon/human/H = ass
+			to_chat(H, "<span class='notice'>Something smells toasty...</span>")
+			var/obj/item/organ/external/G = H.get_organ("groin")
+			G.take_damage(0, 30)
+			spawn(20)
+				H.emote("scream")
+		else
+			to_chat(ass, "<span class='notice'>Something smells toasty...</span>")
+			ass.apply_damage(30, BURN)
 	if(ishuman(ass)) //Suit checks are in check_ass
 		var/mob/living/carbon/human/H = ass
 		temp_img = icon('icons/obj/butts.dmi', H.species.butt_sprite)
@@ -309,6 +375,13 @@
 		return 0
 	else
 		return 1
+
+/obj/machinery/photocopier/emag_act(user as mob)
+	if(!emagged)
+		emagged = 1
+		to_chat(user, "<span class='notice'>You overload the photocopier's laser printing mechanism.</span>")
+	else
+		to_chat(user, "<span class='notice'>The photocopier's laser printing mechanism is already overloaded!</span>")
 
 /obj/item/device/toner
 	name = "toner cartridge"

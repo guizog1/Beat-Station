@@ -103,9 +103,7 @@
 #define CHEM_MOB_SPAWN_HOSTILE   1
 #define CHEM_MOB_SPAWN_FRIENDLY  2
 
-#define isobserver(A)	(istype((A), /mob/dead/observer))
 #define isliving(A)		(istype((A), /mob/living))
-#define isAutoAnnouncer(A)	(istype((A), /mob/living/automatedannouncer))
 
 #define iscarbon(A)		(istype((A), /mob/living/carbon))
 #define ishuman(A)		(istype((A), /mob/living/carbon/human))
@@ -118,14 +116,30 @@
 #define isanimal(A)		(istype((A), /mob/living/simple_animal))
 #define iscorgi(A)		(istype((A), /mob/living/simple_animal/pet/corgi))
 #define ismouse(A)		(istype((A), /mob/living/simple_animal/mouse))
+#define iscrab(A)		(istype((A), /mob/living/simple_animal/crab))
+#define iscat(A)		(istype((A), /mob/living/simple_animal/pet/cat))
 #define isbot(A)		(istype((A), /mob/living/simple_animal/bot))
 #define isswarmer(A)	(istype((A), /mob/living/simple_animal/hostile/swarmer))
 #define isguardian(A)	(istype((A), /mob/living/simple_animal/hostile/guardian))
+#define isumbra(A)		(istype((A), /mob/living/simple_animal/umbra))
+
+#define ismonkey(A)		(istype((A), /mob/living/carbon/human/monkey))
+
+#define isconstruct(A)	(istype((A), /mob/living/simple_animal/hostile/construct))
+#define isclockmob(A)	(istype((A), /mob/living/simple_animal/hostile/clockwork))
+#define isshade(A)		(istype((A), /mob/living/simple_animal/shade))
+#define isbear(A)		(istype((A), /mob/living/simple_animal/hostile/bear))
+#define iscarp(A)		(istype((A), /mob/living/simple_animal/hostile/carp))
+#define isclown(A)		(istype((A), /mob/living/simple_animal/hostile/retaliate/clown))
 
 #define issilicon(A)	(istype((A), /mob/living/silicon))
 #define isAI(A)			(istype((A), /mob/living/silicon/ai))
 #define isrobot(A)		(istype((A), /mob/living/silicon/robot))
 #define ispAI(A)		(istype((A), /mob/living/silicon/pai))
+
+#define isdrone(A)		(istype((A), /mob/living/simple_animal/drone))
+
+#define isAutoAnnouncer(A)	(istype((A), /mob/living/automatedannouncer))
 
 #define isAIEye(A)		(istype((A), /mob/camera/aiEye))
 #define isovermind(A)	(istype((A), /mob/camera/blob))
@@ -133,7 +147,13 @@
 #define isSpirit(A)		(istype((A), /mob/spirit))
 #define ismask(A)		(istype((A), /mob/spirit/mask))
 
+#define isobserver(A)	(istype((A), /mob/dead/observer))
+
+#define isnewplayer(A)  (istype((A), /mob/new_player))
+
 #define isorgan(A)		(istype((A), /obj/item/organ/external))
 #define hasorgans(A)	(ishuman(A))
 
 #define is_admin(user)	(check_rights(R_ADMIN, 0, (user)) != 0)
+
+#define DEFAULT_QUICK_COOLDOWN  4

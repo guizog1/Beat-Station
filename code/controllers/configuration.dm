@@ -18,9 +18,8 @@
 	var/log_adminwarn = 0				// log warnings admins get about bomb construction and such
 	var/log_pda = 0						// log pda messages
 	var/log_world_output = 0			// log world.log << messages
-	var/log_runtimes = 0                // Logs all runtimes.
+	var/log_runtimes = 0                // logs world.log to a file
 	var/log_hrefs = 0					// logs all links clicked in-game. Could be used for debugging and tracking down exploits
-	var/log_runtime = 0					// logs world.log to a file
 	var/sql_enabled = 0					// for sql switching
 	var/allow_admin_ooccolor = 0		// Allows admins with relevant permissions to have their own ooc colour
 	var/allow_vote_restart = 0 			// allow votes to restart
@@ -54,6 +53,8 @@
 	var/allow_ai = 1					// allow ai job
 	var/hostedby = null
 	var/respawn = 0
+	var/civilian_allowed = 0
+	var/job_limit = 1
 	var/guest_jobban = 1
 	var/usewhitelist = 0
 	var/mods_are_mentors = 0
@@ -65,7 +66,7 @@
 
 	var/reactionary_explosions = 0 //If we use reactionary explosions, explosions that react to walls and doors
 
-	var/assistantlimit = 0 //enables assistant limiting
+	var/assistantlimit = 1 //enables assistant limiting
 	var/assistantratio = 2 //how many assistants to security members
 
 	var/traitor_objectives_amount = 2
@@ -80,7 +81,7 @@
 
 	var/server
 	var/banappeals
-	var/wikiurl = "http://example.org"
+	var/wikiurl = "https://beatstation.miraheze.org/wiki/"
 	var/forumurl = "http://example.org"
 	var/rulesurl = "http://example.org"
 	var/donationsurl = "http://example.org"
@@ -101,6 +102,8 @@
 
 	var/bones_can_break = 1
 	var/limbs_can_break = 1
+
+	var/no_click_cooldown = 0
 
 	var/revival_pod_plants = 1
 	var/revival_cloning = 1
@@ -135,12 +138,10 @@
 	var/ghost_interaction = 0
 
 	var/comms_password = ""
+	var/use_discord_bot = 0
+	var/bot_token = ""
 
-	var/use_irc_bot = 0
-	var/list/irc_bot_host = list()
-	var/main_irc = ""
-	var/admin_irc = ""
-	var/python_path = "" //Path to the python executable.  Defaults to "python" on windows and "/usr/bin/env python2" on unix
+	var/python_path = "python" //Path to the python executable.  Defaults to "python" on windows and "/usr/bin/env python2" on unix
 
 	var/default_laws = 0 //Controls what laws the AI spawns with.
 
@@ -176,6 +177,8 @@
 
 	var/disable_lobby_music = 0 // Disables the lobby music
 	var/disable_cid_warn_popup = 0 //disables the annoying "You have already logged in this round, disconnect or be banned" popup, because it annoys the shit out of me when testing.
+
+	var/max_loadout_points = 5 // How many points can be spent on extra items in character setup
 
 /datum/configuration/New()
 	var/list/L = subtypesof(/datum/game_mode)
@@ -286,7 +289,7 @@
 					config.log_hrefs = 1
 
 				if ("log_runtime")
-					config.log_runtime = 1
+					config.log_runtimes = 1
 
 				if ("mentors")
 					config.mods_are_mentors = 1
@@ -408,9 +411,6 @@
 				if("allow_holidays")
 					config.allow_holidays = 1
 
-				if("use_irc_bot")
-					use_irc_bot = 1
-
 				if("ticklag")
 					Ticklag = text2num(value)
 
@@ -457,14 +457,11 @@
 				if("comms_password")
 					config.comms_password = value
 
-				if("irc_bot_host")
-					config.irc_bot_host = splittext(value, ";")
+				if("use_discord_bot")
+					config.use_discord_bot = 1
 
-				if("main_irc")
-					config.main_irc = value
-
-				if("admin_irc")
-					config.admin_irc = value
+				if("bot_token")
+					config.bot_token = value
 
 				if("python_path")
 					if(value)
@@ -551,6 +548,9 @@
 
 				if("disable_cid_warn_popup")
 					config.disable_cid_warn_popup = 1
+
+				if("max_loadout_points")
+					config.max_loadout_points = text2num(value)
 
 				else
 					diary << "Unknown setting in configuration: '[name]'"

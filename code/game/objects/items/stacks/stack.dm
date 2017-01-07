@@ -44,7 +44,7 @@
 	if (recipes_sublist && recipe_list[recipes_sublist] && istype(recipe_list[recipes_sublist], /datum/stack_recipe_list))
 		var/datum/stack_recipe_list/srl = recipe_list[recipes_sublist]
 		recipe_list = srl.recipes
-	var/t1 = text("<HTML><HEAD><title>Constructions from []</title></HEAD><body><TT>Amount Left: []<br>", src, src.amount)
+	var/t1 = "Amount Left: [amount]<br>"
 	for(var/i=1;i<=recipe_list.len,i++)
 		var/E = recipe_list[i]
 		if (isnull(E))
@@ -93,8 +93,9 @@
 				if (!(max_multiplier in multipliers))
 					t1 += " <A href='?src=\ref[src];make=[i];multiplier=[max_multiplier]'>[max_multiplier*R.res_amount]x</A>"
 
-	t1 += "</TT></body></HTML>"
-	user << browse(t1, "window=stack")
+	var/datum/browser/popup = new(user, "stack", name, 400, 400)
+	popup.set_content(t1)
+	popup.open(0)
 	onclose(user, "stack")
 	return
 
@@ -130,7 +131,7 @@
 			return
 		if (R.time)
 			to_chat(usr, "\blue Building [R.title] ...")
-			if (!do_after(usr, R.time, target = src))
+			if (!do_after(usr, R.time, target = usr))
 				return
 		if (src.amount < R.req_amount*multiplier)
 			return
@@ -194,20 +195,24 @@
 /obj/item/stack/proc/get_max_amount()
 	return max_amount
 
+/obj/item/stack/proc/split(mob/user, amt)
+	var/obj/item/stack/F = new type(user, amt)
+	F.copy_evidences(src)
+	if(isliving(user))
+		add_fingerprint(user)
+		F.add_fingerprint(user)
+	use(amt)
+	return F
+
 /obj/item/stack/attack_hand(mob/user as mob)
 	if (user.get_inactive_hand() == src)
-		var/obj/item/stack/F = new src.type( user, 1)
-		F.copy_evidences(src)
+		var/obj/item/stack/F = split(user, 1)
 		user.put_in_hands(F)
-		src.add_fingerprint(user)
-		F.add_fingerprint(user)
-		use(1)
-		if (src && usr.machine==src)
-			spawn(0) src.interact(usr)
+		if(src && usr.machine == src)
+			spawn(0)
+				interact(usr)
 	else
 		..()
-	update_icon()
-	return
 
 /obj/item/stack/attackby(obj/item/W as obj, mob/user as mob, params)
 	..()

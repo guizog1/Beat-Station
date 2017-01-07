@@ -153,7 +153,8 @@
 	var/see_ghosts = 0 //for the spoop of it
 
 
-/obj/item/device/camera/spooky/CheckParts()
+/obj/item/device/camera/spooky/CheckParts(list/parts_list)
+	..()
 	var/obj/item/device/camera/C = locate(/obj/item/device/camera) in contents
 	if(C)
 		pictures_max = C.pictures_max
@@ -545,4 +546,4 @@ var/list/SpookyGhosts = list("ghost","shade","shade2","ghost-narsie","horror","s
 						'sound/hallucinations/growl3.ogg', 'sound/hallucinations/im_here1.ogg', 'sound/hallucinations/im_here2.ogg', 'sound/hallucinations/i_see_you1.ogg', 'sound/hallucinations/i_see_you2.ogg',\
 						'sound/hallucinations/look_up1.ogg', 'sound/hallucinations/look_up2.ogg', 'sound/hallucinations/over_here1.ogg', 'sound/hallucinations/over_here2.ogg', 'sound/hallucinations/over_here3.ogg',\
 						'sound/hallucinations/turn_around1.ogg', 'sound/hallucinations/turn_around2.ogg', 'sound/hallucinations/veryfar_noise.ogg', 'sound/hallucinations/wail.ogg')
-			to_chat(user, pick(creepyasssounds))
+			user << pick(creepyasssounds)

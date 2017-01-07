@@ -21,8 +21,11 @@
 				limit++
 				if (limit>=10)
 					return
+				CHECK_TICK
+			CHECK_TICK
 		for(var/obj/item/I in T)
 			unload_mineral(I)
 			limit++
 			if (limit>=10)
 				return
+			CHECK_TICK

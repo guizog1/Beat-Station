@@ -22,7 +22,7 @@ var/list/blob_nodes = list()
 	var/players_per_core = 30
 	var/blob_point_rate = 3
 
-	var/blobwincount = 350
+	var/blobwincount = 1500
 
 	var/list/infected_crew = list()
 
@@ -44,7 +44,7 @@ var/list/blob_nodes = list()
 			break
 		var/datum/mind/blob = pick(possible_blobs)
 		infected_crew += blob
-		blob.special_role = "Blob"
+		blob.special_role = SPECIAL_ROLE_BLOB
 		blob.restricted_roles = restricted_jobs
 		log_game("[blob.key] (ckey) has been selected as a Blob")
 		possible_blobs -= blob
@@ -67,7 +67,7 @@ var/list/blob_nodes = list()
 	if(!istype(blobmind))
 		return 0
 	infected_crew += blobmind
-	blobmind.special_role = "Blob"
+	blobmind.special_role = SPECIAL_ROLE_BLOB
 	log_game("[blob.key] (ckey) has been selected as a Blob")
 	greet_blob(blobmind)
 	to_chat(blob, "<span class='userdanger'>You feel very tired and bloated!  You don't have long before you burst!</span>")
@@ -87,10 +87,11 @@ var/list/blob_nodes = list()
 
 
 
-/datum/game_mode/blob/announce()
-	to_chat(world, "<B>The current game mode is - <font color='green'>Blob</font>!</B>")
-	to_chat(world, "<B>A dangerous alien organism is rapidly spreading throughout the station!</B>")
-	to_chat(world, "You must kill it all while minimizing the damage to the station.")
+/datum/game_mode/blob/announce(text)
+	text = "<B>The current game mode is - <font color='green'>Blob</font>!</B><br>"
+	text += "<B>A dangerous alien organism is rapidly spreading throughout the station!</B><br>"
+	text += "You must kill it all while minimizing the damage to the station."
+	..(text)
 
 
 /datum/game_mode/blob/proc/greet_blob(var/datum/mind/blob)
@@ -140,7 +141,7 @@ var/list/blob_nodes = list()
 					core.overmind.mind.name = blob.name
 					infected_crew -= blob
 					infected_crew += core.overmind.mind
-					core.overmind.mind.special_role = "Blob Overmind"
+					core.overmind.mind.special_role = SPECIAL_ROLE_BLOB_OVERMIND
 
 /datum/game_mode/blob/post_setup()
 

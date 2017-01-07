@@ -20,6 +20,9 @@
 	flying = 1
 	universal_speak = 1
 	var/list/construct_spells = list()
+	loot = list(/obj/item/weapon/reagent_containers/food/snacks/ectoplasm)
+	del_on_death = 1
+	deathmessage = "collapses in a shattered heap."
 
 /mob/living/simple_animal/construct/New()
 	..()
@@ -28,16 +31,6 @@
 	for(var/spell in construct_spells)
 		AddSpell(new spell(src))
 	updateglow()
-
-/mob/living/simple_animal/construct/death()
-	..()
-	new /obj/item/weapon/reagent_containers/food/snacks/ectoplasm (src.loc)
-	for(var/mob/M in viewers(src, null))
-		if((M.client && !( M.blinded )))
-			M.show_message("\red [src] collapses in a shattered heap. ")
-	ghostize()
-	qdel(src)
-	return
 
 /mob/living/simple_animal/construct/examine(mob/user)
 	..(user)

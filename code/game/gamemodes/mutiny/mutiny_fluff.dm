@@ -72,17 +72,15 @@ They don't care about us they only care about WEALTH and POWER... Share this mes
 Be safe, friend.\" (Unable to Reply)</p>"}
 
 	proc/announce()
-		to_chat(world, "<B>The current game mode is - Mutiny!</B>")
-		to_chat(world, {"
-<p>The crew will be divided by their sense of ethics when a morally turbulent emergency directive arrives with an incomplete command validation code.<br><br>
-The [loyalist_tag("Head Loyalist")] is the Captain, who carries the [loyalist_tag("Captain's Authentication Key")] at all times.<br>
-The [mutineer_tag("Head Mutineer")] is a random Head of Staff who carries the [mutineer_tag("Emergency Secondary Authentication Key")].</p>
-Both keys are required to activate the <b>Emergency Authentication Device (EAD)</b> in the vault, signalling to Nanotrasen that the directive is complete.
-<hr>
-<p>
-<b>Loyalists</b> - Follow the Head Loyalist in carrying out [loyalist_tag("Nanotrasen's directives")] then activate the <b>EAD</b>.<br>
-<b>Mutineers</b> - Prevent the completion of the [mutineer_tag("improperly validated directives")] and the activation of the <b>EAD</b>.
-</p>"})
+		var/text = "<B>The current game mode is - Mutiny!</B>"
+		text += "<p>The crew will be divided by their sense of ethics when a morally turbulent emergency directive arrives with an incomplete command validation code.<br><br>"
+		text += "The [loyalist_tag("Head Loyalist")] is the Captain, who carries the [loyalist_tag("Captain's Authentication Key")] at all times.<br>"
+		text += "The [mutineer_tag("Head Mutineer")] is a random Head of Staff who carries the [mutineer_tag("Emergency Secondary Authentication Key")].</p>"
+		text += "Both keys are required to activate the <b>Emergency Authentication Device (EAD)</b> in the vault, signalling to Nanotrasen that the directive is complete.<hr>"
+		text += "<p><b>Loyalists</b> - Follow the Head Loyalist in carrying out [loyalist_tag("Nanotrasen's directives")] then activate the <b>EAD</b>.<br>"
+		text += "<b>Mutineers</b> - Prevent the completion of the [mutineer_tag("improperly validated directives")] and the activation of the <b>EAD</b>.</p>"
+		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
 	proc/loyalist_tag(text)
 		return "<font color='blue'><b>[text]</b></font>"

@@ -13,7 +13,7 @@
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/species/vox/suit.dmi'
 		)
-	action_button_name = "Button/Unbutton Labcoat"
+	actions_types = list(/datum/action/item_action/button)
 	adjust_flavour = "unbutton"
 
 /obj/item/clothing/suit/storage/labcoat/cmo
@@ -35,6 +35,12 @@
 	sprite_sheets = list(
 		"Vox" = 'icons/mob/species/vox/suit.dmi'
 		)
+
+/obj/item/clothing/suit/storage/labcoat/emt
+	name = "EMT labcoat"
+	desc = "A comfortable suit for paramedics. Has dark colours."
+	icon_state = "labcoat_emt_open"
+	item_state = "labcoat_emt_open"
 
 /obj/item/clothing/suit/storage/labcoat/genetics
 	name = "geneticist labcoat"

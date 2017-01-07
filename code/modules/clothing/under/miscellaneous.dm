@@ -88,7 +88,7 @@
 	item_state = "g_suit"
 	item_color = "officer"
 	displays_id = 0
-	flags = ONESIZEFITSALL
+	flags_size = ONESIZEFITSALL
 
 /obj/item/clothing/under/rank/centcom/captain
 	desc = "Gold trim on space-black cloth, this uniform displays the rank of \"Captain\" and bears \"N.C.V. Fearless CV-286\" on the left shounder."
@@ -105,7 +105,7 @@
 	item_state = "g_suit"
 	item_color = "officer"
 	displays_id = 0
-	flags = ONESIZEFITSALL
+	flags_size = ONESIZEFITSALL
 
 /obj/item/clothing/under/rank/centcom/representative
 	desc = "Gold trim on space-black cloth, this uniform displays the rank of \"Ensign\" and bears \"N.S.S. Cyberiad\" on the left shounder."
@@ -114,7 +114,7 @@
 	item_state = "g_suit"
 	item_color = "officer"
 	displays_id = 0
-	flags = ONESIZEFITSALL
+	flags_size = ONESIZEFITSALL
 
 /obj/item/clothing/under/rank/centcom/diplomatic
 	desc = "A very gaudy and official looking uniform of the Nanotrasen Diplomatic Corps."
@@ -130,7 +130,7 @@
 	icon_state = "ert_uniform"
 	item_state = "bl_suit"
 	item_color = "ert_uniform"
-	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
+	armor = list(melee = 10, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0)
 
 /obj/item/clothing/under/space
 	name = "\improper NASA jumpsuit"
@@ -156,7 +156,7 @@
 	gas_transfer_coefficient = 0.01
 	permeability_coefficient = 0.01
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS|HEAD
-	armor = list(melee = 100, bullet = 100, laser = 100,energy = 100, bomb = 100, bio = 100, rad = 100)
+	armor = list(melee = 100, bullet = 100, laser = 100, energy = 100, bomb = 100, bio = 100, rad = 100)
 	cold_protection = UPPER_TORSO | LOWER_TORSO | LEGS | FEET | ARMS | HANDS | HEAD
 	min_cold_protection_temperature = SPACE_SUIT_MIN_TEMP_PROTECT
 	heat_protection = UPPER_TORSO | LOWER_TORSO|LEGS|FEET|ARMS|HANDS | HEAD
@@ -231,7 +231,7 @@
 	icon_state = "red_suit"
 	item_state = "r_suit"
 	item_color = "red_suit"
-	flags = ONESIZEFITSALL
+	flags_size = ONESIZEFITSALL
 
 /obj/item/clothing/under/suit_jacket/navy
 	name = "navy suit"
@@ -256,7 +256,7 @@
 
 /obj/item/clothing/under/suit_jacket/charcoal
 	name = "charcoal suit"
-	desc = "A charcoal suit and red tie. Very professional."
+	desc = "A charcoal suit and blue tie. Very professional."
 	icon_state = "charcoal_suit"
 	item_state = "charcoal_suit"
 	item_color = "charcoal_suit"
@@ -267,6 +267,7 @@
 	icon_state = "blackskirt"
 	item_color = "blackskirt"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/schoolgirl
 	name = "schoolgirl uniform"
@@ -275,6 +276,7 @@
 	item_state = "schoolgirl"
 	item_color = "schoolgirl"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/overalls
 	name = "laborer's overalls"
@@ -402,18 +404,21 @@
 	desc = "A preppy blue skirt with a white blouse."
 	icon_state = "plaid_blue"
 	item_color = "plaid_blue"
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/dress/plaid_red
 	name = "red plaid skirt"
 	desc = "A preppy red skirt with a white blouse."
 	icon_state = "plaid_red"
 	item_color = "plaid_red"
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/dress/plaid_purple
 	name = "blue purple skirt"
 	desc = "A preppy purple skirt with a white blouse."
 	icon_state = "plaid_purple"
 	item_color = "plaid_purple"
+	flags = SHOWUNDERWEAR
 
 //wedding stuff
 
@@ -423,6 +428,7 @@
 	icon_state = "bride_orange"
 	item_color = "bride_orange"
 	flags_inv = HIDESHOES
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/wedding/bride_purple
 	name = "purple wedding dress"
@@ -430,6 +436,7 @@
 	icon_state = "bride_purple"
 	item_color = "bride_purple"
 	flags_inv = HIDESHOES
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/wedding/bride_blue
 	name = "blue wedding dress"
@@ -437,6 +444,7 @@
 	icon_state = "bride_blue"
 	item_color = "bride_blue"
 	flags_inv = HIDESHOES
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/wedding/bride_red
 	name = "red wedding dress"
@@ -444,6 +452,7 @@
 	icon_state = "bride_red"
 	item_color = "bride_red"
 	flags_inv = HIDESHOES
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/wedding/bride_white
 	name = "orange wedding dress"
@@ -451,6 +460,7 @@
 	icon_state = "bride_white"
 	item_color = "bride_white"
 	flags_inv = HIDESHOES
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/sundress
 	name = "sundress"
@@ -459,6 +469,14 @@
 	item_state = "sundress"
 	item_color = "sundress"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
+	flags = SHOWUNDERWEAR
+
+/obj/item/clothing/under/captainparade
+	name = "captain's parade uniform"
+	desc = "A captain's luxury-wear, for special occasions."
+	icon_state = "captain_parade"
+	item_state = "by_suit"
+	item_color = "captain_parade"
 
 /obj/item/clothing/under/roman
 	name = "roman armor"
@@ -475,6 +493,7 @@
 	item_state = "meido"
 	item_color = "meido"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/janimaid
 	name = "maid uniform"
@@ -483,6 +502,7 @@
 	item_state = "janimaid"
 	item_color = "janimaid"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
+	flags = SHOWUNDERWEAR
 
 /obj/item/clothing/under/flappers
 	name = "flappers"
@@ -568,7 +588,7 @@
 	icon_state = "vengine"
 	item_state = "vengine"
 	item_color = "vengine"
-	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 10)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 10)
 
 /obj/item/clothing/under/vox_sec
 	name = "Vox Security Jumpsuit"
@@ -576,7 +596,7 @@
 	icon_state = "vred"
 	item_state = "vred"
 	item_color = "vred"
-	armor = list(melee = 10, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 0, rad = 0)
+	armor = list(melee = 10, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 0, rad = 0)
 
 /obj/item/clothing/under/vox_chem
 	name = "Vox Chemist Jumpsuit"
@@ -584,7 +604,7 @@
 	icon_state = "vchem"
 	item_state = "vchem"
 	item_color = "vchem"
-	armor = list(melee = 0, bullet = 0, laser = 0,energy = 0, bomb = 0, bio = 10, rad = 0)
+	armor = list(melee = 0, bullet = 0, laser = 0, energy = 0, bomb = 0, bio = 10, rad = 0)
 
 /obj/item/clothing/under/psyjump
 	name = "Psychic Amp Jumpsuit"

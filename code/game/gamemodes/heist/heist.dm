@@ -20,12 +20,13 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 	var/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' objective.
 	var/win_button_triggered = 0
 
-/datum/game_mode/heist/announce()
-	to_chat(world, "<B>The current game mode is - Heist!</B>")
-	to_chat(world, "<B>An unidentified bluespace signature has slipped past the Icarus and is approaching [station_name()]!</B>")
-	to_chat(world, "Whoever they are, they're likely up to no good. Protect the crew and station resources against this dastardly threat!")
-	to_chat(world, "<B>Raiders:</B> Loot [station_name()] for anything and everything you need, or choose the peaceful route and attempt to trade with them.")
-	to_chat(world, "<B>Personnel:</B> Trade with the raiders, or repel them and their low, low prices and/or crossbows.")
+/datum/game_mode/heist/announce(text)
+	text = "<B>The current game mode is - Heist!</B><br>"
+	text += "<B>An unidentified bluespace signature has slipped past the Icarus and is approaching [station_name()]!</B><br>"
+	text += "Whoever they are, they're likely up to no good. Protect the crew and station resources against this dastardly threat!<br>"
+	text += "<B>Raiders:</B> Loot [station_name()] for anything and everything you need, or choose the peaceful route and attempt to trade with them.<br>"
+	text += "<B>Personnel:</B> Trade with the raiders, or repel them and their low, low prices and/or crossbows."
+	..(text)
 
 /datum/game_mode/heist/can_start()
 
@@ -52,7 +53,7 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 
 	for(var/datum/mind/raider in raiders)
 		raider.assigned_role = "MODE"
-		raider.special_role = "Vox Raider"
+		raider.special_role = SPECIAL_ROLE_RAIDER
 	return 1
 
 /datum/game_mode/heist/pre_setup()
@@ -84,7 +85,6 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 
 /datum/game_mode/proc/create_vox(var/datum/mind/newraider)
 
-
 	var/sounds = rand(2,8)
 	var/i = 0
 	var/newname = ""
@@ -97,10 +97,12 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 	var/obj/item/organ/external/head/head_organ = vox.get_organ("head")
 
 	vox.real_name = capitalize(newname)
+	vox.dna.real_name = vox.real_name
 	vox.name = vox.real_name
 	newraider.name = vox.name
 	vox.age = rand(12,20)
 	vox.set_species("Vox")
+	vox.s_tone = rand(1, 6)
 	vox.languages = list() // Removing language from chargen.
 	vox.flavor_text = ""
 	vox.add_language("Vox-pidgin")
@@ -108,6 +110,16 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 	vox.add_language("Tradeband")
 	head_organ.h_style = "Short Vox Quills"
 	head_organ.f_style = "Shaved"
+	vox.change_hair_color(97, 79, 25) //Same as the species default colour.
+	vox.change_eye_color(rand(1, 255), rand(1, 255), rand(1, 255))
+	vox.underpants = null
+	vox.undershirt = null
+	vox.socks = "Nude"
+
+	// Do the initial caching of the player's body icons.
+	vox.force_update_limbs()
+	vox.update_dna()
+	vox.update_eyes()
 
 	for(var/obj/item/organ/external/limb in vox.organs)
 		limb.status &= ~(ORGAN_DESTROYED | ORGAN_ROBOT)
@@ -173,13 +185,12 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 	spawn(25)
 		show_objectives(raider)
 
-/datum/game_mode/heist/declare_completion()
+/datum/game_mode/heist/declare_completion(text = "")
 	//No objectives, go straight to the feedback.
 	if(!(raid_objectives.len)) return ..()
 
 	var/win_type = "Major"
 	var/win_group = "Crew"
-	var/win_msg = ""
 
 	var/success = raid_objectives.len
 
@@ -203,7 +214,7 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 
 		win_type = "Major"
 		win_group = "Crew"
-		win_msg += "<B>The Vox Raiders have been wiped out!</B>"
+		text += "<B>The Vox Raiders have been wiped out!</B>"
 
 	else if(!is_raider_crew_safe())
 
@@ -211,7 +222,7 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 			win_type = "Major"
 
 		win_group = "Crew"
-		win_msg += "<B>The Vox Raiders have left someone behind!</B>"
+		text += "<B>The Vox Raiders have left someone behind!</B>"
 
 	else
 
@@ -219,12 +230,13 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 			if(win_type == "Minor")
 
 				win_type = "Major"
-			win_msg += "<B>The Vox Raiders escaped the station!</B>"
+			text += "<B>The Vox Raiders escaped the station!</B>"
 		else
-			win_msg += "<B>The Vox Raiders were repelled!</B>"
+			text += "<B>The Vox Raiders were repelled!</B>"
 
 	to_chat(world, "\red <FONT size = 3><B>[win_type] [win_group] victory!</B></FONT>")
-	to_chat(world, "[win_msg]")
+	to_chat(world, text)
+
 	feedback_set_details("round_end_result","heist - [win_type] [win_group]")
 
 	var/count = 1
@@ -237,12 +249,12 @@ var/global/list/obj/cortical_stacks = list() //Stacks for 'leave nobody behind' 
 			feedback_add_details("traitor_objective","[objective.type]|FAIL")
 		count++
 
-	..()
+	..(text)
 
 datum/game_mode/proc/auto_declare_completion_heist()
 	if(raiders.len)
 		var/check_return = 0
-		if(ticker && istype(ticker.mode,/datum/game_mode/heist))
+		if(GAMEMODE_IS_HEIST)
 			check_return = 1
 		var/text = "<FONT size = 2><B>The Vox raiders were:</B></FONT>"
 
@@ -265,6 +277,7 @@ datum/game_mode/proc/auto_declare_completion_heist()
 			text += ")"
 
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
 	return 1
 
@@ -287,7 +300,7 @@ datum/game_mode/proc/auto_declare_completion_heist()
 	overlays += icon('icons/obj/computer.dmi', "syndie")
 
 /obj/vox/win_button/attack_hand(mob/user)
-	if(!istype(ticker.mode, /datum/game_mode/heist) || (world.time < 10 MINUTES)) //has to be heist, and at least ten minutes into the round
+	if(!GAMEMODE_IS_HEIST || (world.time < 10 MINUTES)) //has to be heist, and at least ten minutes into the round
 		to_chat(user, "<span class='warning'>\The [src] does not appear to have a connection.</span>")
 		return 0
 

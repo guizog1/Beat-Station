@@ -16,6 +16,11 @@
 		dna = new /datum/dna(null)
 		// Species name is handled by set_species()
 
+	penis_size = rand(5, 25)
+
+	if(!swallow_controller)
+		swallow_controller = new /datum/vore_controller(src)
+
 	if(!species)
 		if(new_species)
 			set_species(new_species, 1, delay_icon_update = 1)
@@ -39,6 +44,8 @@
 
 	martial_art = default_martial_art
 
+	handcrafting = new()
+
 	var/mob/M = src
 	faction |= "\ref[M]" //what
 
@@ -52,6 +59,9 @@
 		species.handle_dna(src)
 
 	UpdateAppearance()
+
+/mob/living/carbon/human/OpenCraftingMenu()
+	handcrafting.craft(src)
 
 /mob/living/carbon/human/prepare_data_huds()
 	//Update med hud images...
@@ -203,15 +213,13 @@
 				now_pushing = 0
 				return
 
-		if(tmob.r_hand && istype(tmob.r_hand, /obj/item/weapon/shield/riot))
-			if(prob(99))
-				now_pushing = 0
-				return
-
-		if(tmob.l_hand && istype(tmob.l_hand, /obj/item/weapon/shield/riot))
-			if(prob(99))
-				now_pushing = 0
-				return
+		//anti-riot equipment is also anti-push
+		if(tmob.r_hand && (prob(tmob.r_hand.block_chance * 2)) && !istype(tmob.r_hand, /obj/item/clothing))
+			now_pushing = 0
+			return
+		if(tmob.l_hand && (prob(tmob.l_hand.block_chance * 2)) && !istype(tmob.l_hand, /obj/item/clothing))
+			now_pushing = 0
+			return
 
 		if(!(tmob.status_flags & CANPUSH))
 			now_pushing = 0
@@ -414,16 +422,16 @@
 		M.attack_log += text("\[[time_stamp()]\] <font color='red'>attacked [src.name] ([src.ckey])</font>")
 		src.attack_log += text("\[[time_stamp()]\] <font color='orange'>was attacked by [M.name] ([M.ckey])</font>")
 		var/damage = rand(M.melee_damage_lower, M.melee_damage_upper)
-		if(check_shields(damage, "the [M.name]"))
+		if(check_shields(damage, "the [M.name]", null, MELEE_ATTACK, M.armour_penetration))
 			return 0
 		var/dam_zone = pick("head", "chest", "groin", "l_arm", "l_hand", "r_arm", "r_hand", "l_leg", "l_foot", "r_leg", "r_foot")
 		var/obj/item/organ/external/affecting = get_organ(ran_zone(dam_zone))
-		var/armor = run_armor_check(affecting, "melee")
+		var/armor = run_armor_check(affecting, "melee", armour_penetration = M.armour_penetration)
 
 		var/obj/item/organ/external/affected = src.get_organ(dam_zone)
 		if(affected)
 			affected.add_autopsy_data(M.name, damage) // Add the mob's name to the autopsy data
-		apply_damage(damage,M.melee_damage_type, affecting, armor, M.name)
+		apply_damage(damage, M.melee_damage_type, affecting, armor)
 		updatehealth()
 
 /mob/living/carbon/human/attack_larva(mob/living/carbon/alien/larva/L as mob)
@@ -461,7 +469,7 @@
 		else
 			damage = rand(5, 25)
 
-		if(check_shields(damage, "the [M.name]"))
+		if(check_shields(damage, "the [M.name]", null, MELEE_ATTACK))
 			return 0
 
 		var/dam_zone = pick("head", "chest", "groin", "l_arm", "l_hand", "r_arm", "r_hand", "l_leg", "l_foot", "r_leg", "r_foot")
@@ -580,6 +588,19 @@
 			dat += "<tr><td><font color=grey><B>Gloves:</B></font></td><td><font color=grey>Obscured</font></td></tr>"
 		else
 			dat += "<tr><td><B>Gloves:</B></td><td><A href='?src=\ref[src];item=[slot_gloves]'>[(gloves && !(gloves.flags&ABSTRACT))		? gloves	: "<font color=grey>Empty</font>"]</A></td></tr>"
+
+		if((w_uniform && !(w_uniform.flags & SHOWUNDERWEAR)) || slot_w_uniform in obscured)
+			dat += "<tr><td><font color=grey><B>Underpants:</B></font></td><td><font color=grey>Obscured</font></td></tr>"
+			dat += "<tr><td><font color=grey><B>Undershirt:</B></font></td><td><font color=grey>Obscured</font></td></tr>"
+		else
+			dat += "<tr><td><B>Underpants:</B></td><td><A href='?src=\ref[src];item=[slot_underpants]'>[underpants ? underpants : "<font color=grey>Empty</font>"]</A>"
+			if(underpants)
+				var/obj/item/clothing/underwear/underpants/up = underpants
+				if(up.adjustable)
+					dat += "&nbsp;<A href='?src=\ref[src];pull_underwear_aside=1'>[up.adjusted ?  "Put back in place" : "Pull aside"]</A>"
+			dat += "</td></tr>"
+
+			dat += "<tr><td><B>Undershirt:</B></td><td><A href='?src=\ref[src];item=[slot_undershirt]'>[undershirt ? undershirt : "<font color=grey>Empty</font>"]</A></td></tr>"
 
 		if(slot_w_uniform in obscured)
 			dat += "<tr><td><font color=grey><B>Uniform:</B></font></td><td><font color=grey>Obscured</font></td></tr>"
@@ -856,12 +877,7 @@
 										modified = 1
 
 										spawn()
-											if(istype(usr,/mob/living/carbon/human))
-												//var/mob/living/carbon/human/U = usr
-												sec_hud_set_security_status()
-											if(istype(usr,/mob/living/silicon/robot))
-												//var/mob/living/silicon/robot/U = usr
-												sec_hud_set_security_status()
+											sec_hud_set_security_status()
 
 			if(!modified)
 				to_chat(usr, "\red Unable to locate a data core entry for this person.")
@@ -986,12 +1002,7 @@
 										PDA_Manifest.Cut()
 
 									spawn()
-										if(istype(usr,/mob/living/carbon/human))
-											//var/mob/living/carbon/human/U = usr
-											sec_hud_set_security_status()
-										if(istype(usr,/mob/living/silicon/robot))
-											//var/mob/living/silicon/robot/U = usr
-											sec_hud_set_security_status()
+										sec_hud_set_security_status()
 
 			if(!modified)
 				to_chat(usr, "\red Unable to locate a data core entry for this person.")
@@ -1088,11 +1099,29 @@
 
 	if (href_list["lookitem"])
 		var/obj/item/I = locate(href_list["lookitem"])
-		src.examinate(I)
+		examinate(I)
 
 	if (href_list["lookmob"])
 		var/mob/M = locate(href_list["lookmob"])
-		src.examinate(M)
+		examinate(M)
+
+	if(href_list["pull_underwear_aside"])
+		var/obj/item/clothing/underwear/underpants/up = underpants
+		if(istype(up))
+			to_chat(src, "<span class='warning'>[usr] is trying to [up.adjusted ? "pull [up] aside" : "put [up] back in place"]!</span>")
+			if(do_after(usr, 30, target=src))
+				up.adjust()
+				if(up.adjusted)
+					src.visible_message("<span class='notice'>[usr] pulls [src]'s [up] aside.</span>")
+				else
+					src.visible_message("<span class='notice'>[usr] puts [src]'s [up] back in place.</span>")
+
+
+	/*              ERP                 */
+	if(ishuman(usr))
+		var/mob/living/carbon/human/H = usr
+		process_erp_href(href_list, H)
+		nanomanager.update_uis(src)
 	. = ..()
 
 
@@ -1297,12 +1326,11 @@
 		if(!(organ in types_of_int_organs)) //If the mob is missing this particular organ...
 			var/obj/item/organ/internal/I = new organ(temp_holder) //Create the organ inside our holder so we can check it before implantation.
 			if(H.get_organ_slot(I.slot)) //Check to see if the user already has an organ in the slot the 'missing organ' belongs to. If they do, skip implantation.
-				continue				//In an example, this will prevent duplication of the mob's eyes if the mob is a Human and they have Nucleation eyes, since,
-										//while the organ in the eyes slot may not be listed in the mob's species' organs definition, it is still viable and fits in the appropriate organ slot.
+				continue				 //In an example, this will prevent duplication of the mob's eyes if the mob is a Human and they have Nucleation eyes, since,
+										 //while the organ in the eyes slot may not be listed in the mob's species' organs definition, it is still viable and fits in the appropriate organ slot.
 			else
-				I = new organ(H) 		//Create the organ inside the player.
+				I = new organ(H) //Create the organ inside the player.
 				I.insert(H)
-
 
 /mob/living/carbon/human/revive()
 
@@ -1323,6 +1351,16 @@
 		mutations.Remove(NOCLONE)
 	if(HUSK in mutations)
 		mutations.Remove(HUSK)
+
+	if(!client || !key) //Don't boot out anyone already in the mob.
+		for (var/obj/item/organ/internal/brain/H in world)
+			if(H.brainmob)
+				if(H.brainmob.real_name == src.real_name)
+					if(H.brainmob.mind)
+						H.brainmob.mind.transfer_to(src)
+						qdel(H)
+
+	..()
 
 /mob/living/carbon/human/proc/is_lung_ruptured()
 	var/obj/item/organ/internal/lungs/L = get_int_organ(/obj/item/organ/internal/lungs)
@@ -1528,13 +1566,16 @@
 
 	if(species.base_color && default_colour)
 		//Apply colour.
-		r_skin = hex2num(copytext(species.base_color,2,4))
-		g_skin = hex2num(copytext(species.base_color,4,6))
-		b_skin = hex2num(copytext(species.base_color,6,8))
+		r_skin = hex2num(copytext(species.base_color, 2, 4))
+		g_skin = hex2num(copytext(species.base_color, 4, 6))
+		b_skin = hex2num(copytext(species.base_color, 6, 8))
 	else
 		r_skin = 0
 		g_skin = 0
 		b_skin = 0
+
+	if(!(species.bodyflags & HAS_SKIN_TONE))
+		s_tone = 0
 
 	species.create_organs(src)
 
@@ -1546,6 +1587,32 @@
 		H.f_style = species.default_fhair
 	if(species.default_headacc)
 		H.ha_style = species.default_headacc
+
+	if(species.default_hair_colour)
+		//Apply colour.
+		H.r_hair = hex2num(copytext(species.default_hair_colour, 2, 4))
+		H.g_hair = hex2num(copytext(species.default_hair_colour, 4, 6))
+		H.b_hair = hex2num(copytext(species.default_hair_colour, 6, 8))
+	else
+		H.r_hair = 0
+		H.g_hair = 0
+		H.b_hair = 0
+	if(species.default_fhair_colour)
+		H.r_facial = hex2num(copytext(species.default_fhair_colour, 2, 4))
+		H.g_facial = hex2num(copytext(species.default_fhair_colour, 4, 6))
+		H.b_facial = hex2num(copytext(species.default_fhair_colour, 6, 8))
+	else
+		H.r_facial = 0
+		H.g_facial = 0
+		H.b_facial = 0
+	if(species.default_headacc_colour)
+		H.r_headacc = hex2num(copytext(species.default_headacc_colour, 2, 4))
+		H.g_headacc = hex2num(copytext(species.default_headacc_colour, 4, 6))
+		H.b_headacc = hex2num(copytext(species.default_headacc_colour, 6, 8))
+	else
+		H.r_headacc = 0
+		H.g_headacc = 0
+		H.b_headacc = 0
 
 	if(!dna)
 		dna = new /datum/dna(null)
@@ -1844,7 +1911,7 @@
 		threatcount += 2
 
 
-	//Loyalty implants imply trustworthyness
+	//Mindshield implants imply slight trustworthiness
 	if(isloyal(src))
 		threatcount -= 1
 
@@ -1974,3 +2041,20 @@
 
 /mob/living/carbon/human/is_mechanical()
 	return ..() || (species.flags & ALL_RPARTS) != 0
+
+/mob/living/carbon/human/can_use_guns(var/obj/item/weapon/gun/G)
+	. = ..()
+
+	if(G.trigger_guard == TRIGGER_GUARD_NORMAL)
+		if(HULK in mutations)
+			to_chat(src, "<span class='warning'>Your meaty finger is much too large for the trigger guard!</span>")
+			return 0
+		if(species.flags & NOGUNS)
+			to_chat(src, "<span class='warning'>Your fingers don't fit in the trigger guard!</span>")
+			return 0
+
+	if(martial_art && martial_art.name == "The Sleeping Carp") //great dishonor to famiry
+		to_chat(src, "<span class='warning'>Use of ranged weaponry would bring dishonor to the clan.</span>")
+		return 0
+
+	return .

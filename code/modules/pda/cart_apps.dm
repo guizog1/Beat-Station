@@ -17,7 +17,7 @@
 		if("Status")
 			switch(href_list["statdisp"])
 				if("message")
-					post_status("message", message1, message2)
+					post_status("message", replace_special_characters(message1), replace_special_characters(message2))
 				if("alert")
 					post_status("alert", href_list["alert"])
 				if("setmsg1")

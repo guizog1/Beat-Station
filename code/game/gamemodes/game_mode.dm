@@ -30,13 +30,17 @@
 	var/newscaster_announcements = null
 	var/ert_disabled = 0
 	var/uplink_welcome = "Syndicate Uplink Console:"
-	var/uplink_uses = 10
+	var/uplink_uses = 20
+	var/antag_flag = null
+	var/list/datum/mind/antag_candidates = list()
 
 	var/const/waittime_l = 600  //lower bound on time before intercept arrives (in tenths of seconds)
 	var/const/waittime_h = 1800 //upper bound on time before intercept arrives (in tenths of seconds)
 
-/datum/game_mode/proc/announce() //to be calles when round starts
-	to_chat(world, "<B>Notice</B>: [src] did not define announce()")
+/datum/game_mode/proc/announce(text="<B>Notice</B>: [src] did not define announce()") //to be calles when round starts
+	to_chat(world, text)
+	send_to_info_discord(html2discord(text))
+	return
 
 
 ///can_start()
@@ -47,7 +51,7 @@
 		if((player.client)&&(player.ready))
 			playerC++
 
-	if(playerC >= required_players)
+	if(playerC >= required_players || DebugGameMode)
 		return 1
 	return 0
 
@@ -142,7 +146,7 @@
 /datum/game_mode/proc/cleanup()	//This is called when the round has ended but not the game, if any cleanup would be necessary in that case.
 	return
 
-/datum/game_mode/proc/declare_completion()
+/datum/game_mode/proc/declare_completion(text="")
 	var/clients = 0
 	var/surviving_humans = 0
 	var/surviving_total = 0
@@ -188,30 +192,21 @@
 			if(isobserver(M))
 				ghosts++
 
-	if(clients > 0)
-		feedback_set("round_end_clients",clients)
-	if(ghosts > 0)
-		feedback_set("round_end_ghosts",ghosts)
-	if(surviving_humans > 0)
-		feedback_set("survived_human",surviving_humans)
-	if(surviving_total > 0)
-		feedback_set("survived_total",surviving_total)
-	if(escaped_humans > 0)
-		feedback_set("escaped_human",escaped_humans)
-	if(escaped_total > 0)
-		feedback_set("escaped_total",escaped_total)
-	if(escaped_on_shuttle > 0)
-		feedback_set("escaped_on_shuttle",escaped_on_shuttle)
-	if(escaped_on_pod_1 > 0)
-		feedback_set("escaped_on_pod_1",escaped_on_pod_1)
-	if(escaped_on_pod_2 > 0)
-		feedback_set("escaped_on_pod_2",escaped_on_pod_2)
-	if(escaped_on_pod_3 > 0)
-		feedback_set("escaped_on_pod_3",escaped_on_pod_3)
-	if(escaped_on_pod_5 > 0)
-		feedback_set("escaped_on_pod_5",escaped_on_pod_5)
+	feedback_set("round_end_clients",clients)
+	feedback_set("round_end_ghosts",ghosts)
+	feedback_set("survived_human",surviving_humans)
+	feedback_set("survived_total",surviving_total)
+	feedback_set("escaped_human",escaped_humans)
+	feedback_set("escaped_total",escaped_total)
+	feedback_set("escaped_on_shuttle",escaped_on_shuttle)
+	feedback_set("escaped_on_pod_1",escaped_on_pod_1)
+	feedback_set("escaped_on_pod_2",escaped_on_pod_2)
+	feedback_set("escaped_on_pod_3",escaped_on_pod_3)
+	feedback_set("escaped_on_pod_5",escaped_on_pod_5)
 
-	send2mainirc("A round of [src.name] has ended - [surviving_total] survivors, [ghosts] ghosts.")
+	if(text && text != "")
+		send_to_info_discord(html2discord(text))
+	send_to_info_discord("A round of [name] has ended - [surviving_total] survivors, [ghosts] ghosts.")
 	return 0
 
 
@@ -334,7 +329,7 @@
 //Reports player logouts//
 //////////////////////////
 proc/display_roundstart_logout_report()
-	var/msg = "\blue <b>Roundstart logout report\n\n"
+	var/msg = "<span class='notice'>Roundstart logout report</span>\n\n"
 	for(var/mob/living/L in mob_list)
 
 		if(L.ckey)

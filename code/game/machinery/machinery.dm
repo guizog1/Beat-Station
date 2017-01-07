@@ -128,13 +128,13 @@ Class Procs:
 	machines += src
 
 /obj/machinery/proc/removeAtProcessing()
-	if (myArea)
+	if(myArea)
 		myArea = null
 
 	machines -= src
 
 /obj/machinery/Destroy()
-	if (src in machines)
+	if(src in machines)
 		removeAtProcessing()
 
 	return ..()
@@ -361,9 +361,9 @@ Class Procs:
 
 	return ..()
 
-/obj/machinery/CheckParts()
+/obj/machinery/CheckParts(list/parts_list)
+	..()
 	RefreshParts()
-	return
 
 /obj/machinery/proc/RefreshParts() //Placeholder proc for machines that are built using frames.
 	return
@@ -420,7 +420,7 @@ Class Procs:
 
 /obj/machinery/proc/state(var/msg)
   for(var/mob/O in hearers(src, null))
-    O.show_message("\icon[src] <span class = 'notice'>[msg]</span>", 2)
+    O.show_message("[bicon(src)] <span class = 'notice'>[msg]</span>", 2)
 
 /obj/machinery/proc/ping(text=null)
   if (!text)
@@ -465,7 +465,7 @@ Class Procs:
 /obj/machinery/proc/display_parts(mob/user)
 	to_chat(user, "<span class='notice'>Following parts detected in the machine:</span>")
 	for(var/obj/item/C in component_parts)
-		to_chat(user, "<span class='notice'>\icon[C] [C.name]</span>")
+		to_chat(user, "<span class='notice'>[bicon(C)] [C.name]</span>")
 
 /obj/machinery/examine(mob/user)
 	..(user)
@@ -566,3 +566,20 @@ Class Procs:
 		ex_act(2)
 	else
 		ex_act(1)
+
+////////////////////////////
+/obj/machinery/attacked_by(obj/item/I, mob/living/user)
+	..()
+	take_damage(I.force, I.damtype, 1)
+
+/obj/machinery/proc/take_damage(damage, damage_type = BRUTE, sound_effect = 1)
+	switch(damage_type)
+		if(BRUTE)
+			if(sound_effect)
+				if(damage)
+					playsound(loc, 'sound/weapons/smash.ogg', 50, 1)
+				else
+					playsound(loc, 'sound/weapons/tap.ogg', 50, 1)
+		if(BURN)
+			if(sound_effect)
+				playsound(src.loc, 'sound/items/Welder.ogg', 100, 1)

@@ -10,8 +10,7 @@
 	var/num_players = 0
 
 /datum/game_mode/traitor/autotraitor/announce()
-	..()
-	to_chat(world, "<B>Game mode is AutoTraitor. Traitors will be added to the round automagically as needed.</B>")
+	..("<B>Game mode is AutoTraitor. Traitors will be added to the round automagically as needed.</B>")
 
 /datum/game_mode/traitor/autotraitor/pre_setup()
 
@@ -53,7 +52,7 @@
 			traitors.Remove(traitor)
 			continue
 		if(istype(traitor))
-			traitor.special_role = "traitor"
+			traitor.special_role = SPECIAL_ROLE_TRAITOR
 			traitor.restricted_roles = restricted_jobs
 
 //	if(!traitors.len)
@@ -133,12 +132,12 @@
 					equip_traitor(newtraitor)
 
 				traitors += newtraitor.mind
-				to_chat(newtraitor, "\red <B>ATTENTION:</B> \black It is time to pay your debt to the Syndicate...")
+				to_chat(newtraitor, "<span class='danger'>ATTENTION:</span> It is time to pay your debt to the Syndicate...")
 				to_chat(newtraitor, "<B>You are now a traitor.</B>")
-				newtraitor.mind.special_role = "traitor"
+				newtraitor.mind.special_role = SPECIAL_ROLE_TRAITOR
 				var/datum/atom_hud/antag/tatorhud = huds[ANTAG_HUD_TRAITOR]
 				tatorhud.join_hud(newtraitor)
-				set_antag_hud(src, "hudsyndicate")
+				set_antag_hud(newtraitor, "hudsyndicate")
 
 				var/obj_count = 1
 				to_chat(newtraitor, "\blue Your current objectives:")

@@ -2,17 +2,17 @@
 	name = "traitor+vampire"
 	config_tag = "traitorvamp"
 	traitors_possible = 3 //hard limit on traitors if scaling is turned off
-	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Chaplain", "Brig Physician", "Internal Affairs Agent")
+	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Chaplain", "Brig Physician", "Internal Affairs Agent", "Nanotrasen Navy Officer", "Special Operations Officer")
 	restricted_jobs = list("AI", "Cyborg")
 	required_players = 10
 	required_enemies = 1	// how many of each type are required
 	recommended_enemies = 3
 	var/protected_species_vampire = list("Machine")
 
-/datum/game_mode/traitor/vampire/announce()
-	to_chat(world, "<B>The current game mode is - Traitor+Vampire!</B>")
-	to_chat(world, "<B>There is a Vampire from Space Transylvania on the station along with some syndicate operatives out for their own gain! Do not let the vampire and the traitors succeed!</B>")
-
+/datum/game_mode/traitor/vampire/announce(text)
+	text = "<B>The current game mode is - Traitor+Vampire!</B><br>"
+	text += "<B>There is a Vampire from Space Transylvania on the station along with some syndicate operatives out for their own gain! Do not let the vampire and the traitors succeed!</B>"
+	..(text)
 
 /datum/game_mode/traitor/vampire/pre_setup()
 	if(config.protect_roles_from_antagonist)
@@ -39,7 +39,7 @@
 /datum/game_mode/traitor/vampire/post_setup()
 	for(var/datum/mind/vampire in vampires)
 		grant_vampire_powers(vampire.current)
-		vampire.special_role = "Vampire"
+		vampire.special_role = SPECIAL_ROLE_VAMPIRE
 		forge_vampire_objectives(vampire)
 		greet_vampire(vampire)
 	..()

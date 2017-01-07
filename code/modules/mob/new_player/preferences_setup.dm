@@ -199,13 +199,25 @@
 	var/icon/icobase
 	var/datum/species/current_species = all_species[species]
 
+	//Icon-based species colour.
+	var/coloured_tail
 	if(current_species)
-		icobase = current_species.icobase
+		if(current_species.bodyflags & HAS_ICON_SKIN_TONE) //Handling species-specific icon-based skin tones by flagged race.
+			var/mob/living/carbon/human/H = new
+			H.species = current_species
+			H.s_tone = s_tone
+			H.species.updatespeciescolor(H)
+
+			icobase = H.species.icobase
+			if(H.species.bodyflags & HAS_TAIL)
+				coloured_tail = H.species.tail
+		else
+			icobase = current_species.icobase
 	else
 		icobase = 'icons/mob/human_races/r_human.dmi'
 
 	var/fat=""
-	if(disabilities&DISABILITY_FLAG_FAT && current_species.flags & CAN_BE_FAT)
+	if(disabilities & DISABILITY_FLAG_FAT && current_species.flags & CAN_BE_FAT)
 		fat="_fat"
 	preview_icon = new /icon(icobase, "torso_[g][fat]")
 	preview_icon.Blend(new /icon(icobase, "groin_[g]"), ICON_OVERLAY)
@@ -222,7 +234,10 @@
 			tail_icon_state = accessory.icon_state
 		else
 			tail_icon = "icons/effects/species.dmi"
-			tail_icon_state = "[current_species.tail]_s"
+			if(coloured_tail)
+				tail_icon_state = "[coloured_tail]_s"
+			else
+				tail_icon_state = "[current_species.tail]_s"
 
 		var/icon/temp = new /icon("icon" = tail_icon, "icon_state" = tail_icon_state)
 		preview_icon.Blend(temp, ICON_OVERLAY)
@@ -294,13 +309,13 @@
 
 	var/icon/underwear_s = null
 	if(underwear && (current_species.clothing_flags & HAS_UNDERWEAR))
-		var/datum/sprite_accessory/underwear/U = underwear_list[underwear]
+		var/datum/sprite_accessory/underwear/U = underweari_list[underwear]
 		if(U)
 			underwear_s = new/icon(U.icon, "uw_[U.icon_state]_s", ICON_OVERLAY)
 
 	var/icon/undershirt_s = null
 	if(undershirt && (current_species.clothing_flags & HAS_UNDERSHIRT))
-		var/datum/sprite_accessory/undershirt/U2 = undershirt_list[undershirt]
+		var/datum/sprite_accessory/undershirt/U2 = undershirti_list[undershirt]
 		if(U2)
 			undershirt_s = new/icon(U2.icon, "us_[U2.icon_state]_s", ICON_OVERLAY)
 
@@ -399,7 +414,7 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
-			if(QUARTERMASTER)
+			/*if(QUARTERMASTER)
 				clothes_s = new /icon(uniform_dmi, "qm_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "brown"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/hands.dmi', "bgloves"), ICON_UNDERLAY)
@@ -411,7 +426,7 @@
 					if(3)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
 					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)*/
 			if(CARGOTECH)
 				clothes_s = new /icon(uniform_dmi, "cargotech_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "black"), ICON_UNDERLAY)
@@ -438,19 +453,6 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-eng"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
-			if(LAWYER)
-				clothes_s = new /icon(uniform_dmi, "internalaffairs_s")
-				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "brown"), ICON_UNDERLAY)
-				clothes_s.Blend(new /icon('icons/mob/inhands/items_righthand.dmi', "briefcase"), ICON_UNDERLAY)
-				if(prob(1))
-					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "suitjacket_blue"), ICON_OVERLAY)
-				switch(backbag)
-					if(2)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
-					if(3)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
-					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
 			if(CHAPLAIN)
 				clothes_s = new /icon(uniform_dmi, "chapblack_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "black"), ICON_UNDERLAY)
@@ -468,7 +470,7 @@
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "clown"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/mask.dmi', "clown"), ICON_OVERLAY)
 				clothes_s.Blend(new /icon('icons/mob/back.dmi', "clownpack"), ICON_OVERLAY)
-			if(MIME)
+			/*if(MIME)
 				clothes_s = new /icon(uniform_dmi, "mime_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "black"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/hands.dmi', "lgloves"), ICON_UNDERLAY)
@@ -481,7 +483,7 @@
 					if(3)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
 					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)*/
 
 	else if(job_medsci_high)
 		switch(job_medsci_high)
@@ -511,20 +513,6 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-tox"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
-			if(CHEMIST)
-				clothes_s = new /icon(uniform_dmi, "chemistrywhite_s")
-				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "white"), ICON_UNDERLAY)
-				if(prob(1))
-					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "labgreen"), ICON_OVERLAY)
-				else
-					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "labcoat_chem_open"), ICON_OVERLAY)
-				switch(backbag)
-					if(2)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
-					if(3)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-chem"), ICON_OVERLAY)
-					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
 			if(CMO)
 				clothes_s = new /icon(uniform_dmi, "cmo_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "brown"), ICON_UNDERLAY)
@@ -551,6 +539,20 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "medicalpack"), ICON_OVERLAY)
 					if(3)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-med"), ICON_OVERLAY)
+					if(4)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+			/*if(CHEMIST)
+				clothes_s = new /icon(uniform_dmi, "chemistrywhite_s")
+				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "white"), ICON_UNDERLAY)
+				if(prob(1))
+					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "labgreen"), ICON_OVERLAY)
+				else
+					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "labcoat_chem_open"), ICON_OVERLAY)
+				switch(backbag)
+					if(2)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
+					if(3)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-chem"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
 			if(GENETICIST)
@@ -615,7 +617,7 @@
 					if(3)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
 					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)*/
 
 	else if(job_engsec_high)
 		switch(job_engsec_high)
@@ -687,7 +689,33 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-sec"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
-			if(CHIEF)
+			if(IAA)
+				clothes_s = new /icon(uniform_dmi, "internalaffairs_s")
+				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "brown"), ICON_UNDERLAY)
+				clothes_s.Blend(new /icon('icons/mob/inhands/items_righthand.dmi', "briefcase"), ICON_UNDERLAY)
+				if(prob(1))
+					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "suitjacket_blue"), ICON_OVERLAY)
+				switch(backbag)
+					if(2)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
+					if(3)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
+					if(4)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+			if(LAWYER)
+				clothes_s = new /icon(uniform_dmi, "lawyer_red_s")
+				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "brown"), ICON_UNDERLAY)
+				clothes_s.Blend(new /icon('icons/mob/inhands/items_righthand.dmi', "briefcase"), ICON_UNDERLAY)
+				if(prob(1))
+					clothes_s.Blend(new /icon('icons/mob/suit.dmi', "ia_jacket"), ICON_OVERLAY)
+				switch(backbag)
+					if(2)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
+					if(3)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
+					if(4)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+			if(CE)
 				clothes_s = new /icon(uniform_dmi, "chief_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "brown"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/hands.dmi', "bgloves"), ICON_UNDERLAY)
@@ -716,7 +744,7 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-eng"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
-			if(ATMOSTECH)
+			/*if(ATMOSTECH)
 				clothes_s = new /icon(uniform_dmi, "atmos_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "black"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/hands.dmi', "bgloves"), ICON_UNDERLAY)
@@ -729,7 +757,7 @@
 					if(3)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
 					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)*/
 
 			if(AI)//Gives AI and borgs assistant-wear, so they can still customize their character
 				clothes_s = new /icon(uniform_dmi, "grey_s")
@@ -751,7 +779,7 @@
 					clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
 	else if(job_karma_high)
 		switch(job_karma_high)
-			if(MECHANIC)
+			/*if(MECHANIC)
 				clothes_s = new /icon(uniform_dmi, "mechanic_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "orange"), ICON_UNDERLAY)
 				clothes_s.Blend(new /icon('icons/mob/belt.dmi', "utility"), ICON_OVERLAY)
@@ -785,6 +813,18 @@
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-med"), ICON_OVERLAY)
 					if(4)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
+			if(JUDGE)
+				clothes_s = new /icon(uniform_dmi, "really_black_suit_s")
+				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "laceups"), ICON_UNDERLAY)
+				clothes_s.Blend(new /icon('icons/mob/head.dmi', "mercy_hood"), ICON_UNDERLAY)
+				clothes_s.Blend(new /icon('icons/mob/suit.dmi', "judge"), ICON_UNDERLAY)
+				switch(backbag)
+					if(2)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
+					if(3)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
+					if(4)
+						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)*/
 			if(NANO)
 				clothes_s = new /icon(uniform_dmi, "officer_s")
 				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "laceups"), ICON_UNDERLAY)
@@ -803,18 +843,6 @@
 				switch(backbag)
 					if(2)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "securitypack"), ICON_OVERLAY)
-					if(3)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
-					if(4)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel"), ICON_OVERLAY)
-			if(JUDGE)
-				clothes_s = new /icon(uniform_dmi, "really_black_suit_s")
-				clothes_s.Blend(new /icon('icons/mob/feet.dmi', "laceups"), ICON_UNDERLAY)
-				clothes_s.Blend(new /icon('icons/mob/head.dmi', "mercy_hood"), ICON_UNDERLAY)
-				clothes_s.Blend(new /icon('icons/mob/suit.dmi', "judge"), ICON_UNDERLAY)
-				switch(backbag)
-					if(2)
-						clothes_s.Blend(new /icon('icons/mob/back.dmi', "backpack"), ICON_OVERLAY)
 					if(3)
 						clothes_s.Blend(new /icon('icons/mob/back.dmi', "satchel-norm"), ICON_OVERLAY)
 					if(4)

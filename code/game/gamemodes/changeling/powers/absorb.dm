@@ -72,7 +72,6 @@
 			target.mind.changeling.absorbed_dna.len = 1
 			target.mind.changeling.absorbedcount = 0
 
-
 	changeling.chem_charges=min(changeling.chem_charges+10, changeling.chem_storage)
 
 	changeling.isabsorbing = 0
@@ -86,8 +85,6 @@
 
 //Absorbs the target DNA.
 /datum/changeling/proc/absorb_dna(mob/living/carbon/T, var/mob/user)
-	if(absorbed_dna.len)
-		absorbed_dna.Cut(1,2)
 	T.dna.real_name = T.real_name //Set this again, just to be sure that it's properly set.
 	var/datum/dna/new_dna = T.dna.Clone()
 	//Steal all of their languages!
@@ -95,6 +92,10 @@
 		if(!(language in absorbed_languages))
 			absorbed_languages += language
 		user.changeling_update_languages(absorbed_languages)
+
+	if(ishuman(T))
+		var/mob/living/carbon/human/H = T
+		user.mind.changeling.absorbed_forbidden[new_dna] = list("penis_size" = H.penis_size, "virgin" = H.virgin, "anal_virgin" = H.anal_virgin)
 
 	absorbedcount++
 	store_dna(new_dna, user)
@@ -105,3 +106,4 @@
 			protected_dna |= new_dna
 			return
 	absorbed_dna |= new_dna
+	trim_dna()

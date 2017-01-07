@@ -104,7 +104,7 @@
 		return 1
 
 
-
+/*
 //Cargo
 /datum/job/qm
 	title = "Quartermaster"
@@ -136,7 +136,7 @@
 		else
 			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
 		return 1
-
+*/
 
 
 /datum/job/cargo_tech
@@ -145,12 +145,11 @@
 	department_flag = SUPPORT
 	total_positions = 2
 	spawn_positions = 2
-	supervisors = "the quartermaster"
+	supervisors = "the head of personnel"
 	selection_color = "#dddddd"
 	idtype = /obj/item/weapon/card/id/supply
 	access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_qm, access_mint, access_mining, access_mining_station, access_mineral_storeroom)
-	minimal_access = list(access_maint_tunnels, access_cargo, access_cargo_bot, access_mailsorting, access_mineral_storeroom)
-
+	minimal_access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_qm, access_mint, access_mining, access_mailsorting, access_mineral_storeroom)
 
 	equip(var/mob/living/carbon/human/H)
 		if(!H)	return 0
@@ -176,7 +175,7 @@
 	department_flag = SUPPORT
 	total_positions = 3
 	spawn_positions = 3
-	supervisors = "the quartermaster"
+	supervisors = "the head of personnel"
 	selection_color = "#dddddd"
 	idtype = /obj/item/weapon/card/id/supply
 	access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_qm, access_mint, access_mining, access_mining_station, access_mineral_storeroom)
@@ -244,13 +243,17 @@
 		H.equip_or_collect(new /obj/item/toy/crayon/rainbow(H), slot_in_backpack)
 		H.equip_or_collect(new /obj/item/weapon/storage/fancy/crayons(H), slot_in_backpack)
 		H.equip_or_collect(new /obj/item/weapon/reagent_containers/spray/waterflower(H), slot_in_backpack)
+		if(H.get_species() == "Machine")
+			var/obj/item/organ/internal/cyberimp/brain/clown_voice/implant
+			implant = new
+			implant.insert(H)
 		H.mutations.Add(CLUMSY)
 		H.dna.SetSEState(COMICBLOCK,1,1)
 		genemutcheck(H,COMICBLOCK,null,MUTCHK_FORCED)
 		return 1
 
 
-
+/*
 /datum/job/mime
 	title = "Mime"
 	flag = MIME
@@ -288,7 +291,7 @@
 			H.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/mime/speak(null))
 			H.mind.miming = 1
 		return 1
-
+*/
 
 
 /datum/job/janitor
@@ -346,14 +349,13 @@
 		H.equip_or_collect(new /obj/item/clothing/under/suit_jacket/red(H), slot_w_uniform)
 		H.equip_or_collect(new /obj/item/device/pda/librarian(H), slot_wear_pda)
 		H.equip_or_collect(new /obj/item/clothing/shoes/black(H), slot_shoes)
-		H.equip_or_collect(new /obj/item/weapon/barcodescanner(H), slot_l_hand)
+		H.equip_or_collect(new /obj/item/weapon/storage/bag/books(H), slot_l_hand)
+		H.equip_or_collect(new /obj/item/weapon/barcodescanner(H), slot_r_store)
 		H.equip_or_collect(new /obj/item/device/laser_pointer(H), slot_l_store)
-		if(H.backbag == 1)
-			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H), slot_r_hand)
-		else
-			H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
+		H.equip_or_collect(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
 		return 1
 
+/*
 /datum/job/barber
 	title = "Barber"
 	flag = BARBER
@@ -383,3 +385,4 @@
 		H.equip_or_collect(new /obj/item/weapon/storage/box/barber(H.back), slot_in_backpack)
 		H.equip_or_collect(new /obj/item/weapon/storage/box/lip_stick(H.back), slot_in_backpack)
 		return 1
+*/

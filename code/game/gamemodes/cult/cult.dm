@@ -28,14 +28,11 @@
 /datum/game_mode/cult
 	name = "cult"
 	config_tag = "cult"
-	restricted_jobs = list("Chaplain","AI", "Cyborg", "Internal Affairs Agent", "Security Officer", "Warden", "Detective", "Security Pod Pilot", "Head of Security", "Captain", "Head of Personnel", "Blueshield", "Nanotrasen Representative", "Magistrate", "Brig Physician")
+	restricted_jobs = list("Chaplain","AI", "Cyborg", "Internal Affairs Agent", "Security Officer", "Warden", "Detective", "Security Pod Pilot", "Head of Security", "Captain", "Head of Personnel", "Blueshield", "Nanotrasen Representative", "Magistrate", "Brig Physician", "Nanotrasen Navy Officer", "Special Operations Officer")
 	protected_jobs = list()
 	required_players = 30
 	required_enemies = 3
 	recommended_enemies = 4
-
-	uplink_welcome = "Nar-Sie Uplink Console:"
-	uplink_uses = 20
 
 	var/datum/mind/sacrifice_target = null
 	var/finished = 0
@@ -52,10 +49,10 @@
 	var/acolytes_survived = 0
 
 
-/datum/game_mode/cult/announce()
-	to_chat(world, "<B>The current game mode is - Cult!</B>")
-	to_chat(world, "<B>Some crewmembers are attempting to start a cult!<BR>\nCultists - complete your objectives. Convert crewmembers to your cause by using the convert rune. Remember - there is no you, there is only the cult.<BR>\nPersonnel - Do not let the cult succeed in its mission. Brainwashing them with the chaplain's bible reverts them to whatever CentComm-allowed faith they had.</B>")
-
+/datum/game_mode/cult/announce(text)
+	text = "<B>The current game mode is - Cult!</B><br>"
+	text += "<B>Some crewmembers are attempting to start a cult!<BR>\nCultists - complete your objectives. Convert crewmembers to your cause by using the convert rune. Remember - there is no you, there is only the cult.<BR>\nPersonnel - Do not let the cult succeed in its mission. Brainwashing them with the chaplain's bible reverts them to whatever CentComm-allowed faith they had.</B>"
+	..(text)
 
 /datum/game_mode/cult/pre_setup()
 	if(prob(50))
@@ -77,7 +74,7 @@
 		cultists_possible -= cultist
 		cult += cultist
 		cultist.restricted_roles = restricted_jobs
-		cultist.special_role = "Cultist"
+		cultist.special_role = SPECIAL_ROLE_CULTIST
 	return (cult.len>0)
 
 
@@ -289,7 +286,7 @@
 	investigate_log(message, "cult")
 
 
-/datum/game_mode/cult/declare_completion()
+/datum/game_mode/cult/declare_completion(text)
 
 	if(!check_cult_victory())
 		feedback_set_details("round_end_result","win - cult win")
@@ -300,7 +297,7 @@
 		feedback_set("round_end_result",acolytes_survived)
 		to_chat(world, "\red <FONT size = 3><B> The staff managed to stop the cult!</B></FONT>")
 
-	var/text = "<b>Cultists escaped:</b> [acolytes_survived]"
+	text = "<b>Cultists escaped:</b> [acolytes_survived]"
 
 	if(objectives.len)
 		text += "<br><b>The cultists' objectives were:</b>"
@@ -335,12 +332,12 @@
 			text += "<br><B>Objective #[obj_count]</B>: [explanation]"
 
 	to_chat(world, text)
-	..()
+	..(text)
 	return 1
 
 
 /datum/game_mode/proc/auto_declare_completion_cult()
-	if( cult.len || (ticker && istype(ticker.mode,/datum/game_mode/cult)) )
+	if( cult.len || (ticker && GAMEMODE_IS_CULT))
 		var/text = "<FONT size = 2><B>The cultists were:</B></FONT>"
 		for(var/datum/mind/cultist in cult)
 
@@ -357,3 +354,4 @@
 			text += ")"
 
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))

@@ -28,6 +28,7 @@
 		W.forceMove(src)		//TODO: move to equipped?
 		l_hand = W
 		W.layer = 20	//TODO: move to equipped?
+		W.plane = HUD_PLANE	//TODO: move to equipped?
 		W.equipped(src,slot_l_hand)
 		if(pulling == W)
 			stop_pulling()
@@ -43,6 +44,7 @@
 		W.forceMove(src)
 		r_hand = W
 		W.layer = 20
+		W.plane = HUD_PLANE
 		W.equipped(src,slot_r_hand)
 		if(pulling == W)
 			stop_pulling()
@@ -72,6 +74,7 @@
 /mob/proc/put_in_hands(obj/item/W)
 	W.forceMove(get_turf(src))
 	W.layer = initial(W.layer)
+	W.plane = initial(W.plane)
 	W.dropped()
 
 /mob/proc/drop_item_v()		//this is dumb.
@@ -124,6 +127,7 @@
 		I.dropped(src)
 		if(I)
 			I.layer = initial(I.layer)
+			I.plane = initial(I.plane)
 	return 1
 
 
@@ -149,9 +153,11 @@
 	if(hasvar(src,"wear_id")) if(src:wear_id) items += src:wear_id
 	if(hasvar(src,"wear_mask")) if(src:wear_mask) items += src:wear_mask
 	if(hasvar(src,"wear_suit")) if(src:wear_suit) items += src:wear_suit
-//	if(hasvar(src,"w_radio")) if(src:w_radio) items += src:w_radio  commenting this out since headsets go on your ears now PLEASE DON'T BE MAD KEELIN
 	if(hasvar(src,"w_uniform")) if(src:w_uniform) items += src:w_uniform
+	if(hasvar(src,"underpants")) if(src:underpants) items += src:underpants
+	if(hasvar(src,"undershirt")) if(src:undershirt) items += src:undershirt
 
+	//if(hasvar(src,"w_radio")) if(src:w_radio) items += src:w_radio // commenting this out since headsets go on your ears now PLEASE DON'T BE MAD KEELIN
 	//if(hasvar(src,"l_hand")) if(src:l_hand) items += src:l_hand
 	//if(hasvar(src,"r_hand")) if(src:r_hand) items += src:r_hand
 
@@ -161,7 +167,7 @@
 	return list(wear_mask, back, l_hand, r_hand)
 
 /mob/proc/get_id_card()
-	for(var/obj/item/I in src.get_all_slots())
+	for(var/obj/item/I in get_all_slots())
 		. = I.GetID()
 		if(.)
 			break

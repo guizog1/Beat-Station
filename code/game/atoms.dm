@@ -79,8 +79,19 @@
 	invisibility = 101
 	return ..()
 
-/atom/proc/CheckParts()
-	return
+/atom/proc/CheckParts(list/parts_list)
+	for(var/A in parts_list)
+		if(istype(A, /datum/reagent))
+			if(!reagents)
+				reagents = new()
+			reagents.reagent_list.Add(A)
+			reagents.conditional_update()
+		else if(istype(A, /atom/movable))
+			var/atom/movable/M = A
+			if(istype(M.loc, /mob/living))
+				var/mob/living/L = M.loc
+				L.unEquip(M)
+			M.forceMove(src)
 
 /atom/proc/assume_air(datum/gas_mixture/giver)
 	qdel(giver)
@@ -135,9 +146,9 @@
 /atom/proc/emp_act(var/severity)
 	return
 
-/atom/proc/bullet_act(var/obj/item/projectile/Proj, def_zone)
-	Proj.on_hit(src, 0, def_zone)
-	return 0
+/atom/proc/bullet_act(obj/item/projectile/P, def_zone)
+	P.on_hit(src, 0, def_zone)
+	. = 0
 
 /atom/proc/in_contents_of(container)//can take class or object instance as argument
 	if(ispath(container))
@@ -177,7 +188,7 @@
 /atom/proc/examine(mob/user, var/distance = -1, var/infix = "", var/suffix = "")
 	//This reformat names to get a/an properly working on item descriptions when they are bloody
 	var/f_name = "\a [src][infix]."
-	if(src.blood_DNA && !istype(src, /obj/effect/decal))
+	if(blood_DNA && !istype(src, /obj/effect/decal))
 		if(gender == PLURAL)
 			f_name = "some "
 		else
@@ -187,8 +198,9 @@
 		else
 			f_name += "oil-stained [name][infix]."
 
-	to_chat(user, "\icon[src] That's [f_name] [suffix]")
-	to_chat(user, desc)
+	to_chat(user, "[bicon(src)] That's [f_name] [suffix]")
+	if(desc)
+		to_chat(user, desc)
 
 	if(reagents && is_open_container()) //is_open_container() isn't really the right proc for this, but w/e
 		to_chat(user, "It contains:")
@@ -351,9 +363,6 @@
 
 //returns 1 if made bloody, returns 0 otherwise
 /atom/proc/add_blood(mob/living/carbon/human/M as mob)
-
-	if(flags & NOBLOODY)
-		return 0
 
 	if(!blood_DNA || !istype(blood_DNA, /list))	//if our list of DNA doesn't exist yet (or isn't a list) initialise it.
 		blood_DNA = list()

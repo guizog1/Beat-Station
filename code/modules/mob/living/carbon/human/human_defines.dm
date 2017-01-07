@@ -27,8 +27,11 @@ var/global/default_martial_art = new/datum/martial_art
 	var/age = 30		//Player's age (pure fluff)
 	var/b_type = "A+"	//Player's bloodtype
 
+	/*
 	var/underwear = "Nude"	//Which underwear the player wants
 	var/undershirt = "Nude"	//Which undershirt the player wants
+	*/
+
 	var/socks = "Nude" //Which socks the player wants
 	var/backbag = 2		//Which backpack type the player has chosen. Nothing, Satchel or Backpack.
 
@@ -46,12 +49,21 @@ var/global/default_martial_art = new/datum/martial_art
 	var/obj/item/l_store = null
 	var/obj/item/s_store = null
 
+	// Under clothes
+	var/obj/item/underpants = null
+	var/obj/item/undershirt = null
+
+	// ERP Controller
+	var/obj/item/weapon/storage/ass/ass_storage = new()
+
 	var/icon/stand_icon = null
 	var/icon/lying_icon = null
 
 	var/voice = ""	//Instead of new say code calling GetVoice() over and over and over, we're just going to ask this variable, which gets updated in Life()
 
 	var/speech_problem_flag = 0
+
+	var/datum/personal_crafting/handcrafting
 
 	var/datum/martial_art/martial_art = null
 
@@ -70,7 +82,7 @@ var/global/default_martial_art = new/datum/martial_art
 	var/mob/remoteview_target = null
 	var/meatleft = 3 //For chef item
 	var/decaylevel = 0 // For rotting bodies
-	var/max_blood = 560 // For stuff in the vessel
+	var/max_blood = BLOOD_VOLUME_NORMAL // For stuff in the vessel
 	var/slime_color = "blue" //For slime people this defines their color, it's blue by default to pay tribute to the old icons
 
 	var/check_mutations=0 // Check mutations on next life tick

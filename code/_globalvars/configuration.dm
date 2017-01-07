@@ -2,9 +2,8 @@ var/datum/configuration/config = null
 
 var/host = null
 var/join_motd = null
-var/station_name = "NSS Cyberiad"
-var/game_version = "Custom ParaCode"
-var/changelog_hash = ""
+var/station_name = "NSS Athena"
+var/game_version = "Beat!Code"
 var/game_year = (text2num(time2text(world.realtime, "YYYY")) + 544)
 
 var/aliens_allowed = 1
@@ -23,6 +22,7 @@ var/mouse_respawn_time = 5 //Amount of time that must pass between a player dyin
 // Debug2 is used in conjunction with a lot of admin verbs and therefore is actually legit.
 var/Debug = 0	// global debug switch
 var/Debug2 = 1   // enables detailed job debug file in secrets
+var/DebugGameMode = 0 //enables starting the game ignoring gamemode restrictions
 
 //This was a define, but I changed it to a variable so it can be changed in-game.(kept the all-caps definition because... code...) -Errorage
 var/MAX_EX_DEVESTATION_RANGE = 3

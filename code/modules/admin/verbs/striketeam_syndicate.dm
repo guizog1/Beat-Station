@@ -71,7 +71,7 @@ var/global/sent_syndicate_strike_team = 0
 				new_syndicate_commando.key = pick(commandos)
 				commandos -= new_syndicate_commando.key
 				new_syndicate_commando.internal = new_syndicate_commando.s_store
-				new_syndicate_commando.internals.icon_state = "internal1"
+				new_syndicate_commando.update_internals_hud_icon(1)
 
 			//So they don't forget their code or mission.
 			if(nuke_code)
@@ -118,7 +118,7 @@ var/global/sent_syndicate_strike_team = 0
 	//Creates mind stuff.
 	new_syndicate_commando.mind_initialize()
 	new_syndicate_commando.mind.assigned_role = "MODE"
-	new_syndicate_commando.mind.special_role = "Syndicate Commando"
+	new_syndicate_commando.mind.special_role = SPECIAL_ROLE_SYNDICATE_DEATHSQUAD
 	ticker.mode.traitors |= new_syndicate_commando.mind	//Adds them to current traitor list. Which is really the extra antagonist list.
 	new_syndicate_commando.equip_syndicate_commando(syndicate_leader_selected)
 	qdel(spawn_location)
@@ -144,14 +144,14 @@ var/global/sent_syndicate_strike_team = 0
 	equip_to_slot_or_del(new /obj/item/clothing/glasses/thermal(src), slot_glasses)
 
 	equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/security(src), slot_back)
-	equip_to_slot_or_del(new /obj/item/ammo_box/magazine/m762, slot_in_backpack)
+	equip_to_slot_or_del(new /obj/item/ammo_box/magazine/mm556x45)
 
 	equip_to_slot_or_del(new /obj/item/ammo_box/magazine/m45(src), slot_in_backpack)
 	equip_to_slot_or_del(new /obj/item/weapon/reagent_containers/hypospray/combat/nanites(src), slot_in_backpack)
-	equip_to_slot_or_del(new /obj/item/weapon/c4(src), slot_in_backpack)
+	equip_to_slot_or_del(new /obj/item/weapon/grenade/plastic/c4(src), slot_in_backpack)
 	equip_to_slot_or_del(new /obj/item/device/flashlight(src), slot_in_backpack)
 	if (!syndicate_leader_selected)
-		equip_to_slot_or_del(new /obj/item/weapon/c4(src), slot_in_backpack)
+		equip_to_slot_or_del(new /obj/item/weapon/grenade/plastic/c4(src), slot_in_backpack)
 		equip_to_slot_or_del(new /obj/item/weapon/card/emag(src), slot_in_backpack)
 	else
 		equip_to_slot_or_del(new /obj/item/weapon/pinpointer(src), slot_in_backpack)
@@ -160,7 +160,7 @@ var/global/sent_syndicate_strike_team = 0
 	equip_to_slot_or_del(new /obj/item/weapon/melee/energy/sword/saber(src), slot_l_store)
 	equip_to_slot_or_del(new /obj/item/weapon/grenade/empgrenade(src), slot_r_store)
 	equip_to_slot_or_del(new /obj/item/weapon/tank/emergency_oxygen/double/full(src), slot_s_store)
-	equip_to_slot_or_del(new /obj/item/weapon/gun/projectile/automatic/pistol/m2411(src), slot_belt)
+	equip_to_slot_or_del(new /obj/item/weapon/gun/projectile/automatic/pistol/m1911(src), slot_belt)
 
 	equip_to_slot_or_del(new /obj/item/weapon/gun/projectile/automatic/l6_saw(src), slot_r_hand)
 

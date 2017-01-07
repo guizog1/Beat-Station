@@ -96,8 +96,8 @@
 	mymob.throw_icon.alpha = ui_alpha
 	hotkeybuttons += mymob.throw_icon
 
-	mymob.internals = new /obj/screen/internals()
-	infodisplay += mymob.internals
+	internals = new /obj/screen/internals()
+	infodisplay += internals
 
 	mymob.healths = new /obj/screen/healths()
 	infodisplay += mymob.healths
@@ -121,6 +121,30 @@
 	mymob.zone_sel.icon = ui_style
 	mymob.zone_sel.update_icon(mymob)
 	static_inventory += mymob.zone_sel
+
+	//Gun Move
+	mymob.gun_move = new /obj/screen/gun/move()
+	mymob.gun_move.icon = ui_style
+	mymob.gun_move.update_icon(mymob)
+	static_inventory += mymob.gun_move
+
+	//Gun Item
+	mymob.gun_item = new /obj/screen/gun/item()
+	mymob.gun_item.icon = ui_style
+	mymob.gun_item.update_icon(mymob)
+	static_inventory += mymob.gun_item
+
+	//Gun Mode
+	mymob.gun_mode = new /obj/screen/gun/mode()
+	mymob.gun_mode.icon = ui_style
+	mymob.gun_mode.update_icon(mymob)
+	static_inventory += mymob.gun_mode
+
+	//Gun Radio
+	mymob.gun_radio = new /obj/screen/gun/radio()
+	mymob.gun_radio.icon = ui_style
+	mymob.gun_radio.update_icon(mymob)
+	static_inventory += mymob.gun_radio
 
 	inventory_shown = 0
 

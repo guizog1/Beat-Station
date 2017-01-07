@@ -1,30 +1,35 @@
-
 var/const/ENGSEC			=(1<<0)
 
 var/const/CAPTAIN			=(1<<0)
+
 var/const/HOS				=(1<<1)
 var/const/WARDEN			=(1<<2)
 var/const/DETECTIVE			=(1<<3)
 var/const/OFFICER			=(1<<4)
-var/const/CHIEF				=(1<<5)
-var/const/ENGINEER			=(1<<6)
-var/const/ATMOSTECH			=(1<<7)
-var/const/AI				=(1<<8)
-var/const/CYBORG			=(1<<9)
+var/const/LAWYER			=(1<<7)
+var/const/IAA				=(1<<8)
 
+var/const/CE				=(1<<5)
+var/const/ENGINEER			=(1<<6)
+//var/const/ATMOSTECH		=(1<<7)
+
+var/const/AI				=(1<<9)
+var/const/CYBORG			=(1<<10)
+
+var/const/CENTCOM			=(1<<11)
 
 var/const/MEDSCI			=(1<<1)
 
 var/const/RD				=(1<<0)
 var/const/SCIENTIST			=(1<<1)
-var/const/CHEMIST			=(1<<2)
-var/const/CMO				=(1<<3)
-var/const/DOCTOR			=(1<<4)
-var/const/GENETICIST		=(1<<5)
-var/const/VIROLOGIST		=(1<<6)
-var/const/PSYCHIATRIST		=(1<<7)
-var/const/ROBOTICIST		=(1<<8)
-var/const/PARAMEDIC			=(1<<9)
+var/const/CMO				=(1<<2)
+var/const/DOCTOR			=(1<<3)
+//var/const/CHEMIST			=(1<<4)
+//var/const/GENETICIST		=(1<<5)
+//var/const/VIROLOGIST		=(1<<6)
+//var/const/PSYCHIATRIST	=(1<<7)
+//var/const/ROBOTICIST		=(1<<8)
+//var/const/PARAMEDIC		=(1<<9)
 
 
 var/const/SUPPORT			=(1<<2)
@@ -35,27 +40,37 @@ var/const/BOTANIST			=(1<<2)
 var/const/CHEF				=(1<<3)
 var/const/JANITOR			=(1<<4)
 var/const/LIBRARIAN			=(1<<5)
-var/const/QUARTERMASTER		=(1<<6)
-var/const/CARGOTECH			=(1<<7)
-var/const/MINER				=(1<<8)
-var/const/LAWYER			=(1<<9)
+
+//var/const/QUARTERMASTER	=(1<<6)
+var/const/CARGOTECH			=(1<<6)
+var/const/MINER				=(1<<7)
+
 var/const/CHAPLAIN			=(1<<10)
 var/const/CLOWN				=(1<<11)
-var/const/MIME				=(1<<12)
-var/const/CIVILIAN			=(1<<13)
+//var/const/MIME			=(1<<12)
+var/const/CIVILIAN			=(1<<12)
 
 
 var/const/KARMA				=(1<<3)
 
 var/const/NANO				=(1<<0)
 var/const/BLUESHIELD		=(1<<1)
-var/const/BARBER			=(1<<3)
-var/const/MECHANIC			=(1<<4)
-var/const/BRIGDOC			=(1<<5)
-var/const/JUDGE				=(1<<6)
-var/const/PILOT				=(1<<7)
+//var/const/BARBER			=(1<<3)
+//var/const/MECHANIC		=(1<<4)
+//var/const/BRIGDOC			=(1<<5)
+//var/const/JUDGE			=(1<<6)
+//var/const/PILOT			=(1<<7)
 
 var/list/assistant_occupations = list(
+)
+
+var/list/heads_positions = list(
+	"Captain",
+	"Head of Personnel",
+	"Head of Security",
+	"Chief Engineer",
+	"Research Director",
+	"Chief Medical Officer",
 )
 
 
@@ -65,34 +80,37 @@ var/list/command_positions = list(
 	"Head of Security",
 	"Chief Engineer",
 	"Research Director",
-	"Chief Medical Officer"
+	"Chief Medical Officer",
+	"Blueshield",
+	"Nanotrasen Representative",
 )
 
 
 var/list/engineering_positions = list(
 	"Chief Engineer",
 	"Station Engineer",
-	"Life Support Specialist",
-	"Mechanic"
+	//"Life Support Specialist",
+	//"Mechanic"
 )
 
 
 var/list/medical_positions = list(
 	"Chief Medical Officer",
 	"Medical Doctor",
-	"Geneticist",
-	"Psychiatrist",
-	"Chemist",
-	"Virologist",
-	"Paramedic"
+	//"Psychiatrist",
+	//"Chemist",
+	//"Virologist",
+	//"Paramedic"
 )
 
+var/list/scimed_positions = list(
+	//"Geneticist",	//Part of both medical and science
+)
 
 var/list/science_positions = list(
 	"Research Director",
 	"Scientist",
-	"Geneticist",	//Part of both medical and science
-	"Roboticist",
+	//"Roboticist",
 )
 
 //BS12 EDIT
@@ -103,24 +121,23 @@ var/list/support_positions = list(
 	"Chef",
 	"Janitor",
 	"Librarian",
-	"Quartermaster",
+	//"Quartermaster",
 	"Cargo Technician",
 	"Shaft Miner",
-	"Internal Affairs Agent",
 	"Chaplain",
 	"Clown",
-	"Mime",
-	"Barber",
-	"Magistrate",
-	"Nanotrasen Representative",
-	"Blueshield"
+	//"Mime",
+	//"Barber",
+	//"Magistrate",
+	//"Nanotrasen Representative",
+	//"Blueshield"
 )
 
 var/list/supply_positions = list(
 	"Head of Personnel",
-	"Quartermaster",
 	"Cargo Technician",
-	"Shaft Miner"
+	"Shaft Miner",
+	//"Quartermaster",
 )
 
 var/list/service_positions = support_positions - supply_positions + list("Head of Personnel")
@@ -131,8 +148,10 @@ var/list/security_positions = list(
 	"Warden",
 	"Detective",
 	"Security Officer",
-	"Brig Physician",
-	"Security Pod Pilot"
+	"Internal Affairs Agent",
+	"Lawyer"
+	//"Brig Physician",
+	//"Security Pod Pilot",
 )
 
 
@@ -150,11 +169,11 @@ var/list/nonhuman_positions = list(
 var/list/whitelisted_positions = list(
 	"Blueshield",
 	"Nanotrasen Representative",
-	"Barber",
-	"Mechanic",
-	"Brig Physician",
-	"Magistrate",
-	"Security Pod Pilot",
+	//"Barber",
+	//"Mechanic",
+	//"Brig Physician",
+	//"Magistrate",
+	//"Security Pod Pilot",
 )
 
 
@@ -182,4 +201,3 @@ var/list/whitelisted_positions = list(
 			titles = J.alt_titles
 
 	return titles
-

@@ -101,9 +101,9 @@ var/list/uplink_items = list()
 
 				if(istype(I,/obj/item/weapon/storage/box/) && I.contents.len>0)
 					for(var/atom/o in I)
-						U.purchase_log += "<BIG>\icon[o]</BIG>"
+						U.purchase_log += "<BIG>[bicon(o)]</BIG>"
 				else
-					U.purchase_log += "<BIG>\icon[I]</BIG>"
+					U.purchase_log += "<BIG>[bicon(I)]</BIG>"
 
 		//U.interact(user)
 		return 1
@@ -143,7 +143,7 @@ var/list/uplink_items = list()
 	item = /obj/item/weapon/grenade/spawnergrenade/feral_cats
 	reference = "CCLG"
 	cost = 5
-	job = list("Psychiatrist")//why? Becuase its funny that a person in charge of your mental wellbeing has a cat granade..
+	job = list("Psychiatrist", "Medical Doctor")//why? Becuase its funny that a person in charge of your mental wellbeing has a cat granade..
 
 //Chef
 /datum/uplink_item/jobspecific/specialsauce
@@ -269,7 +269,7 @@ var/list/uplink_items = list()
 	reference = "PG"
 	item = /obj/item/clothing/gloves/color/yellow/power
 	cost = 10
-	job = list("Station Engineer","Chief Engineer")
+	job = list("Station Engineer", "Chief Engineer")
 
 //RD
 
@@ -308,7 +308,15 @@ var/list/uplink_items = list()
 	reference = "AIRJ"
 	item = /obj/item/clothing/under/contortionist
 	cost = 6
-	job = list("Atmospheric Technician")
+	job = list("Life Support Specialist", "Station Engineer", "Chief Engineer")
+
+/datum/uplink_item/dangerous/energizedfireaxe
+	name = "Energized Fire Axe"
+	desc = "A fire axe with a massive electrical charge built into it. It can release this charge on its first victim and will be rather plain after that."
+	reference = "EFA"
+	item = /obj/item/weapon/twohanded/energizedfireaxe
+	cost = 10
+	job = list("Life Support Specialist", "Station Engineer", "Chief Engineer")
 
 //Stimulants
 
@@ -341,7 +349,7 @@ var/list/uplink_items = list()
 	reference = "SPI"
 	desc = "A small, easily concealable handgun that uses 10mm auto rounds in 8-round magazines and is compatible with suppressors."
 	item = /obj/item/weapon/gun/projectile/automatic/pistol
-	cost = 9
+	cost = 4
 
 /datum/uplink_item/dangerous/revolver
 	name = "Syndicate .357 Revolver"
@@ -378,6 +386,15 @@ var/list/uplink_items = list()
 	gamemodes = list(/datum/game_mode/nuclear)
 	surplus = 0
 
+/datum/uplink_item/dangerous/sniper
+	name = "Sniper Rifle"
+	desc = "Ranged fury, Syndicate style. guaranteed to cause shock and awe or your TC back!"
+	reference = "SSR"
+	item = /obj/item/weapon/gun/projectile/automatic/sniper_rifle/syndicate
+	cost = 16
+	surplus = 25
+	gamemodes = list(/datum/game_mode/nuclear)
+
 /datum/uplink_item/dangerous/crossbow
 	name = "Energy Crossbow"
 	desc = "A miniature energy crossbow that is small enough both to fit into a pocket and to slip into a backpack unnoticed by observers. Fires bolts tipped with toxin, a poisonous substance that is the product of a living organism. Stuns enemies for a short period of time. Recharges automatically."
@@ -409,6 +426,13 @@ var/list/uplink_items = list()
 	reference = "CH"
 	item = /obj/item/weapon/twohanded/chainsaw
 	cost = 13
+
+/datum/uplink_item/dangerous/batterer
+	name = "Mind Batterer"
+	desc = "A device that has a chance of knocking down people around you for a long amount of time. 50% chance per person. The user is unaffected. Has 5 charges."
+	reference = "BTR"
+	item = /obj/item/device/batterer
+	cost = 5
 
 /datum/uplink_item/dangerous/manhacks
 	name = "Viscerator Delivery Grenade"
@@ -605,13 +629,45 @@ var/list/uplink_items = list()
 	gamemodes = list(/datum/game_mode/nuclear)
 
 /datum/uplink_item/ammo/machinegun
-	name = "Box Magazine - 7.62x51mm"
-	desc = "A 50-round magazine of 7.62x51mm ammunition for use in the L6 SAW machine gun. By the time you need to use this, you'll already be on a pile of corpses."
+	name = "Box Magazine - 5.56x45mm"
+	desc = "A 50-round magazine of 5.56x45mm ammunition for use in the L6 SAW machine gun. By the time you need to use this, you'll already be on a pile of corpses."
 	reference = "762"
-	item = /obj/item/ammo_box/magazine/m762
+	item = /obj/item/ammo_box/magazine/mm556x45
 	cost = 12
 	gamemodes = list(/datum/game_mode/nuclear)
 	surplus = 0
+
+/datum/uplink_item/ammo/sniper
+	cost = 4
+	gamemodes = list(/datum/game_mode/nuclear)
+
+/datum/uplink_item/ammo/sniper/basic
+	name = ".50 Magazine"
+	desc = "An additional standard 6-round magazine for use with .50 sniper rifles."
+	reference = "50M"
+	item = /obj/item/ammo_box/magazine/sniper_rounds
+
+/datum/uplink_item/ammo/sniper/soporific
+	name = ".50 Soporific Magazine"
+	desc = "A 3-round magazine of soporific ammo designed for use with .50 sniper rifles. Put your enemies to sleep today!"
+	reference = "50S"
+	item = /obj/item/ammo_box/magazine/sniper_rounds/soporific
+	cost = 6
+
+/datum/uplink_item/ammo/sniper/haemorrhage
+	name = ".50 Haemorrhage Magazine"
+	desc = "A 5-round magazine of haemorrhage ammo designed for use with .50 sniper rifles; causes heavy bleeding \
+			in the target."
+	reference = "50B"
+	item = /obj/item/ammo_box/magazine/sniper_rounds/haemorrhage
+
+/datum/uplink_item/ammo/sniper/penetrator
+	name = ".50 Penetrator Magazine"
+	desc = "A 5-round magazine of penetrator ammo designed for use with .50 sniper rifles. \
+			Can pierce walls and multiple enemies."
+	reference = "50P"
+	item = /obj/item/ammo_box/magazine/sniper_rounds/penetrator
+	cost = 5
 
 // STEALTHY WEAPONS
 
@@ -686,7 +742,7 @@ var/list/uplink_items = list()
 	desc = "Fitted for use on any small caliber weapon with a threaded barrel, this suppressor will silence the shots of the weapon for increased stealth and superior ambushing capability."
 	reference = "US"
 	item = /obj/item/weapon/suppressor
-	cost = 3
+	cost = 1
 	surplus = 10
 
 /datum/uplink_item/stealthy_weapons/pizza_bomb
@@ -905,10 +961,18 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/device_tools/plastic_explosives
 	name = "Composition C-4"
-	desc = "C-4 is plastic explosive of the common variety Composition C. You can use it to breach walls or connect a signaller to its wiring to make it remotely detonable. It has a modifiable timer with a minimum setting of 10 seconds."
+	desc = "C-4 is plastic explosive of the common variety Composition C. You can use it to breach walls or connect an assembly to its wiring to make it remotely detonable. It has a modifiable timer with a minimum setting of 10 seconds."
 	reference = "C4"
-	item = /obj/item/weapon/c4
+	item = /obj/item/weapon/grenade/plastic/c4
 	cost = 1
+
+/datum/uplink_item/device_tools/breaching_charge
+	name = "Composition X-4"
+	desc = "X-4 is a shaped charge designed to be safe to the user while causing maximum damage to the occupants of the room beach breached. It has a modifiable timer with a minimum setting of 10 seconds."
+	reference = "X4"
+	item = /obj/item/weapon/grenade/plastic/x4
+	cost = 2
+	gamemodes = list(/datum/game_mode/nuclear)
 
 /datum/uplink_item/device_tools/powersink
 	name = "Power Sink"
@@ -1016,7 +1080,7 @@ var/list/uplink_items = list()
 
 /datum/uplink_item/implants/uplink
 	name = "Uplink Implant"
-	desc = "An implant injected into the body, and later activated using a bodily gesture to open an uplink with 5 telecrystals. The ability for an agent to open an uplink after their possessions have been stripped from them makes this implant excellent for escaping confinement."
+	desc = "An implant injected into the body, and later activated using a bodily gesture to open an uplink with 10 telecrystals. The ability for an agent to open an uplink after their possessions have been stripped from them makes this implant excellent for escaping confinement."
 	reference = "UI"
 	item = /obj/item/weapon/implanter/uplink
 	cost = 14
@@ -1213,7 +1277,7 @@ var/list/uplink_items = list()
 		bought_items += I.item
 		remaining_TC -= I.cost
 
-	U.purchase_log += "<BIG>\icon[C]</BIG>"
+	U.purchase_log += "<BIG>[bicon(C)]</BIG>"
 	for(var/item in bought_items)
 		new item(C)
-		U.purchase_log += "<BIG>\icon[item]</BIG>"
+		U.purchase_log += "<BIG>[bicon(item)]</BIG>"

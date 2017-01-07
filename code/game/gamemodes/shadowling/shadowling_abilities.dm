@@ -368,7 +368,7 @@
 								"<span class='warning'>False faces all d<b>ark not real not real not--</b></span>")
 		target.setOxyLoss(0) //In case the shadowling was choking them out
 		ticker.mode.add_thrall(target.mind)
-		target.mind.special_role = "shadowling thrall"
+		target.mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
 
 /obj/effect/proc_holder/spell/targeted/shadowling_regenarmor //Resets a shadowling's species to normal, removes genetic defects, and re-equips their armor
 	name = "Rapid Re-Hatch"
@@ -509,14 +509,14 @@
 			sleep(10)
 		qdel(B)
 
-datum/reagent/shadowling_blindness_smoke //Blinds non-shadowlings, heals shadowlings/thralls
+/datum/reagent/shadowling_blindness_smoke //Blinds non-shadowlings, heals shadowlings/thralls
 	name = "odd black liquid"
 	id = "blindness_smoke"
 	description = "<::ERROR::> CANNOT ANALYZE REAGENT <::ERROR::>"
 	color = "#000000" //Complete black (RGB: 0, 0, 0)
 	metabolization_rate = 100 //lel
 
-datum/reagent/shadowling_blindness_smoke/on_mob_life(var/mob/living/M as mob)
+/datum/reagent/shadowling_blindness_smoke/on_mob_life(var/mob/living/M as mob)
 	if(!M) M = holder.my_atom
 	if(!is_shadow_or_thrall(M))
 		to_chat(M, "<span class='warning'><b>You breathe in the black smoke, and your eyes burn horribly!</b></span>")
@@ -530,9 +530,6 @@ datum/reagent/shadowling_blindness_smoke/on_mob_life(var/mob/living/M as mob)
 		M.adjustOxyLoss(-2)
 		M.adjustToxLoss(-2)
 	..()
-	return
-
-
 
 /obj/effect/proc_holder/spell/aoe_turf/unearthly_screech
 	name = "Sonic Screech"
@@ -832,7 +829,7 @@ datum/reagent/shadowling_blindness_smoke/on_mob_life(var/mob/living/M as mob)
 		to_chat(usr, "<span class='shadowling'>You instantly rearrange <b>[target]</b>'s memories, hyptonitizing them into a thrall.</span>")
 		to_chat(target, "<span class='userdanger'><font size=3>An agonizing spike of pain drives into your mind, and--</font></span>")
 		ticker.mode.add_thrall(target.mind)
-		target.mind.special_role = "shadowling thrall"
+		target.mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
 		target.add_language("Shadowling Hivemind")
 
 

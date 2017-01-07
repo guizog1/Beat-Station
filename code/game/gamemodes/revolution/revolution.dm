@@ -27,10 +27,10 @@
 ///////////////////////////
 //Announces the game type//
 ///////////////////////////
-/datum/game_mode/revolution/announce()
-	to_chat(world, "<B>The current game mode is - Revolution!</B>")
-	to_chat(world, "<B>Some crewmembers are attempting to start a revolution!<BR>\nRevolutionaries - Kill the Captain, HoP, HoS, CE, RD and CMO. Convert other crewmembers (excluding the heads of staff, and security officers) to your cause by flashing them. Protect your leaders.<BR>\nPersonnel - Protect the heads of staff. Kill the leaders of the revolution, and brainwash the other revolutionaries (by beating them in the head).</B>")
-
+/datum/game_mode/revolution/announce(text)
+	text = "<B>The current game mode is - Revolution!</B><br>"
+	text += "<B>Some crewmembers are attempting to start a revolution!<BR>\nRevolutionaries - Kill the Captain, HoP, HoS, CE, RD and CMO. Convert other crewmembers (excluding the heads of staff, and security officers) to your cause by flashing them. Protect your leaders.<BR>\nPersonnel - Protect the heads of staff. Kill the leaders of the revolution, and brainwash the other revolutionaries (by beating them in the head).</B>"
+	..(text)
 
 ///////////////////////////////////////////////////////////////////////////////
 //Gets the round setup, cancelling if there's not enough players at the start//
@@ -111,7 +111,7 @@
 		to_chat(rev_mind.current, "<span class='userdanger'>You are a member of the revolutionaries' leadership!</span>")
 	for(var/datum/objective/objective in rev_mind.objectives)
 		to_chat(rev_mind.current, "<B>Objective #[obj_count]</B>: [objective.explanation_text]")
-		rev_mind.special_role = "Head Revolutionary"
+		rev_mind.special_role = SPECIAL_ROLE_HEAD_REV
 		obj_count++
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +246,7 @@
 	rev_mind.current.Stun(5)
 	to_chat(rev_mind.current, "<span class='danger'><FONT size = 3> You are now a revolutionary! Help your cause. Do not harm your fellow freedom fighters. You can identify your comrades by the red \"R\" icons, and your leaders by the blue \"R\" icons. Help them kill the heads to win the revolution!</FONT></span>")
 	rev_mind.current.attack_log += "\[[time_stamp()]\] <font color='red'>Has been converted to the revolution!</font>"
-	rev_mind.special_role = "Revolutionary"
+	rev_mind.special_role = SPECIAL_ROLE_REV
 	update_rev_icons_added(rev_mind)
 	if(jobban_isbanned(rev_mind.current, ROLE_REV))
 		replace_jobbaned_player(rev_mind.current, ROLE_REV)
@@ -322,19 +322,21 @@
 //////////////////////////////////////////////////////////////////////
 //Announces the end of the game with all relavent information stated//
 //////////////////////////////////////////////////////////////////////
-/datum/game_mode/revolution/declare_completion()
+/datum/game_mode/revolution/declare_completion(text)
 	if(finished == 1)
 		feedback_set_details("round_end_result","win - heads killed")
-		to_chat(world, "<span class='redtext'>The heads of staff were killed or exiled! The revolutionaries win!</span>")
+		text = "<span class='redtext'>The heads of staff were killed or exiled! The revolutionaries win!</span>"
 	else if(finished == 2)
 		feedback_set_details("round_end_result","loss - rev heads killed")
-		to_chat(world, "<span class='redtext'>The heads of staff managed to stop the revolution!</span>")
-	..()
+		text = "<span class='redtext'>The heads of staff managed to stop the revolution!</span>"
+	to_chat(world, text)
+	..(text)
 	return 1
 
 /datum/game_mode/proc/auto_declare_completion_revolution()
 	var/list/targets = list()
-	if(head_revolutionaries.len || istype(ticker.mode,/datum/game_mode/revolution))
+	var/text = ""
+	if(head_revolutionaries.len || GAMEMODE_IS_REVOLUTION)
 		var/num_revs = 0
 		var/num_survivors = 0
 		for(var/mob/living/carbon/survivor in living_mob_list)
@@ -345,21 +347,23 @@
 						num_revs++
 		if(num_survivors)
 			to_chat(world, "[TAB]Command's Approval Rating: <B>[100 - round((num_revs/num_survivors)*100, 0.1)]%</B>") // % of loyal crew
-		var/text = "<br><font size=3><b>The head revolutionaries were:</b></font>"
+		text = "<br><font size=3><b>The head revolutionaries were:</b></font>"
 		for(var/datum/mind/headrev in head_revolutionaries)
 			text += printplayer(headrev, 1)
 		text += "<br>"
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
-	if(revolutionaries.len || istype(ticker.mode,/datum/game_mode/revolution))
-		var/text = "<br><font size=3><b>The revolutionaries were:</b></font>"
+	if(revolutionaries.len || GAMEMODE_IS_REVOLUTION)
+		text = "<br><font size=3><b>The revolutionaries were:</b></font>"
 		for(var/datum/mind/rev in revolutionaries)
 			text += printplayer(rev, 1)
 		text += "<br>"
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
-	if( head_revolutionaries.len || revolutionaries.len || istype(ticker.mode,/datum/game_mode/revolution) )
-		var/text = "<br><font size=3><b>The heads of staff were:</b></font>"
+	if(head_revolutionaries.len || revolutionaries.len || GAMEMODE_IS_REVOLUTION )
+		text = "<br><font size=3><b>The heads of staff were:</b></font>"
 		var/list/heads = get_all_heads()
 		for(var/datum/mind/head in heads)
 			var/target = (head in targets)
@@ -368,6 +372,7 @@
 			text += printplayer(head, 1)
 		text += "<br>"
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 
 /datum/game_mode/revolution/set_scoreboard_gvars()
 	var/foecount = 0

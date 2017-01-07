@@ -23,8 +23,6 @@
 
 	var/PathNode/PNode = null //associated PathNode in the A* algorithm
 
-	var/dynamic_lighting = 1
-
 	flags = 0
 
 	var/image/obscured	//camerachunks
@@ -161,9 +159,17 @@
 	if(path == type)	return src
 	var/old_opacity = opacity
 	var/old_dynamic_lighting = dynamic_lighting
-	var/list/old_affecting_lights = affecting_lights
+	var/old_affecting_lights = affecting_lights
 	var/old_lighting_overlay = lighting_overlay
 	var/old_blueprint_data = blueprint_data
+	var/old_corners = corners
+
+	if(!lighting_corners_initialised && global.lighting_corners_initialised)
+		for(var/i = 1 to 4)
+			if(corners[i]) // Already have a corner on this direction.
+				continue
+
+			corners[i] = new/datum/lighting_corner(src, LIGHTING_CORNER_DIAGONAL[i])
 
 	if(air_master)
 		air_master.remove_from_active(src)
@@ -180,14 +186,15 @@
 
 	lighting_overlay = old_lighting_overlay
 
+	corners = old_corners
 	affecting_lights = old_affecting_lights
 	if((old_opacity != opacity) || (dynamic_lighting != old_dynamic_lighting))
 		reconsider_lights()
 	if(dynamic_lighting != old_dynamic_lighting)
 		if(dynamic_lighting)
-			lighting_build_overlays()
+			lighting_build_overlay()
 		else
-			lighting_clear_overlays()
+			lighting_clear_overlay()
 
 	W.levelupdate()
 	W.CalculateAdjacentTurfs()
@@ -367,10 +374,19 @@
 	if(ticker)
 		cameranet.updateVisibility(src)
 
-/turf/proc/get_lumcount() //Gets the lighting level of a given turf.
-	if(lighting_overlay)
-		return lighting_overlay.get_clamped_lum()
-	return 1
+/turf/proc/get_lumcount(var/minlum = 0, var/maxlum = 1)
+	if (!lighting_overlay)
+		return 0.5
+
+	var/totallums = 0
+	for (var/datum/lighting_corner/L in corners)
+		totallums += L.lum_r + L.lum_b + L.lum_g
+
+	totallums /= 12 // 4 corners, each with 3 channels, get the average.
+
+	totallums = (totallums - minlum) / (maxlum - minlum)
+
+	return CLAMP01(totallums)
 
 /turf/attackby(obj/item/C, mob/user, params)
 	if(can_lay_cable() && istype(C, /obj/item/stack/cable_coil))

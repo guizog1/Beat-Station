@@ -96,6 +96,10 @@
 			return has_organ("chest")
 		if(slot_w_uniform)
 			return has_organ("chest")
+		if(slot_underpants)
+			return has_organ("chest") && has_organ("l_leg") && has_organ("r_leg")
+		if(slot_undershirt)
+			return has_organ("chest")
 		if(slot_l_store)
 			return has_organ("chest")
 		if(slot_r_store)
@@ -166,9 +170,8 @@
 			update_fhair()
 			update_head_accessory()
 		if(internal)
-			if(internals)
-				internals.icon_state = "internal0"
 			internal = null
+			update_internals_hud_icon(0)
 		sec_hud_set_ID()
 		update_inv_wear_mask()
 	else if(I == wear_id)
@@ -196,7 +199,12 @@
 	else if(I == l_hand)
 		l_hand = null
 		update_inv_l_hand()
-
+	else if(I == underpants)
+		underpants = null
+		update_inv_underwear()
+	else if(I == undershirt)
+		undershirt = null
+		update_inv_underwear()
 
 
 
@@ -218,6 +226,7 @@
 	W.loc = src
 	W.equipped(src, slot)
 	W.layer = 20
+	W.plane = HUD_PLANE
 
 	switch(slot)
 		if(slot_back)
@@ -260,6 +269,7 @@
 				O.loc = src
 				r_ear = O
 				O.layer = 20
+				O.plane = HUD_PLANE
 			update_inv_ears(redraw_mob)
 		if(slot_r_ear)
 			r_ear = W
@@ -268,6 +278,7 @@
 				O.loc = src
 				l_ear = O
 				O.layer = 20
+				O.plane = HUD_PLANE
 			update_inv_ears(redraw_mob)
 		if(slot_glasses)
 			glasses = W
@@ -307,6 +318,12 @@
 		if(slot_tie)
 			var/obj/item/clothing/under/uniform = src.w_uniform
 			uniform.attackby(W,src)
+		if(slot_underpants)
+			underpants = W
+			update_inv_underwear(redraw_mob)
+		if(slot_undershirt)
+			undershirt = W
+			update_inv_underwear(redraw_mob)
 		else
 			to_chat(src, "<span class='warning'>You are trying to equip this item to an unsupported inventory slot. Report this to a coder!</span>")
 			return
@@ -361,6 +378,10 @@
 			return r_store
 		if(slot_s_store)
 			return s_store
+		if(slot_underpants)
+			return underpants
+		if(slot_undershirt)
+			return undershirt
 	return null
 
 /mob/living/carbon/human/get_all_slots()
@@ -382,7 +403,9 @@
 		wear_pda,
 		l_store,
 		r_store,
-		w_uniform
+		w_uniform,
+		underpants,
+		undershirt
 		)
 
 /mob/living/carbon/human/proc/get_head_slots()
@@ -420,7 +443,7 @@
 	if(istype(I, /obj/item/clothing/under) || istype(I, /obj/item/clothing/suit))
 		if(FAT in mutations)
 			//testing("[M] TOO FAT TO WEAR [src]!")
-			if(!(I.flags & ONESIZEFITSALL))
+			if(!(I.flags_size & ONESIZEFITSALL))
 				if(!disable_warning)
 					to_chat(src, "<span class='alert'>You're too fat to wear the [I].</span>")
 				return 0
@@ -604,6 +627,24 @@
 					to_chat(src, "<span class='warning'>You already have an accessory of this type attached to your [uniform].</span>")
 				return 0
 			if(!(I.slot_flags & SLOT_TIE))
+				return 0
+			return 1
+		if(slot_underpants)
+			var/obj/item/clothing/underwear/underpants/uw = I
+			if(!istype(uw))
+				return 0
+			if(underpants)
+				return 0
+			if(uw.use_gender != gender && uw.use_gender != NEUTER)
+				return 0
+			return 1
+		if(slot_undershirt)
+			var/obj/item/clothing/underwear/undershirt/uw = I
+			if(!istype(uw))
+				return 0
+			if(undershirt)
+				return 0
+			if(uw.use_gender != gender && uw.use_gender != NEUTER)
 				return 0
 			return 1
 

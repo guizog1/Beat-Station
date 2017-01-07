@@ -3,12 +3,8 @@
 	config_tag = "extended"
 	required_players = 0
 
-	uplink_welcome = "Syndicate Uplink Console:"
-	uplink_uses = 20
-
-/datum/game_mode/announce()
-	to_chat(world, "<B>The current game mode is - Extended Role-Playing!</B>")
-	to_chat(world, "<B>Just have fun and role-play!</B>")
+/datum/game_mode/extended/announce()
+	..("<B>The current game mode is - Extended Role-Playing!</B><br><B>Just have fun and role-play!</B>")
 
 /datum/game_mode/extended/pre_setup()
 	return 1

@@ -11,22 +11,19 @@
 	name = "traitor"
 	config_tag = "traitor"
 	restricted_jobs = list("Cyborg")//They are part of the AI if he is traitor so are they, they use to get double chances
-	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Internal Affairs Agent", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Internal Affairs Agent", "Brig Physician")//AI", Currently out of the list as malf does not work for shit
+	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Internal Affairs Agent", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Internal Affairs Agent", "Brig Physician", "Nanotrasen Navy Officer", "Special Operations Officer")//AI", Currently out of the list as malf does not work for shit
 	required_players = 0
 	required_enemies = 1
 	recommended_enemies = 4
-
-
-	uplink_welcome = "Syndicate Uplink Console:"
-	uplink_uses = 20
 
 	var/traitors_possible = 4 //hard limit on traitors if scaling is turned off
 	var/const/traitor_scaling_coeff = 5.0 //how much does the amount of players get divided by to determine traitors
 
 
-/datum/game_mode/traitor/announce()
-	to_chat(world, "<B>The current game mode is - Traitor!</B>")
-	to_chat(world, "<B>There is a syndicate traitor on the station. Do not let the traitor succeed!</B>")
+/datum/game_mode/traitor/announce(text)
+	text = "<B>The current game mode is - Traitor!</B><br>"
+	text += "<B>There is a syndicate traitor on the station. Do not let the traitor succeed!</B>"
+	..(text)
 
 
 /datum/game_mode/traitor/pre_setup()
@@ -52,7 +49,7 @@
 			break
 		var/datum/mind/traitor = pick(possible_traitors)
 		traitors += traitor
-		traitor.special_role = "traitor"
+		traitor.special_role = SPECIAL_ROLE_TRAITOR
 		var/datum/mindslaves/slaved = new()
 		slaved.masters += traitor
 		traitor.som = slaved //we MIGT want to mindslave someone
@@ -284,6 +281,7 @@
 
 
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 	return 1
 
 
@@ -370,10 +368,11 @@
 		traitor_mind.special_role = null
 		traitor_mind.som = null
 		slaved.leave_serv_hud(traitor_mind)
+		for(var/datum/objective/protect/mindslave/MS in traitor_mind.objectives)
+			traitor_mind.objectives -= MS
 
 	update_traitor_icons_removed(traitor_mind)
-//	to_chat(world, "Removed [traitor_mind.current.name] from traitor shit")
-	to_chat(traitor_mind.current, "\red <FONT size = 3><B>The fog clouding your mind clears. You remember nothing from the moment you were implanted until now.(You don't remember who implanted you)</B></FONT>")
+	to_chat(traitor_mind.current, "<span class='userdanger'>You are no longer a mindslave; you have complete and free control of your own faculties, once more!</span>")
 
 /datum/game_mode/proc/assign_exchange_role(var/datum/mind/owner)
 	//set faction

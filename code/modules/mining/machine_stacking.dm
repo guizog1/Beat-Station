@@ -89,4 +89,5 @@
 	if(T)
 		for(var/obj/item/stack/sheet/S in T)
 			process_sheet(S)
+			CHECK_TICK
 

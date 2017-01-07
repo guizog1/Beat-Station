@@ -203,7 +203,7 @@ var/bomb_set
 
 	ui = nanomanager.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
-		ui = new(user, src, ui_key, "nuclear_bomb.tmpl", "Nuke Control Panel", 450, 550)
+		ui = new(user, src, ui_key, "nuclear_bomb.tmpl", "Nuke Control Panel", 450, 550, state = physical_state)
 		ui.set_initial_data(data)
 		ui.open()
 		ui.set_auto_update(1)
@@ -402,7 +402,9 @@ var/bomb_set
 /obj/item/weapon/disk/nuclear/process()
 	var/turf/disk_loc = get_turf(src)
 	if(disk_loc.z != ZLEVEL_STATION && disk_loc.z != ZLEVEL_CENTCOMM)
-		to_chat(get(src, /mob), "<span class='danger'>You can't help but feel that you just lost something back there...</span>")
+		var/holder = get(src, /mob)
+		if(holder)
+			to_chat(holder, "<span class='danger'>You can't help but feel that you just lost something back there...</span>")
 		qdel(src)
 
 /obj/item/weapon/disk/nuclear/Destroy()

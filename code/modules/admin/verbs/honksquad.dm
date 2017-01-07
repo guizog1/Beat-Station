@@ -59,7 +59,7 @@ var/global/sent_honksquad = 0
 				new_honksquad.key = pick(commandos)
 				commandos -= new_honksquad.key
 				new_honksquad.internal = new_honksquad.s_store
-				new_honksquad.internals.icon_state = "internal1"
+				new_honksquad.update_internals_hud_icon(1)
 
 			//So they don't forget their code or mission.
 			new_honksquad.mind.store_memory("<B>Mission:</B> \red [input].")
@@ -92,7 +92,7 @@ var/global/sent_honksquad = 0
 	//Creates mind stuff.
 	new_honksquad.mind_initialize()
 	new_honksquad.mind.assigned_role = "MODE"
-	new_honksquad.mind.special_role = "HONKsquad"
+	new_honksquad.mind.special_role = SPECIAL_ROLE_HONKSQUAD
 	ticker.mode.traitors |= new_honksquad.mind//Adds them to current traitor list. Which is really the extra antagonist list.
 	new_honksquad.equip_honksquad(honk_leader_selected)
 	return new_honksquad
@@ -121,7 +121,7 @@ var/global/sent_honksquad = 0
 	if(prob(50))
 		equip_to_slot_or_del(new /obj/item/weapon/gun/energy/clown(src), slot_in_backpack)
 	else
-		equip_to_slot_or_del(new /obj/item/weapon/gun/grenadelauncher/piecannon(src), slot_in_backpack)
+		equip_to_slot_or_del(new /obj/item/weapon/gun/throw/piecannon(src), slot_in_backpack)
 	src.mutations.Add(CLUMSY)
 
 

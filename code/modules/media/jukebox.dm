@@ -218,7 +218,7 @@ var/global/loopModeNames=list(
 		if(response)
 			var/json = file2text(response["CONTENT"])
 			if("/>" in json)
-				visible_message("<span class='warning'>\icon[src] \The [src] buzzes, unable to update its playlist.</span>","<em>You hear a buzz.</em>")
+				visible_message("<span class='warning'>[bicon(src)] \The [src] buzzes, unable to update its playlist.</span>","<em>You hear a buzz.</em>")
 				stat &= BROKEN
 				update_icon()
 				return
@@ -226,11 +226,11 @@ var/global/loopModeNames=list(
 			for(var/list/record in songdata)
 				playlist += new /datum/song_info(record)
 			if(playlist.len==0)
-				visible_message("<span class='warning'>\icon[src] \The [src] buzzes, unable to update its playlist.</span>","<em>You hear a buzz.</em>")
+				visible_message("<span class='warning'>[bicon(src)] \The [src] buzzes, unable to update its playlist.</span>","<em>You hear a buzz.</em>")
 				stat &= BROKEN
 				update_icon()
 				return
-			visible_message("<span class='notice'>\icon[src] \The [src] beeps, and the menu on its front fills with [playlist.len] items.</span>","<em>You hear a beep.</em>")
+			visible_message("<span class='notice'>[bicon(src)] \The [src] beeps, and the menu on its front fills with [playlist.len] items.</span>","<em>You hear a beep.</em>")
 			if(autoplay)
 				playing=1
 				autoplay=0
@@ -239,7 +239,7 @@ var/global/loopModeNames=list(
 			stat &= BROKEN
 			update_icon()
 			return
-	if(playing)
+	if(playing && playlist.len > 0)
 		var/datum/song_info/song
 		if(current_song)
 			song = playlist[current_song]
@@ -247,7 +247,7 @@ var/global/loopModeNames=list(
 			current_song=1
 			switch(loop_mode)
 				if(JUKEMODE_SHUFFLE)
-					current_song=rand(1,playlist.len)
+					current_song = rand(1, playlist.len)
 				if(JUKEMODE_REPEAT_SONG)
 					current_song=current_song
 				if(JUKEMODE_PLAY_ONCE)
@@ -257,12 +257,12 @@ var/global/loopModeNames=list(
 			update_music()
 
 /obj/machinery/media/jukebox/update_music()
-	if(current_song && playing)
+	if(current_song && playing && playlist.len > 0)
 		var/datum/song_info/song = playlist[current_song]
 		media_url = song.url
 		media_start_time = world.time
-		visible_message("<span class='notice'>\icon[src] \The [src] begins to play [song.display()].</span>","<em>You hear music.</em>")
-		//visible_message("<span class='notice'>\icon[src] \The [src] warbles: [song.length/10]s @ [song.url]</notice>")
+		visible_message("<span class='notice'>[bicon(src)] \The [src] begins to play [song.display()].</span>","<em>You hear music.</em>")
+		//visible_message("<span class='notice'>[bicon(src)] \The [src] warbles: [song.length/10]s @ [song.url]</notice>")
 	else
 		media_url=""
 		media_start_time = 0
@@ -270,7 +270,7 @@ var/global/loopModeNames=list(
 
 /obj/machinery/media/jukebox/proc/stop_playing()
 	//current_song=0
-	playing=0
+	playing = 0
 	update_music()
 	return
 

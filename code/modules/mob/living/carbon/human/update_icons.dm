@@ -59,6 +59,7 @@ There are several things that need to be remembered:
 		update_inv_back()
 		update_inv_handcuffed()
 		update_inv_wear_mask()
+		update_inv_underwear()
 
 	All of these are named after the variable they update from. They are defined at the mob/ level like
 	update_clothing was, so you won't cause undefined proc runtimes with usr.update_inv_wear_id() if the usr is a
@@ -107,17 +108,7 @@ Please contact me on #coderbus IRC. ~Carn x
 	var/list/overlays_standing[TOTAL_LAYERS]
 	var/previous_damage_appearance // store what the body last looked like, so we only have to update it if something changed
 	var/icon/skeleton
-
-
-/mob/living/carbon/human/proc/apply_overlay(cache_index)
-	var/image/I = overlays_standing[cache_index]
-	if(I)
-		overlays += I
-
-/mob/living/carbon/human/proc/remove_overlay(cache_index)
-	if(overlays_standing[cache_index])
-		overlays -= overlays_standing[cache_index]
-		overlays_standing[cache_index] = null
+	var/list/cached_standing_overlays = list() // List of everything currently in a human's actual overlays
 
 //UPDATES OVERLAYS FROM OVERLAYS_LYING/OVERLAYS_STANDING
 //this proc is messy as I was forced to include some old laggy cloaking code to it so that I don't break cloakers
@@ -125,6 +116,7 @@ Please contact me on #coderbus IRC. ~Carn x
 /mob/living/carbon/human/update_icons()
 	var/stealth = 0
 	var/obj/item/clothing/suit/armor/abductor/vest/V // Begin the most snowflakey bullshit code I've ever written. I'm so sorry, but there was no other way.
+
 	for(V in list(wear_suit))
 		if(V.stealth_active)
 			stealth = 1
@@ -133,6 +125,7 @@ Please contact me on #coderbus IRC. ~Carn x
 	if(stealth)
 		icon = V.disguise.icon //if the suit is active, reference the suit's current loaded icon and overlays; this does not include hand overlays
 		overlays.Cut()
+		cached_standing_overlays.Cut() // Make sure the cache gets rebuilt once the disguise is gone
 
 		for(var/thing in V.disguise.overlays)
 			if(thing)
@@ -146,10 +139,28 @@ Please contact me on #coderbus IRC. ~Carn x
 			overlays += I
 	else
 		icon = stand_icon
-		overlays.Cut()
+		var/list/new_overlays = list()
+		var/list/old_overlays = cached_standing_overlays
 
-		for(var/thing in overlays_standing)
-			if(thing)	overlays += thing
+		// Totally regenerate if something touched our overlays
+		if(overlays.len != old_overlays.len)
+			overlays.Cut()
+			old_overlays.Cut()
+
+		for(var/i in 1 to TOTAL_LAYERS)
+			var/image/I = overlays_standing[i]
+			if(I)
+				if(istype(I))
+					// Since we avoid full overlay rebuilds, we have to reorganize the layers manually
+					I.layer = (-2 - (TOTAL_LAYERS - i)) // Highest layer gets -2, each prior layer is 1 lower
+				new_overlays += I
+
+		if(frozen) // Admin freeze overlay
+			new_overlays += frozen
+
+		overlays += (new_overlays - old_overlays)
+		overlays -= (old_overlays - new_overlays)
+		cached_standing_overlays = new_overlays
 
 	update_transform()
 
@@ -211,6 +222,9 @@ var/global/list/damage_icon_parts = list()
 	var/fat = (FAT in src.mutations)
 	var/hulk = (HULK in src.mutations)
 	var/skeleton = (SKELETON in src.mutations)
+
+	if(species && species.bodyflags & HAS_ICON_SKIN_TONE)
+		species.updatespeciescolor(src)
 
 	//CACHING: Generate an index key from visible bodyparts.
 	//0 = destroyed, 1 = normal, 2 = robotic, 3 = necrotic.
@@ -301,30 +315,6 @@ var/global/list/damage_icon_parts = list()
 	else
 		overlays_standing[LIMBS_LAYER] = null // So we don't get the old species' sprite splatted on top of the new one's
 
-	//Underwear
-	overlays_standing[UNDERWEAR_LAYER]	= null
-	var/icon/underwear_standing = new/icon('icons/mob/underwear.dmi',"nude")
-
-	if(underwear && species.clothing_flags & HAS_UNDERWEAR)
-		var/datum/sprite_accessory/underwear/U = underwear_list[underwear]
-		if(U)
-			underwear_standing.Blend(new /icon(U.icon, "uw_[U.icon_state]_s"), ICON_OVERLAY)
-
-	if(undershirt && species.clothing_flags & HAS_UNDERSHIRT)
-		var/datum/sprite_accessory/undershirt/U2 = undershirt_list[undershirt]
-		if(U2)
-			underwear_standing.Blend(new /icon(U2.icon, "us_[U2.icon_state]_s"), ICON_OVERLAY)
-
-
-	if(socks && species.clothing_flags & HAS_SOCKS)
-		var/datum/sprite_accessory/socks/U3 = socks_list[socks]
-		if(U3)
-			underwear_standing.Blend(new /icon(U3.icon, "sk_[U3.icon_state]_s"), ICON_OVERLAY)
-
-	if(underwear_standing)
-		overlays_standing[UNDERWEAR_LAYER]	= image(underwear_standing)
-
-
 	if(update_icons)
 		update_icons()
 
@@ -343,6 +333,8 @@ var/global/list/damage_icon_parts = list()
 	//hair
 	update_hair(0)
 	update_fhair(0)
+	// Underwear
+	update_inv_underwear(0)
 
 
 //MARKINGS OVERLAY
@@ -535,12 +527,13 @@ var/global/list/damage_icon_parts = list()
 
 
 /mob/living/carbon/human/update_fire()
-	remove_overlay(FIRE_LAYER)
 	if(on_fire)
-		overlays_standing[FIRE_LAYER] = image("icon"=fire_dmi, "icon_state"=fire_sprite, "layer"=-FIRE_LAYER)
+		if(!overlays_standing[FIRE_LAYER])
+			overlays_standing[FIRE_LAYER] = image("icon"=fire_dmi, "icon_state"=fire_sprite)
+			update_icons()
 	else
 		overlays_standing[FIRE_LAYER] = null
-	apply_overlay(FIRE_LAYER)
+		update_icons()
 
 /* --------------------------------------- */
 //For legacy support.
@@ -571,11 +564,13 @@ var/global/list/damage_icon_parts = list()
 	update_inv_legcuffed(0)
 	update_inv_pockets(0)
 	update_inv_wear_pda(0)
-	UpdateDamageIcon()
-	update_icons()
-	update_fire()
+	update_inv_underwear(0)
+	UpdateDamageIcon(0)
 	force_update_limbs()
 	update_tail_layer(0)
+	overlays.Cut() // Force all overlays to regenerate
+	update_fire()
+	update_icons()
 /* --------------------------------------- */
 //vvvvvv UPDATE_INV PROCS vvvvvv
 
@@ -597,7 +592,7 @@ var/global/list/damage_icon_parts = list()
 		var/image/standing	= image("icon_state" = "[t_color]_s")
 
 		if(FAT in mutations)
-			if(w_uniform.flags&ONESIZEFITSALL)
+			if(w_uniform.flags_size & ONESIZEFITSALL)
 				standing.icon	= 'icons/mob/uniform_fat.dmi'
 			else
 				to_chat(src, "\red You burst out of \the [w_uniform]!")
@@ -636,6 +631,7 @@ var/global/list/damage_icon_parts = list()
 					thing.loc = loc																//
 					thing.dropped(src)															//
 					thing.layer = initial(thing.layer)
+					thing.plane = initial(thing.plane)
 	if(update_icons)   update_icons()
 
 /mob/living/carbon/human/update_inv_wear_id(var/update_icons=1)
@@ -903,7 +899,7 @@ var/global/list/damage_icon_parts = list()
 		else if(wear_suit.sprite_sheets && wear_suit.sprite_sheets[species.name])
 			standing = image("icon" = wear_suit.sprite_sheets[species.name], "icon_state" = "[wear_suit.icon_state]")
 		else if(FAT in mutations)
-			if(wear_suit.flags&ONESIZEFITSALL)
+			if(wear_suit.flags_size & ONESIZEFITSALL)
 				standing = image("icon" = 'icons/mob/suit_fat.dmi', "icon_state" = "[wear_suit.icon_state]")
 			else
 				to_chat(src, "\red You burst out of \the [wear_suit]!")
@@ -1076,6 +1072,53 @@ var/global/list/damage_icon_parts = list()
 	if(update_icons)
 		update_icons()
 
+
+/mob/living/carbon/human/update_inv_underwear(var/update_icons=1)
+	if(client && hud_used)
+		var/obj/screen/inventory/inv = hud_used.inv_slots[slot_underpants]
+		if(inv)
+			inv.update_icon()
+
+	if(client && hud_used)
+		var/obj/screen/inventory/inv = hud_used.inv_slots[slot_undershirt]
+		if(inv)
+			inv.update_icon()
+
+	var/icon/underwear_standing = new/icon('icons/mob/underwear.dmi', "nude")
+
+	if(socks && species.clothing_flags & HAS_SOCKS)
+		var/datum/sprite_accessory/socks/U = socks_list[socks]
+		if(U)
+			underwear_standing.Blend(new /icon(U.icon, "sk_[U.icon_state]_s"), ICON_OVERLAY)
+
+	if(underpants || undershirt)
+		if(underpants)
+			if(client && hud_used && hud_used.hud_shown)
+				if(hud_used.inventory_shown)
+					underpants.screen_loc = ui_underpants
+				client.screen += underpants
+
+			var/obj/item/clothing/underwear/uw = underpants
+			if(istype(uw))
+				underwear_standing.Blend(new /icon('icons/mob/underwear.dmi', "uw_[uw.standing_icon]_s"), ICON_OVERLAY)
+		if(undershirt)
+			if(client && hud_used && hud_used.hud_shown)
+				if(hud_used.inventory_shown)
+					undershirt.screen_loc = ui_undershirt
+				client.screen += undershirt
+
+			var/obj/item/clothing/underwear/uw2 = undershirt
+			if(istype(uw2))
+				underwear_standing.Blend(new /icon('icons/mob/underwear.dmi', "us_[uw2.standing_icon]_s"), ICON_OVERLAY)
+		overlays_standing[UNDERWEAR_LAYER] = image(underwear_standing)
+	else
+		overlays_standing[UNDERWEAR_LAYER] = null
+	if(update_icons)
+		update_icons()
+
+// UPDATE INV END
+
+
 //human HUD updates for items in our inventory
 
 //update whether our head item appears on our hud.
@@ -1108,12 +1151,13 @@ var/global/list/damage_icon_parts = list()
 	if(body_accessory)
 		if(body_accessory.try_restrictions(src))
 			var/icon/accessory_s = new/icon("icon" = body_accessory.icon, "icon_state" = body_accessory.icon_state)
-			accessory_s.Blend(rgb(r_skin, g_skin, b_skin), body_accessory.blend_mode)
+			if(species.bodyflags & HAS_SKIN_COLOR)
+				accessory_s.Blend(rgb(r_skin, g_skin, b_skin), body_accessory.blend_mode)
 
-			if(src.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
+			if(species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 				var/icon/temp1 = new /icon('icons/mob/body_accessory.dmi',"accessory_none_s")
-				if(src.species.name in body_accessory.allowed_species)
+				if(species.name in body_accessory.allowed_species)
 					var/icon/temp = new/icon("icon" = 'icons/mob/body_accessory.dmi', "icon_state" = "[species.tail]_delay")
 					temp1 = temp
 				else
@@ -1129,7 +1173,7 @@ var/global/list/damage_icon_parts = list()
 				// Creates a blank icon, and copies accessory_s' north direction sprite into it
 				// before passing that to the tail layer that overlays uniforms and such.
 				var/icon/temp2 = new /icon('icons/mob/body_accessory.dmi',"accessory_none_s")
-				if(src.species.name in body_accessory.allowed_species)
+				if(species.name in body_accessory.allowed_species)
 					var/icon/temp = new/icon("icon" = 'icons/mob/body_accessory.dmi', "icon_state" = "[species.tail]_delay")
 					temp2 = temp
 				else
@@ -1145,9 +1189,10 @@ var/global/list/damage_icon_parts = list()
 	else if(species.tail && species.bodyflags & HAS_TAIL) //no tailless tajaran
 		if(!wear_suit || !(wear_suit.flags_inv & HIDETAIL) && !istype(wear_suit, /obj/item/clothing/suit/space))
 			var/icon/tail_s = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[species.tail]_s")
-			tail_s.Blend(rgb(r_skin, g_skin, b_skin), ICON_ADD)
+			if(species.bodyflags & HAS_SKIN_COLOR)
+				tail_s.Blend(rgb(r_skin, g_skin, b_skin), ICON_ADD)
 
-			if(src.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
+			if(species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
 				// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 				var/icon/temp1 = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[species.tail]_delay")
 				temp1.Insert(new/icon(tail_s,dir=SOUTH),dir=SOUTH)
@@ -1177,13 +1222,14 @@ var/global/list/damage_icon_parts = list()
 
 	if(body_accessory)
 		var/icon/accessory_s = new/icon("icon" = body_accessory.get_animated_icon(), "icon_state" = body_accessory.get_animated_icon_state())
-		accessory_s.Blend(rgb(r_skin, g_skin, b_skin), body_accessory.blend_mode)
+		if(species.bodyflags & HAS_SKIN_COLOR)
+			accessory_s.Blend(rgb(r_skin, g_skin, b_skin), body_accessory.blend_mode)
 
-		if(src.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
+		if(species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
 			// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 			var/icon/temp1 = new /icon('icons/mob/body_accessory.dmi',"accessory_none_s")
 			if(body_accessory.allowed_species)
-				if(src.species.name in body_accessory.allowed_species)
+				if(species.name in body_accessory.allowed_species)
 					var/icon/temp = new/icon("icon" = 'icons/mob/body_accessory.dmi', "icon_state" = "[species.tail]_delay")
 					temp1 = temp
 				else
@@ -1199,7 +1245,7 @@ var/global/list/damage_icon_parts = list()
 			// Creates a blank icon, and copies accessory_s' north direction sprite into it
 			// before passing that to the tail layer that overlays uniforms and such.
 			var/icon/temp2 = new /icon('icons/mob/body_accessory.dmi',"accessory_none_s")
-			if(src.species.name in body_accessory.allowed_species) // If the user's species is in the list of allowed species for the currently selected body accessory, use the appropriate animation timing blank
+			if(species.name in body_accessory.allowed_species) // If the user's species is in the list of allowed species for the currently selected body accessory, use the appropriate animation timing blank
 				var/icon/temp = new/icon("icon" = 'icons/mob/body_accessory.dmi', "icon_state" = "[species.tail]_delay")
 				temp2 = temp
 			else // Else if the user's species is not in the list of allowed species for the currently selected body accessory, this point must have been reached by admin-override. Use vulpkanin timings as default.
@@ -1214,9 +1260,10 @@ var/global/list/damage_icon_parts = list()
 
 	else if(species.tail && species.bodyflags & HAS_TAIL)
 		var/icon/tailw_s = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[species.tail]w_s")
-		tailw_s.Blend(rgb(r_skin, g_skin, b_skin), ICON_ADD)
+		if(species.bodyflags & HAS_SKIN_COLOR)
+			tailw_s.Blend(rgb(r_skin, g_skin, b_skin), ICON_ADD)
 
-		if(src.species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
+		if(species.bodyflags & TAIL_OVERLAPPED) // If the player has a species whose tail is overlapped by limbs...
 			// Gives the underlimbs layer SEW direction icons since it's overlayed by limbs and just about everything else anyway.
 			var/icon/temp1 = new/icon("icon" = 'icons/effects/species.dmi', "icon_state" = "[species.tail]_delay")
 			temp1.Insert(tailw_s,dir=SOUTH)

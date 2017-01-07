@@ -8,12 +8,14 @@
 
 	var/stat = 0 //Whether a mob is alive or dead. TODO: Move this to living - Nodrak
 
+	// Vore controller
+	var/datum/vore_controller/swallow_controller
+
 	//Not in use yet
 	var/obj/effect/organstructure/organStructure = null
 
 	var/obj/screen/hands = null
 	var/obj/screen/pullin = null
-	var/obj/screen/internals = null
 	var/obj/screen/i_select = null
 	var/obj/screen/m_select = null
 	var/obj/screen/healths = null
@@ -28,6 +30,11 @@
 	var/obj/screen/zone_sel/zone_sel = null
 	var/obj/screen/leap_icon = null
 	var/obj/screen/healthdoll = null
+
+	var/obj/screen/gun/move/gun_move = null
+	var/obj/screen/gun/move/gun_item = null
+	var/obj/screen/gun/move/gun_mode = null
+	var/obj/screen/gun/move/gun_radio = null
 
 	var/use_me = 1 //Allows all mobs to use the me verb by default, will have to manually specify they cannot
 	var/damageoverlaytemp = 0
@@ -63,6 +70,7 @@
 	var/ajourn = 0
 	var/druggy = 0			//Carbon
 	var/confused = 0		//Carbon
+	var/drunk = 0
 	var/antitoxs = null
 	var/plasma = null
 	var/sleeping = 0		//Carbon
@@ -122,7 +130,6 @@
 	hud_possible = list(SPECIALROLE_HUD)
 
 	var/research_scanner = 0 //For research scanner equipped mobs. Enable to show research data when examining.
-	var/datum/action/scan_mode/scanner = new
 
 	var/list/grabbed_by = list(  )
 	var/list/requests = list(  )
@@ -233,3 +240,5 @@
 	var/datum/vision_override/vision_type = null //Vision override datum.
 
 	var/list/permanent_huds = list()
+
+	var/list/actions = list()

@@ -688,6 +688,14 @@
 	build_path = /obj/item/weapon/hand_labeler
 	category = list("initial", "Electronics")
 
+/datum/design/floorpainter
+	name = "Floor painter"
+	id = "floor_painter"
+	build_type = AUTOLATHE
+	materials = list(MAT_METAL = 150, MAT_GLASS = 125)
+	build_path = /obj/item/device/floor_painter
+	category = list("initial", "Electronics")
+
 /datum/design/logic_board
 	name = "Logic Circuit"
 	id = "logic_board"
@@ -705,3 +713,19 @@
 	materials = list(MAT_GLASS = 750, MAT_METAL = 250)
 	build_path = /obj/item/weapon/circuitboard/vendor
 	category = list("initial", "Electronics")
+
+/datum/design/conveyor_belt
+	name = "Conveyor belt"
+	id = "conveyor_belt"
+	build_type = AUTOLATHE
+	materials = list(MAT_METAL = 5000)
+	build_path = /obj/item/conveyor_construct
+	category = list("initial", "Construction")
+
+/datum/design/conveyor_switch
+	name = "Conveyor belt switch"
+	id = "conveyor_switch"
+	build_type = AUTOLATHE
+	materials = list(MAT_METAL = 450, MAT_GLASS = 190)
+	build_path = /obj/item/conveyor_switch_construct
+	category = list("initial", "Construction")

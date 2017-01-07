@@ -22,14 +22,30 @@
 	has_suit = S
 	loc = has_suit
 	has_suit.overlays += inv_overlay
+	has_suit.actions += actions
 
-	to_chat(user, "<span class='notice'>You attach [src] to [has_suit].</span>")
+	for(var/X in actions)
+		var/datum/action/A = X
+		if(has_suit.is_equipped())
+			var/mob/M = has_suit.loc
+			A.Grant(M)
+
+	if(user)
+		to_chat(user, "<span class='notice'>You attach [src] to [has_suit].</span>")
 	src.add_fingerprint(user)
 
 /obj/item/clothing/accessory/proc/on_removed(mob/user as mob)
 	if(!has_suit)
 		return
 	has_suit.overlays -= inv_overlay
+	has_suit.actions -= actions
+
+	for(var/X in actions)
+		var/datum/action/A = X
+		if(ismob(has_suit.loc))
+			var/mob/M = has_suit.loc
+			A.Remove(M)
+
 	has_suit = null
 	usr.put_in_hands(src)
 	src.add_fingerprint(user)
@@ -388,7 +404,7 @@
 /obj/item/clothing/accessory/petcollar/examine(mob/user)
 	..()
 	if(access_id)
-		to_chat(user, "There is \icon[access_id] \a [access_id] clipped onto it.")
+		to_chat(user, "There is [bicon(access_id)] \a [access_id] clipped onto it.")
 
 /obj/item/clothing/accessory/petcollar/equipped(mob/living/simple_animal/user)
 	if(istype(user))

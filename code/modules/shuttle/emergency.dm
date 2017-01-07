@@ -176,8 +176,9 @@
 					return
 				mode = SHUTTLE_DOCKED
 				timer = world.time
-				send2irc("Server", "The Emergency Shuttle has docked with the station.")
+				send_to_info_discord("The Emergency Shuttle has docked. The round is almost ending, try no to join!")
 				emergency_shuttle_docked.Announce("The Emergency Shuttle has docked with the station. You have [timeLeft(600)] minutes to board the Emergency Shuttle.")
+				send_to_info_discord("The Emergency Shuttle has docked with the station. You have [timeLeft(600)] minutes to board the Emergency Shuttle.")
 
 /*
 				//Gangs only have one attempt left if the shuttle has docked with the station to prevent suffering from dominator delays
@@ -211,6 +212,7 @@
 				mode = SHUTTLE_ESCAPE
 				timer = world.time
 				priority_announcement.Announce("The Emergency Shuttle has left the station. Estimate [timeLeft(600)] minutes until the shuttle docks at Central Command.")
+				send_to_info_discord("The Emergency Shuttle has left the station. Estimate [timeLeft(600)] minutes until the shuttle docks at Central Command.")
 		if(SHUTTLE_ESCAPE)
 			if(time_left <= 0)
 				//move each escape pod to its corresponding escape dock

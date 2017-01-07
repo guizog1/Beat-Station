@@ -29,24 +29,19 @@ var/list/image/ghost_darkness_images = list() //this is a list of images for thi
 	var/seedarkness = 1
 	var/data_hud_seen = 0 //this should one of the defines in __DEFINES/hud.dm
 
+
+
 /mob/dead/observer/New(var/mob/body=null, var/flags=1)
 	sight |= SEE_TURFS | SEE_MOBS | SEE_OBJS | SEE_SELF
 	see_invisible = SEE_INVISIBLE_OBSERVER_AI_EYE
 	see_in_dark = 100
 	verbs += /mob/dead/observer/proc/dead_tele
 
-	// Our new boo spell.
-	AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/boo(src))
-
 	can_reenter_corpse = flags & GHOST_CAN_REENTER
 	started_as_observer = flags & GHOST_IS_OBSERVER
 
 
 	stat = DEAD
-
-	ghostimage = image(src.icon,src,src.icon_state)
-	ghost_darkness_images |= ghostimage
-	updateallghostimages()
 
 	var/turf/T
 	if(ismob(body))
@@ -77,7 +72,16 @@ var/list/image/ghost_darkness_images = list() //this is a list of images for thi
 
 		mind = body.mind	//we don't transfer the mind but we keep a reference to it.
 
-	if(!T)	T = pick(latejoin)			//Safety in case we cannot find the body's position
+	ghostimage = image(icon = icon, loc = src, icon_state = icon_state)
+	ghostimage.overlays = overlays
+	ghostimage.dir = dir
+	ghostimage.appearance_flags |= KEEP_TOGETHER
+	ghostimage.alpha = alpha
+	appearance_flags |= KEEP_TOGETHER
+	ghost_darkness_images |= ghostimage
+	updateallghostimages()
+	if(!T)
+		T = pick(latejoin)			//Safety in case we cannot find the body's position
 	forceMove(T)
 
 	if(!name)							//To prevent nameless ghosts
@@ -131,8 +135,9 @@ Works together with spawning an observer, noted above.
 		if(ghost.can_reenter_corpse)
 			respawnable_list += ghost
 		ghost.key = key
-		if(!ghost.client.holder && !config.antag_hud_allowed)    // For new ghosts we remove the verb from even showing up if it's not allowed.
-			ghost.verbs -= /mob/dead/observer/verb/toggle_antagHUD  // Poor guys, don't know what they are missing!
+		if(ghost.client)
+			if(!ghost.client.holder && !config.antag_hud_allowed)    // For new ghosts we remove the verb from even showing up if it's not allowed.
+				ghost.verbs -= /mob/dead/observer/verb/toggle_antagHUD  // Poor guys, don't know what they are missing!
 		return ghost
 
 /*
@@ -155,10 +160,16 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		ghost.timeofdeath = world.time // Because the living mob won't have a time of death and we want the respawn timer to work properly.
 
 	var/obj/structure/morgue/Morgue = locate() in M.loc
-	if(istype(M.loc,/obj/structure/morgue))
+	if(istype(M.loc, /obj/structure/morgue))
 		Morgue = M.loc
 	if(Morgue)
 		Morgue.update()
+	if(istype(M.loc, /obj/machinery/cryopod))
+		var/obj/machinery/cryopod/P = M.loc
+		if(!P.control_computer)
+			P.find_control_computer(urgent=1)
+		if(P.control_computer)
+			P.despawn_occupant()
 
 	return
 
@@ -166,6 +177,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 /mob/dead/observer/Move(NewLoc, direct)
 	following = null
 	dir = direct
+	ghostimage.dir = dir
 	if(NewLoc)
 		forceMove(NewLoc)
 		return
@@ -236,7 +248,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	mind.current.key = key
 
 	var/obj/structure/morgue/Morgue = locate() in mind.current.loc
-	if(istype(mind.current.loc,/obj/structure/morgue))
+	if(istype(mind.current.loc, /obj/structure/morgue))
 		Morgue = mind.current.loc
 	if(Morgue)
 		Morgue.update()
@@ -259,7 +271,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 				source.layer = old_layer
 	to_chat(src, "<span class='ghostalert'><a href=?src=\ref[src];reenter=1>(Click to re-enter)</a></span>")
 	if(sound)
-		to_chat(src, sound(sound))
+		src << sound(sound)
 
 /mob/dead/observer/proc/show_me_the_hud(hud_index)
 	var/datum/atom_hud/H = huds[hud_index]
@@ -517,7 +529,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 //this is called when a ghost is drag clicked to something.
 /mob/dead/observer/MouseDrop(atom/over)
 	if(!usr || !over) return
-	if (isobserver(usr) && usr.client && usr.client.holder && isliving(over))
+	if (isobserver(usr) && usr.client && usr.client.holder)
 		if (usr.client.holder.cmd_ghost_drag(src,over))
 			return
 

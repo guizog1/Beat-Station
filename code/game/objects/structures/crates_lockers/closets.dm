@@ -136,8 +136,9 @@
 	return 1
 
 /obj/structure/closet/proc/toggle(mob/user as mob)
-	if(!(src.opened ? src.close() : src.open()))
-		to_chat(user, "<span class='notice'>It won't budge!</span>")
+	if(!(opened ? close() : open()))
+		if(user)
+			to_chat(user, "<span class='notice'>It won't budge!</span>")
 
 // this should probably use dump_contents()
 /obj/structure/closet/ex_act(severity)
@@ -419,3 +420,8 @@
 				var/obj/structure/bigDelivery/BD = src.loc
 				BD.attack_hand(usr)
 			open()
+
+/obj/structure/closet/tesla_act(var/power)
+	..()
+	visible_message("<span class='danger'>[src] is blown apart by the bolt of electricity!</span>", "<span class='danger'>You hear a metallic screeching sound.</span>")
+	qdel(src)

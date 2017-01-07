@@ -49,9 +49,10 @@
 	var/list/icon/pipes_shown = list()
 	var/last_played_vent
 
-	var/list/datum/action/actions = list()
 	var/step_count = 0
 
 	var/list/butcher_results = null
 
 	var/list/surgeries = list()	//a list of surgery datums. generally empty, they're added when the player wants them.
+
+	var/gene_stability = DEFAULT_GENE_STABILITY

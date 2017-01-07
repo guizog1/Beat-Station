@@ -43,9 +43,6 @@ var/global/datum/global_init/init = new ()
 
 	timezoneOffset = text2num(time2text(0,"hh")) * 36000
 
-	if(config && config.log_runtime)
-		log = file("data/logs/runtime/[time2text(world.realtime,"YYYY-MM-DD-(hh-mm-ss)")]-runtime.log")
-
 	callHook("startup")
 
 	src.update_status()
@@ -65,6 +62,7 @@ var/global/datum/global_init/init = new ()
 		processScheduler.setup()
 
 		master_controller.setup()
+		getFormsFromWiki()
 		sleep_offline = 1
 
 	#ifdef MAP_NAME
@@ -95,23 +93,35 @@ var/world_topic_spam_protect_ip = "0.0.0.0"
 var/world_topic_spam_protect_time = world.timeofday
 
 /world/Topic(T, addr, master, key)
+	var/list/players = list()
+	var/list/admins = list()
+
+	for(var/client/C in clients)
+		if(C.holder) // BB doesn't show up at all
+			if(C.holder.big_brother)
+				continue
+			admins += C.ckey
+		players += C.ckey
+
 	diary << "TOPIC: \"[T]\", from:[addr], master:[master], key:[key]"
 
 	var/list/input = params2list(T)
 	var/key_valid = (config.comms_password && input["key"] == config.comms_password) //no password means no comms, not any password
 
-	if ("ping" in input)
-		var/x = 1
-		for (var/client/C)
+	if("ping" in input)
+		var/x = 0
+		for(var/client/C)
 			x++
 		return x
 
 	else if("players" in input)
-		var/n = 0
-		for(var/mob/M in player_list)
-			if(M.client)
-				n++
-		return n
+		return players.len
+
+	else if ("admins" in input)
+		return admins.len
+
+	else if ("gamemode" in input)
+		return master_mode
 
 	else if ("status" in input)
 		var/list/s = list()
@@ -122,20 +132,9 @@ var/world_topic_spam_protect_time = world.timeofday
 		s["vote"] = config.allow_vote_mode
 		s["ai"] = config.allow_ai
 		s["host"] = host ? host : null
-		s["players"] = list()
 		s["stationtime"] = worldtime2text()
-		var/player_count = 0
-		var/admin_count = 0
-
-		for(var/client/C in clients)
-			if(C.holder)
-				if(C.holder.fakekey)
-					continue	//so stealthmins aren't revealed by the hub
-				admin_count++
-			s["player[player_count]"] = C.key
-			player_count++
-		s["players"] = player_count
-		s["admins"] = admin_count
+		s["players"] = players.len
+		s["admins"] = admins.len
 		s["map_name"] = map_name ? map_name : "Unknown"
 
 		if(key_valid)
@@ -150,7 +149,71 @@ var/world_topic_spam_protect_time = world.timeofday
 				// Shuttle timer, in seconds
 				s["shuttle_timer"] = shuttle_master.emergency.timeLeft()
 
+			for(var/i=1, i <= admins.len, i++)
+				var/client/C = admins[i]
+				s["admin[i - 1]"] = list()
+				s["admin[i - 1]"]["ckey"] = C.ckey
+				s["admin[i - 1]"]["rank"] = C.holder.rank
+				s["admin[i - 1]"] = list2params(s["admin[i - 1]"])
+
 		return list2params(s)
+
+	else if("manifest" in input)
+		if (!ticker)
+			return "Game not started yet!"
+
+		var/list/positions = list()
+		var/list/set_names = list(
+				"heads" = command_positions,
+				"sec" = security_positions,
+				"eng" = engineering_positions,
+				"med" = medical_positions,
+				"sci" = science_positions,
+				"civ" = civilian_positions,
+				"bot" = nonhuman_positions
+			)
+
+		for(var/datum/data/record/t in data_core.general)
+			var/name = t.fields["name"]
+			var/rank = t.fields["rank"]
+			var/real_rank = t.fields["real_rank"]
+
+			var/department = 0
+			for(var/k in set_names)
+				if(real_rank in set_names[k])
+					if(!positions[k])
+						positions[k] = list()
+					positions[k][name] = rank
+					department = 1
+			if(!department)
+				if(!positions["misc"])
+					positions["misc"] = list()
+				positions["misc"][name] = rank
+
+		for(var/k in positions)
+			positions[k] = list2params(positions[k]) // converts positions["heads"] = list("Bob"="Captain", "Bill"="CMO") into positions["heads"] = "Bob=Captain&Bill=CMO"
+
+		return list2params(positions)
+
+	else if("mute" in input)
+		if(!key_valid)
+			return keySpamProtect(addr)
+
+		for (var/client/C in clients)
+			if (C.ckey == ckey(input["mute"]))
+				C.mute_discord = !C.mute_discord
+
+				switch (C.mute_discord)
+					if (1)
+						to_chat(C, "<b><font color='red'>You have been muted from replying to Discord PMs by [input["admin"]]!</font></b>")
+						log_and_message_admins("[C] has been muted from Discord PMs by [input["admin"]].")
+						return "[C.key] is now muted from replying to Discord PMs."
+					if (0)
+						to_chat(C, "<b><font color='red'>You have been unmuted from replying to Discord PMs by [input["admin"]]!</font></b>")
+						log_and_message_admins("[C] has been unmuted from Discord PMs by [input["admin"]].")
+						return "[C.key] is now unmuted from replying to Discord PMs."
+
+		return "couldn't find that ckey!"
 
 	else if("adminmsg" in input)
 		/*
@@ -171,13 +234,13 @@ var/world_topic_spam_protect_time = world.timeofday
 				C = K
 				break
 		if(!C)
-			return "No client with that name on server"
+			return "no client with that name on server!"
 
-		var/message =	"<font color='red'>IRC-Admin PM from <b><a href='?irc_msg=1'>[C.holder ? "IRC-" + input["sender"] : "Administrator"]</a></b>: [input["msg"]]</font>"
-		var/amessage =  "<font color='blue'>IRC-Admin PM from <a href='?irc_msg=1'>IRC-[input["sender"]]</a> to <b>[key_name(C)]</b> : [input["msg"]]</font>"
+		var/message =	"<font color='red'>Discord-Admin PM from <b><a href='?discord_msg=[input["sender"]]'>[C.holder ? "Discord-" + input["sender"] : "Administrator"]</a></b>: [input["msg"]]</font>"
+		var/amessage =  "<font color='blue'>Discord-Admin PM from <a href='?discord_msg=[input["sender"]]'>Discord-[input["sender"]]</a> to <b>[key_name(C)]</b> : [input["msg"]]</font>"
 
-		C.received_irc_pm = world.time
-		C.irc_admin = input["sender"]
+		C.received_discord_pm = world.time
+		C.discord_admin = input["sender"]
 
 		C << 'sound/effects/adminhelp.ogg'
 		to_chat(C, message)
@@ -186,7 +249,7 @@ var/world_topic_spam_protect_time = world.timeofday
 			if(A != C)
 				to_chat(A, amessage)
 
-		return "Message Successful"
+		return "message successfully sent!"
 
 	else if("notes" in input)
 		/*
@@ -200,13 +263,37 @@ var/world_topic_spam_protect_time = world.timeofday
 
 		return show_player_info_irc(input["notes"])
 
-	else if("announce" in input)
-		if(config.comms_password)
-			if(input["key"] != config.comms_password)
-				return "Bad Key"
-			else
-				for(var/client/C in clients)
-					to_chat(C, "<span class='announce'>PR: [input["announce"]]</span>")
+	else if ("announce" in input)
+		if(!key_valid)
+			return keySpamProtect(addr)
+		var/message = replacetext(input["msg"], "\n", "<br>")
+		for(var/client/C in clients)
+			to_chat(C, "<span class='announce'>Announces via Discord: [message]</span>")
+		return "announcement successfully sent!"
+
+	else if ("who" in input)
+		return list2params(players)
+
+	else if ("adminwho" in input)
+		return list2params(admins)
+
+/proc/do_topic_spam_protection(var/addr, var/key)
+	if (!config.comms_password || config.comms_password == "")
+		return "No comms password configured, aborting."
+
+	if (key == config.comms_password)
+		return 0
+	else
+		if (world_topic_spam_protect_ip == addr && abs(world_topic_spam_protect_time - world.time) < 50)
+
+			spawn(50)
+				world_topic_spam_protect_time = world.time
+				return "Bad Key (Throttled)"
+
+		world_topic_spam_protect_time = world.time
+		world_topic_spam_protect_ip = addr
+
+		return "Bad Key"
 
 /proc/keySpamProtect(var/addr)
 	if(world_topic_spam_protect_ip == addr && abs(world_topic_spam_protect_time - world.time) < 50)
@@ -235,18 +322,21 @@ var/world_topic_spam_protect_time = world.timeofday
 		to_chat(world, "<span class='boldannounce'>An admin has delayed the round end.</span>")
 		return
 	to_chat(world, "<span class='boldannounce'>Rebooting world in [delay/10] [delay > 10 ? "seconds" : "second"]. [reason]</span>")
+	send_to_info_discord("Rebooting world in [delay/10] [delay > 10 ? "seconds" : "second"]. [reason]")
 	sleep(delay)
 	if(blackbox)
 		blackbox.save_all_data_to_sql()
 	if(ticker.delay_end)
 		to_chat(world, "<span class='boldannounce'>Reboot was cancelled by an admin.</span>")
+		send_to_info_discord("Reboot was cancelled by an admin.")
 		return
 	feedback_set_details("[feedback_c]","[feedback_r]")
 	log_game("<span class='boldannounce'>Rebooting world. [reason]</span>")
+	send_to_info_discord("Rebooting world.")
 	//kick_clients_in_lobby("<span class='boldannounce'>The round came to an end with you in the lobby.</span>", 1)
 
 	spawn(0)
-		to_chat(world, sound(pick('sound/AI/newroundsexy.ogg','sound/misc/apcdestroyed.ogg','sound/misc/bangindonk.ogg')))// random end sounds!! - LastyBatsy
+		world << sound(pick('sound/AI/newroundsexy.ogg','sound/misc/apcdestroyed.ogg','sound/misc/bangindonk.ogg'))// random end sounds!! - LastyBatsy
 
 
 	processScheduler.stop()
@@ -320,7 +410,7 @@ var/world_topic_spam_protect_time = world.timeofday
 /world/proc/save_mode(var/the_mode)
 	var/F = file("data/mode.txt")
 	fdel(F)
-	to_chat(F, the_mode)
+	F << the_mode
 
 /hook/startup/proc/loadMusic()
 	for(var/obj/machinery/media/jukebox/J in machines)
@@ -351,11 +441,11 @@ var/world_topic_spam_protect_time = world.timeofday
 
 	s += "<b>[station_name()]</b>";
 	s += " ("
-	s += "<a href=\"http://nanotrasen.se/phpBB3/index.php\">" //Change this to wherever you want the hub to link to.
-	s += "[game_version]"
+	s += "<a href=\"https://github.com/nopm/Beat-Station\">" //Change this to wherever you want the hub to link to.
+	s += "Beat!Code"
 	s += "</a>"
 	s += ")"
-	s += "<br>The Perfect Mix of RP & Action<br>"
+	s += "<br>Heavy Roleplaying and tons of paperwork!<br>"
 
 
 

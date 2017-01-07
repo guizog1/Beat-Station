@@ -1,6 +1,6 @@
 #define MAX_ADMIN_BANS_PER_ADMIN 1
 
-datum/admins/proc/DB_ban_record(var/bantype, var/mob/banned_mob, var/duration = -1, var/reason, var/job = "", var/rounds = 0, var/banckey = null, var/banip = null, var/bancid = null)
+datum/admins/proc/DB_ban_record(var/bantype, var/mob/banned_mob, var/duration = -1, var/reason, var/job = "", var/rounds = 0, var/banckey = null, var/banip = null, var/bancid = null, var/ban_appeal = "", var/victim = "")
 
 	if(!check_rights(R_BAN))	return
 
@@ -12,7 +12,6 @@ datum/admins/proc/DB_ban_record(var/bantype, var/mob/banned_mob, var/duration = 
 	var/bantype_pass = 0
 	var/bantype_str
 	var/maxadminbancheck	//Used to limit the number of active bans of a certein type that each admin can give. Used to protect against abuse or mutiny.
-	var/announceinirc		//When set, it announces the ban in irc. Intended to be a way to raise an alarm, so to speak.
 	var/blockselfban		//Used to prevent the banning of yourself.
 	var/kickbannedckey		//Defines whether this proc should kick the banned person, if they are connected (if banned_mob is defined).
 							//some ban types kick players after this proc passes (tempban, permaban), but some are specific to db_ban, so
@@ -43,14 +42,12 @@ datum/admins/proc/DB_ban_record(var/bantype, var/mob/banned_mob, var/duration = 
 			duration = -1
 			bantype_pass = 1
 			maxadminbancheck = 1
-			announceinirc = 1
 			blockselfban = 1
 			kickbannedckey = 1
 		if(BANTYPE_ADMIN_TEMP)
 			bantype_str = "ADMIN_TEMPBAN"
 			bantype_pass = 1
 			maxadminbancheck = 1
-			announceinirc = 1
 			blockselfban = 1
 			kickbannedckey = 1
 
@@ -125,10 +122,19 @@ datum/admins/proc/DB_ban_record(var/bantype, var/mob/banned_mob, var/duration = 
 	var/DBQuery/query_insert = dbcon.NewQuery(sql)
 	query_insert.Execute()
 	to_chat(usr, "\blue Ban saved to database.")
-	message_admins("[key_name_admin(usr)] has added a [bantype_str] for [ckey] [(job)?"([job])":""] [(duration > 0)?"([duration] minutes)":""] with the reason: \"[reason]\" to the ban database.",1)
+	message_admins("[key_name_admin(usr)] has added a [bantype_str] for [ckey] [(job)?"([job])":""] [(duration > 0)?"([duration] minutes)":""] with the reason: \"[reason]\". Ban Appeal: [ban_appeal ? ban_appeal : "No"], Victim: [victim ? victim : "No victims"] to the ban database.",1)
 
-	if(announceinirc)
-		send2irc("BAN ALERT","[a_ckey] applied a [bantype_str] on [ckey]")
+	var/template = "Banned User\n"
+	template += "**BYOND Key**: [ckey]\n"
+	template += "**Ban reason**: [reason]\n"
+	template += "**Ban duration**: [bantype_str == "TEMPBAN" || bantype_str == "ADMIN_TEMPBAN" ? (duration >0) ? "[duration] minutos" : "" : "PERMABAN"]\n"
+	template += "**Can Ban Appeal**: [ban_appeal]\n"
+	template += "**Ban type**: [bantype_str == "JOB_TEMPBAN" || bantype_str == "JOB_PERMABAN" ? "[bantype_str] ([job])" : bantype_str] \n"
+	template += "**Admin Key**: [usr.client.ckey]\n"
+	template += "**Victim**: [victim ? victim : "N/A"]"
+	to_chat(usr, "<b>Auto-generated Discord Template:</b>\n" + template)
+
+	send_to_ban_discord("**Auto-generated Discord Template:**\n" + template)
 
 	if(kickbannedckey)
 		if(banned_mob && banned_mob.client && banned_mob.client.ckey == banckey)

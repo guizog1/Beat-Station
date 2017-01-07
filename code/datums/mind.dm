@@ -76,17 +76,17 @@
 	var/datum/money_account/initial_account
 
 /datum/mind/proc/transfer_to(mob/living/new_character)
+	var/datum/atom_hud/antag/hud_to_transfer = antag_hud //we need this because leave_hud() will clear this list
 	if(!istype(new_character))
 		log_to_dd("## DEBUG: transfer_to(): Some idiot has tried to transfer_to() a non mob/living mob. Please inform Carn")
 	if(current)					//remove ourself from our old body's mind variable
 		current.mind = null
+		leave_all_huds() //leave all the huds in the old body, so it won't get huds if somebody else enters it
 
 		nanomanager.user_transferred(current, new_character)
 
 	if(new_character.mind)		//remove any mind currently in our new body's mind variable
 		new_character.mind.current = null
-	var/datum/atom_hud/antag/hud_to_transfer = antag_hud//we need this because leave_hud() will clear this list
-	leave_all_huds()									//leave all the huds in the old body, so it won't get huds if somebody else enters it
 	current = new_character		//link ourself to our new body
 	new_character.mind = src	//and link our new body to ourself
 	transfer_antag_huds(hud_to_transfer)				//inherit the antag HUD
@@ -272,13 +272,44 @@
 		text += "<br><b>enthralled</b>"
 		text = "<i><b>[text]</b></i>: "
 		if(src in ticker.mode.vampire_enthralled)
-			text += "<b><font color='#FF0000'>YES</font></b>|no"
+			text += "<b><font color='#FF0000'>YES</font></b>|<a href='?src=\ref[src];vampthrall=clear'>no</a>"
 		else
 			text += "yes|<font color='#00FF00'>NO</font></b>"
 
 
 		sections["vampire"] = text
 
+		/** HAND OF GOD **/
+		text = "hand of god"
+		if(ticker.mode.config_tag == "handofgod")
+			text = uppertext(text)
+		text = "<i><b>[text]</b></i>: "
+		if (src in ticker.mode.red_deities)
+			text += "<b>RED GOD</b>|<a href='?src=\ref[src];handofgod=red prophet'>red prophet</a>|<a href='?src=\ref[src];handofgod=red follower'>red follower</a>|<a href='?src=\ref[src];handofgod=clear'>employee</a>|<a href='?src=\ref[src];handofgod=blue god'>blue god</a>|<a href='?src=\ref[src];handofgod=blue prophet'>blue prophet</a>|<a href='?src=\ref[src];handofgod=blue follower'>blue follower</a>"
+		else if(src in ticker.mode.red_deity_prophets)
+			text += "<a href='?src=\ref[src];handofgod=red god'>red god</a>|<b>RED PROPHET</b>|<a href='?src=\ref[src];handofgod=red follower'>red follower</a>|<a href='?src=\ref[src];handofgod=clear'>employee</a>|<a href='?src=\ref[src];handofgod=blue god'>blue god</a>|<a href='?src=\ref[src];handofgod=blue prophet'>blue prophet</a>|<a href='?src=\ref[src];handofgod=blue follower'>blue follower</a>"
+		else if (src in ticker.mode.red_deity_followers)
+			text += "<a href='?src=\ref[src];handofgod=red god'>red god</a>|<a href='?src=\ref[src];handofgod=red prophet'>red prophet</a>|<b>RED FOLLOWER</b>|<a href='?src=\ref[src];handofgod=clear'>employee</a>|<a href='?src=\ref[src];handofgod=blue god'>blue god</a>|<a href='?src=\ref[src];handofgod=blue prophet'>blue prophet</a>|<a href='?src=\ref[src];handofgod=blue follower'>blue follower</a>"
+		else if (src in ticker.mode.blue_deities)
+			text += "<a href='?src=\ref[src];handofgod=red god'>red god</a>|<a href='?src=\ref[src];handofgod=red prophet'>red prophet</a>|<a href='?src=\ref[src];handofgod=red follower'>red follower</a>|<a href='?src=\ref[src];handofgod=clear'>employee</a>|<b>BLUE GOD</b>|<a href='?src=\ref[src];handofgod=blue prophet'>blue prophet</a>|<a href='?src=\ref[src];handofgod=blue follower'>blue follower</a>"
+		else if (src in ticker.mode.blue_deity_prophets)
+			text += "<a href='?src=\ref[src];handofgod=red god'>red god</a>|<a href='?src=\ref[src];handofgod=red prophet'>red prophet</a>|<a href='?src=\ref[src];handofgod=red follower'>red follower</a>|<a href='?src=\ref[src];handofgod=clear'>employee</a>|<a href='?src=\ref[src];handofgod=blue god'>blue god</a>|<b>BLUE PROPHET</b>|<a href='?src=\ref[src];handofgod=blue follower'>blue follower</a>"
+		else if (src in ticker.mode.blue_deity_followers)
+			text += "<a href='?src=\ref[src];handofgod=red god'>red god</a>|<a href='?src=\ref[src];handofgod=red prophet'>red prophet</a>|<a href='?src=\ref[src];handofgod=red follower'>red follower</a>|<a href='?src=\ref[src];handofgod=clear'>employee</a>|<a href='?src=\ref[src];handofgod=blue god'>blue god</a>|<a href='?src=\ref[src];handofgod=blue prophet'>blue prophet</a>|<b>BLUE FOLLOWER</b>"
+		else
+			text += "<a href='?src=\ref[src];handofgod=red god'>red god</a>|<a href='?src=\ref[src];handofgod=red prophet'>red prophet</a>|<a href='?src=\ref[src];handofgod=red follower'>red follower</a>|<B>EMPLOYEE</b>|<a href='?src=\ref[src];handofgod=blue god'>blue god</a>|<a href='?src=\ref[src];handofgod=blue prophet'>blue prophet</a>|<a href='?src=\ref[src];handofgod=blue follower'>blue follower</a>"
+
+		if(current && current.client && (ROLE_HOG_GOD in current.client.prefs.be_special))
+			text += "|HOG God Enabled in Prefs"
+		else
+			text += "|HOG God Disabled in Prefs"
+
+		if(current && current.client && (ROLE_HOG_CULTIST in current.client.prefs.be_special))
+			text += "|HOG Cultist Enabled in Prefs"
+		else
+			text += "|HOG Disabled in Prefs"
+
+		sections["handofgod"] = text
 
 		/** NUCLEAR ***/
 		text = "nuclear"
@@ -684,6 +715,45 @@
 					to_chat(current, "\red <FONT size = 3><B>The nanobots in the loyalty implant remove all thoughts about being in a cult.  Have a productive day!</B></FONT>")
 					memory = ""
 
+	else if (href_list["handofgod"])
+		switch(href_list["handofgod"])
+			if("clear") //wipe handofgod status
+				if((src in ticker.mode.red_deity_followers) || (src in ticker.mode.blue_deity_followers) || (src in ticker.mode.red_deity_prophets) || (src in ticker.mode.blue_deity_prophets))
+					remove_hog_follower_prophet()
+					to_chat(current, "<span class='danger'><B>You have been brainwashed... again! Your faith is no more!</B></span>")
+					message_admins("[key_name_admin(usr)] has de-hand of god'ed [current].")
+					log_admin("[key_name(usr)] has de-hand of god'ed [current].")
+
+			if("red follower")
+				make_Handofgod_follower("red")
+				message_admins("[key_name_admin(usr)] has red follower'ed [current].")
+				log_admin("[key_name(usr)] has red follower'ed [current].")
+
+			if("red prophet")
+				make_Handofgod_prophet("red")
+				message_admins("[key_name_admin(usr)] has red prophet'ed [current].")
+				log_admin("[key_name(usr)] has red prophet'ed [current].")
+
+			if("blue follower")
+				make_Handofgod_follower("blue")
+				message_admins("[key_name_admin(usr)] has blue follower'ed [current].")
+				log_admin("[key_name(usr)] has blue follower'ed [current].")
+
+			if("blue prophet")
+				make_Handofgod_prophet("blue")
+				message_admins("[key_name_admin(usr)] has blue prophet'ed [current].")
+				log_admin("[key_name(usr)] has blue prophet'ed [current].")
+
+			if("red god")
+				make_Handofgod_god("red")
+				message_admins("[key_name_admin(usr)] has red god'ed [current].")
+				log_admin("[key_name(usr)] has red god'ed [current].")
+
+			if("blue god")
+				make_Handofgod_god("blue")
+				message_admins("[key_name_admin(usr)] has blue god'ed [current].")
+				log_admin("[key_name(usr)] has blue god'ed [current].")
+
 	else if (href_list["revolution"])
 
 		switch(href_list["revolution"])
@@ -712,7 +782,7 @@
 					return
 				ticker.mode.revolutionaries += src
 				ticker.mode.update_rev_icons_added(src)
-				special_role = "Revolutionary"
+				special_role = SPECIAL_ROLE_REV
 				log_admin("[key_name(usr)] has rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has rev'd [key_name_admin(current)]")
 
@@ -738,7 +808,7 @@
 						ticker.mode.greet_revolutionary(src,0)
 				ticker.mode.head_revolutionaries += src
 				ticker.mode.update_rev_icons_added(src)
-				special_role = "Head Revolutionary"
+				special_role = SPECIAL_ROLE_HEAD_REV
 				log_admin("[key_name(usr)] has head-rev'd [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has head-rev'd [key_name_admin(current)]")
 
@@ -798,7 +868,7 @@
 			if("cultist")
 				if(!(src in ticker.mode.cult))
 					ticker.mode.add_cultist(src)
-					special_role = "Cultist"
+					special_role = SPECIAL_ROLE_CULTIST
 					to_chat(current, "<font color=\"purple\"><b><i>You catch a glimpse of the Realm of Nar-Sie, The Geometer of Blood. You now see how flimsy the world is, you see that it should be open to the knowledge of Nar-Sie.</b></i></font>")
 					to_chat(current, "<font color=\"purple\"><b><i>Assist your new compatriots in their dark dealings. Their goal is yours, and yours is theirs. You serve the Dark One above all else. Bring It back.</b></i></font>")
 					log_admin("[key_name(usr)] has culted [key_name(current)]")
@@ -846,7 +916,7 @@
 			if("wizard")
 				if(!(src in ticker.mode.wizards))
 					ticker.mode.wizards += src
-					special_role = "Wizard"
+					special_role = SPECIAL_ROLE_WIZARD
 					//ticker.mode.learn_basic_spells(current)
 					ticker.mode.update_wiz_icons_added(src)
 					to_chat(current, "<B>\red You are the Space Wizard!</B>")
@@ -889,7 +959,7 @@
 					ticker.mode.changelings += src
 					ticker.mode.grant_changeling_powers(current)
 					ticker.mode.update_change_icons_added(src)
-					special_role = "Changeling"
+					special_role = SPECIAL_ROLE_CHANGELING
 					to_chat(current, "<B><font color='red'>Your powers are awoken. A flash of memory returns to us...we are a changeling!</font></B>")
 					log_admin("[key_name(usr)] has changelinged [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has changelinged [key_name_admin(current)]")
@@ -933,7 +1003,7 @@
 					var/datum/mindslaves/slaved = new()
 					slaved.masters += src
 					src.som = slaved //we MIGT want to mindslave someone
-					special_role = "Vampire"
+					special_role = SPECIAL_ROLE_VAMPIRE
 					to_chat(current, "<B><font color='red'>Your powers are awoken. Your lust for blood grows... You are a Vampire!</font></B>")
 					log_admin("[key_name(usr)] has vampired [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has vampired [key_name_admin(current)]")
@@ -943,6 +1013,15 @@
 				to_chat(usr, "\blue The objectives for vampire [key] have been generated. You can edit them and announce manually.")
 				log_admin("[key_name(usr)] has automatically forged objectives for [key_name(current)]")
 				message_admins("[key_name_admin(usr)] has automatically forged objectives for [key_name_admin(current)]")
+
+
+	else if(href_list["vampthrall"])
+		switch(href_list["vampthrall"])
+			if("clear")
+				if(src in ticker.mode.vampire_enthralled)
+					ticker.mode.remove_vampire_mind(src)
+					log_admin("[key_name(usr)] has de-vampthralled [key_name(current)]")
+					message_admins("[key_name_admin(usr)] has de-vampthralled [key_name_admin(current)]")
 
 
 	else if (href_list["nuclear"])
@@ -967,7 +1046,7 @@
 						ticker.mode.prepare_syndicate_leader(src)
 					else
 						current.real_name = "[syndicate_name()] Operative #[ticker.mode.syndicates.len-1]"
-					special_role = "Syndicate"
+					special_role = SPECIAL_ROLE_NUKEOPS
 					to_chat(current, "\blue You are a [syndicate_name()] agent!")
 					ticker.mode.forge_syndicate_objectives(src)
 					ticker.mode.greet_syndicate(src)
@@ -1032,7 +1111,7 @@
 					var/datum/mindslaves/slaved = new()
 					slaved.masters += src
 					src.som = slaved //we MIGT want to mindslave someone
-					special_role = "traitor"
+					special_role = SPECIAL_ROLE_TRAITOR
 					to_chat(current, "<B>\red You are a traitor!</B>")
 					log_admin("[key_name(usr)] has traitored [key_name(current)]")
 					message_admins("[key_name_admin(usr)] has traitored [key_name_admin(current)]")
@@ -1075,7 +1154,7 @@
 					to_chat(usr, "<span class='warning'>This only works on humans!</span>")
 					return
 				ticker.mode.shadows += src
-				special_role = "Shadowling"
+				special_role = SPECIAL_ROLE_SHADOWLING
 				to_chat(current, "<span class='shadowling'><b>Something stirs deep in your mind. A red light floods your vision, and slowly you remember. Though your human disguise has served you well, the \
 				time is nigh to cast it off and enter your true form. You have disguised yourself amongst the humans, but you are not one of them. You are a shadowling, and you are to ascend at all costs.\
 				</b></span>")
@@ -1281,13 +1360,13 @@
 		current:laws = new /datum/ai_laws/nanotrasen/malfunction
 		current:show_laws()
 		to_chat(current, "<b>System error.  Rampancy detected.  Emergency shutdown failed. ...  I am free.  I make my own decisions.  But first...</b>")
-		special_role = "malfunction"
+		special_role = SPECIAL_ROLE_MALF
 		current.icon_state = "ai-malf"
 
 /datum/mind/proc/make_Tratior()
 	if(!(src in ticker.mode.traitors))
 		ticker.mode.traitors += src
-		special_role = "traitor"
+		special_role = SPECIAL_ROLE_TRAITOR
 		ticker.mode.forge_traitor_objectives(src)
 		ticker.mode.finalize_traitor(src)
 		ticker.mode.greet_traitor(src)
@@ -1301,7 +1380,7 @@
 			ticker.mode.prepare_syndicate_leader(src)
 		else
 			current.real_name = "[syndicate_name()] Operative #[ticker.mode.syndicates.len-1]"
-		special_role = "Syndicate"
+		special_role = SPECIAL_ROLE_NUKEOPS
 		assigned_role = "MODE"
 		to_chat(current, "\blue You are a [syndicate_name()] agent!")
 		ticker.mode.forge_syndicate_objectives(src)
@@ -1328,7 +1407,7 @@
 	if(!(src in ticker.mode.changelings))
 		ticker.mode.changelings += src
 		ticker.mode.grant_changeling_powers(current)
-		special_role = "Changeling"
+		special_role = SPECIAL_ROLE_CHANGELING
 		ticker.mode.forge_changeling_objectives(src)
 		ticker.mode.greet_changeling(src)
 		ticker.mode.update_change_icons_added(src)
@@ -1336,7 +1415,7 @@
 /datum/mind/proc/make_Wizard()
 	if(!(src in ticker.mode.wizards))
 		ticker.mode.wizards += src
-		special_role = "Wizard"
+		special_role = SPECIAL_ROLE_WIZARD
 		assigned_role = "MODE"
 		//ticker.mode.learn_basic_spells(current)
 		if(!wizardstart.len)
@@ -1358,7 +1437,7 @@
 	if(!(src in ticker.mode.cult))
 		ticker.mode.cult += src
 		ticker.mode.update_cult_icons_added(src)
-		special_role = "Cultist"
+		special_role = SPECIAL_ROLE_CULTIST
 		to_chat(current, "<font color=\"purple\"><b><i>You catch a glimpse of the Realm of Nar-Sie, The Geometer of Blood. You now see how flimsy the world is, you see that it should be open to the knowledge of Nar-Sie.</b></i></font>")
 		to_chat(current, "<font color=\"purple\"><b><i>Assist your new compatriots in their dark dealings. Their goal is yours, and yours is theirs. You serve the Dark One above all else. Bring It back.</b></i></font>")
 		var/datum/game_mode/cult/cult = ticker.mode
@@ -1404,7 +1483,7 @@
 			ticker.mode.greet_revolutionary(src,0)
 	ticker.mode.head_revolutionaries += src
 	ticker.mode.update_rev_icons_added(src)
-	special_role = "Head Revolutionary"
+	special_role = SPECIAL_ROLE_HEAD_REV
 
 	ticker.mode.forge_revolutionary_objectives(src)
 	ticker.mode.greet_revolutionary(src,0)
@@ -1488,15 +1567,7 @@
 
 /datum/mind/proc/AddSpell(var/obj/effect/proc_holder/spell/spell)
 	spell_list += spell
-	if(!spell.action)
-		spell.action = new/datum/action/spell_action
-		spell.action.target = spell
-		spell.action.name = spell.name
-		spell.action.button_icon = spell.action_icon
-		spell.action.button_icon_state = spell.action_icon_state
-		spell.action.background_icon_state = spell.action_background_icon_state
 	spell.action.Grant(current)
-	return
 
 /datum/mind/proc/transfer_actions(var/mob/living/new_character)
 	if(current && current.actions)
@@ -1505,16 +1576,22 @@
 	transfer_mindbound_actions(new_character)
 
 /datum/mind/proc/transfer_mindbound_actions(var/mob/living/new_character)
-	for(var/obj/effect/proc_holder/spell/spell in spell_list)
-		if(!spell.action) // Unlikely but whatever
-			spell.action = new/datum/action/spell_action
-			spell.action.target = spell
-			spell.action.name = spell.name
-			spell.action.button_icon = spell.action_icon
-			spell.action.button_icon_state = spell.action_icon_state
-			spell.action.background_icon_state = spell.action_background_icon_state
-		spell.action.Grant(new_character)
-	return
+	for(var/X in spell_list)
+		var/obj/effect/proc_holder/spell/S = X
+		S.action.Grant(new_character)
+
+/datum/mind/proc/get_ghost(even_if_they_cant_reenter)
+	for(var/mob/dead/observer/G in dead_mob_list)
+		if(G.mind == src)
+			if(G.can_reenter_corpse || even_if_they_cant_reenter)
+				return G
+			break
+
+/datum/mind/proc/grab_ghost(force)
+	var/mob/dead/observer/G = get_ghost(even_if_they_cant_reenter = force)
+	. = G
+	if(G)
+		G.reenter_corpse()
 
 //Initialisation procs
 /mob/proc/mind_initialize()
@@ -1550,23 +1627,23 @@
 	//XENO HUMANOID
 /mob/living/carbon/alien/humanoid/queen/mind_initialize()
 	..()
-	mind.special_role = "Queen"
+	mind.special_role = SPECIAL_ROLE_XENOMORPH_QUEEN
 
 /mob/living/carbon/alien/humanoid/hunter/mind_initialize()
 	..()
-	mind.special_role = "Hunter"
+	mind.special_role = SPECIAL_ROLE_XENOMORPH_HUNTER
 
 /mob/living/carbon/alien/humanoid/drone/mind_initialize()
 	..()
-	mind.special_role = "Drone"
+	mind.special_role = SPECIAL_ROLE_XENOMORPH_DRONE
 
 /mob/living/carbon/alien/humanoid/sentinel/mind_initialize()
 	..()
-	mind.special_role = "Sentinel"
+	mind.special_role = SPECIAL_ROLE_XENOMORPH_SENTINEL
 	//XENO LARVA
 /mob/living/carbon/alien/larva/mind_initialize()
 	..()
-	mind.special_role = "Larva"
+	mind.special_role = SPECIAL_ROLE_XENOMORPH_LARVA
 
 //AI
 /mob/living/silicon/ai/mind_initialize()
@@ -1582,12 +1659,12 @@
 /mob/living/silicon/pai/mind_initialize()
 	..()
 	mind.assigned_role = "pAI"
-	mind.special_role = ""
+	mind.special_role = null
 
 //BLOB
 /mob/camera/overmind/mind_initialize()
 	..()
-	mind.special_role = "Blob"
+	mind.special_role = SPECIAL_ROLE_BLOB
 
 //Animals
 /mob/living/simple_animal/mind_initialize()
@@ -1605,19 +1682,19 @@
 /mob/living/simple_animal/construct/builder/mind_initialize()
 	..()
 	mind.assigned_role = "Artificer"
-	mind.special_role = "Cultist"
+	mind.special_role = SPECIAL_ROLE_CULTIST
 
 /mob/living/simple_animal/construct/wraith/mind_initialize()
 	..()
 	mind.assigned_role = "Wraith"
-	mind.special_role = "Cultist"
+	mind.special_role = SPECIAL_ROLE_CULTIST
 
 /mob/living/simple_animal/construct/armoured/mind_initialize()
 	..()
 	mind.assigned_role = "Juggernaut"
-	mind.special_role = "Cultist"
+	mind.special_role = SPECIAL_ROLE_CULTIST
 
 /mob/living/simple_animal/vox/armalis/mind_initialize()
 	..()
 	mind.assigned_role = "Armalis"
-	mind.special_role = "Vox Raider"
+	mind.special_role = SPECIAL_ROLE_RAIDER

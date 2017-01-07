@@ -12,6 +12,12 @@
 	for(var/mob/dead/observer/M in following_mobs)
 		M.following = null
 	following_mobs = null
+	if(buckled)
+		buckled.unbuckle_mob()
+	if(viewing_alternate_appearances)
+		for(var/datum/alternate_appearance/AA in viewing_alternate_appearances)
+			AA.viewers -= src
+		viewing_alternate_appearances = null
 	return ..()
 
 /mob/New()
@@ -245,6 +251,7 @@
 					return // Bag could not be placed in players hands.  I don't know what to do here...
 		//Now, B represents a container we can insert W into.
 		B.handle_item_insertion(W,1)
+		return B
 
 //The list of slots by priority. equip_to_appropriate_slot() uses this list. Doesn't matter if a mob type doesn't have a slot.
 var/list/slot_equipment_priority = list( \
@@ -252,6 +259,8 @@ var/list/slot_equipment_priority = list( \
 		slot_wear_id,\
 		slot_wear_pda,\
 		slot_w_uniform,\
+		slot_underpants,\
+		slot_undershirt,\
 		slot_wear_suit,\
 		slot_wear_mask,\
 		slot_head,\
@@ -273,7 +282,7 @@ var/list/slot_equipment_priority = list( \
 	if(!istype(W)) return 0
 
 	for(var/slot in slot_equipment_priority)
-		if(istype(W,/obj/item/weapon/storage/) && slot == slot_head) // Storage items should be put on the belt before the head
+		if(istype(W, /obj/item/weapon/storage/) && slot == slot_head) // Storage items should be put on the belt before the head
 			continue
 		if(equip_to_slot_if_possible(W, slot, 0, 1, 1)) //del_on_fail = 0; disable_warning = 0; redraw_mob = 1
 			return 1
@@ -399,7 +408,7 @@ var/list/slot_equipment_priority = list( \
 			if(slot_w_uniform)
 				if( !(slot_flags & SLOT_ICLOTHING) )
 					return 0
-				if((FAT in H.mutations) && !(flags & ONESIZEFITSALL))
+				if((FAT in H.mutations) && !(flags_size & ONESIZEFITSALL))
 					return 0
 				if(H.w_uniform)
 					if(!(H.w_uniform.flags & NODROP))
@@ -483,6 +492,18 @@ var/list/slot_equipment_priority = list( \
 					if(B.contents.len < B.storage_slots && w_class <= B.max_w_class)
 						return 1
 				return 0
+			if(slot_underpants)
+				if(H.underpants)
+					return 0
+				if(!istype(src, /obj/item/clothing/underwear/underpants))
+					return 0
+				return 1
+			if(slot_undershirt)
+				if(H.undershirt)
+					return 0
+				if(!istype(src, /obj/item/clothing/underwear/undershirt))
+					return 0
+				return 1
 		return 0 //Unsupported slot
 		//END HUMAN
 
@@ -842,6 +863,9 @@ var/list/slot_equipment_priority = list( \
 /mob/proc/stripPanelEquip(obj/item/what, mob/who)
 	return
 
+/mob/proc/update_health_hud()
+	return
+
 
 /mob/proc/pull_damage()
 	if(ishuman(src))
@@ -937,17 +961,7 @@ var/list/slot_equipment_priority = list( \
 /mob/Stat()
 	..()
 
-	if(listed_turf && client)
-		if(!TurfAdjacent(listed_turf))
-			listed_turf = null
-		else
-			statpanel(listed_turf.name, null, listed_turf)
-			for(var/atom/A in listed_turf)
-				if(A.invisibility > see_invisible)
-					continue
-				if(is_type_in_list(A, shouldnt_see))
-					continue
-				statpanel(listed_turf.name, null, A)
+	show_stat_turf_contents()
 
 	statpanel("Status") // We only want alt-clicked turfs to come before Status
 
@@ -974,6 +988,7 @@ var/list/slot_equipment_priority = list( \
 
 	statpanel("Status") // Switch to the Status panel again, for the sake of the lazy Stat procs
 
+
 // this function displays the station time in the status panel
 /mob/proc/show_stat_station_time()
 	stat(null, "Station Time: [worldtime2text()]")
@@ -984,10 +999,28 @@ var/list/slot_equipment_priority = list( \
 	if(ETA)
 		stat(null, "[ETA] [shuttle_master.emergency.getTimerStr()]")
 
+/mob/proc/show_stat_turf_contents()
+	if(listed_turf && client)
+		if(!TurfAdjacent(listed_turf))
+			listed_turf = null
+		else
+			statpanel(listed_turf.name, null, listed_turf)
+			var/list/statpanel_things = list()
+			for(var/foo in listed_turf)
+				var/atom/A = foo
+				if(A.invisibility > see_invisible)
+					continue
+				if(is_type_in_list(A, shouldnt_see))
+					continue
+				statpanel_things += A
+			statpanel(listed_turf.name, null, statpanel_things)
+
+
 /mob/proc/add_stings_to_statpanel(var/list/stings)
 	for(var/obj/effect/proc_holder/changeling/S in stings)
 		if(S.chemical_cost >=0 && S.can_be_used_by(src))
 			statpanel("[S.panel]",((S.chemical_cost > 0) ? "[S.chemical_cost]" : ""),S)
+
 /mob/proc/add_spell_to_statpanel(var/obj/effect/proc_holder/spell/S)
 	switch(S.charge_type)
 		if("recharge")
@@ -1021,7 +1054,7 @@ var/list/slot_equipment_priority = list( \
 	return 1
 
 //Updates canmove, lying and icons. Could perhaps do with a rename but I can't think of anything to describe it.
-/mob/proc/update_canmove()
+/mob/proc/update_canmove(delay_action_updates = 0)
 	var/ko = weakened || paralysis || stat || (status_flags & FAKEDEATH)
 	var/buckle_lying = !(buckled && !buckled.buckle_lying)
 	if(ko || resting || stunned)
@@ -1046,6 +1079,8 @@ var/list/slot_equipment_priority = list( \
 			layer = initial(layer)
 
 	update_transform()
+	if(!delay_action_updates)
+		update_action_buttons_icon()
 	return canmove
 
 /mob/proc/fall(var/forced)
@@ -1093,6 +1128,9 @@ var/list/slot_equipment_priority = list( \
 
 /mob/proc/Dizzy(amount)
 	dizziness = max(dizziness, amount, 0)
+
+/mob/proc/AdjustDrunk(amount)
+	drunk = max(drunk + amount, 0)
 
 /mob/proc/Stun(amount)
 	SetStunned(max(stunned, amount))
@@ -1322,11 +1360,11 @@ mob/proc/yank_out_object()
 
 /mob/proc/get_ghost(even_if_they_cant_reenter = 0)
 	if(mind)
-		for(var/mob/dead/observer/G in dead_mob_list)
-			if(G.mind == mind)
-				if(G.can_reenter_corpse || even_if_they_cant_reenter)
-					return G
-				break
+		return mind.get_ghost(even_if_they_cant_reenter)
+
+/mob/proc/grab_ghost(force)
+	if(mind)
+		return mind.grab_ghost(force = force)
 
 /mob/proc/notify_ghost_cloning(var/message = "Someone is trying to revive you. Re-enter your corpse if you want to be revived!", var/sound = 'sound/effects/genetics.ogg', var/atom/source = null)
 	var/mob/dead/observer/ghost = get_ghost()
@@ -1358,16 +1396,7 @@ mob/proc/yank_out_object()
 
 /mob/proc/AddSpell(var/obj/effect/proc_holder/spell/spell)
 	spell_list += spell
-	if(!spell.action)
-		spell.action = new/datum/action/spell_action
-		spell.action.target = spell
-		spell.action.name = spell.name
-		spell.action.button_icon = spell.action_icon
-		spell.action.button_icon_state = spell.action_icon_state
-		spell.action.background_icon_state = spell.action_background_icon_state
-	if(isliving(src))
-		spell.action.Grant(src)
-	return
+	spell.action.Grant(src)
 
 //override to avoid rotating pixel_xy on mobs
 /mob/shuttleRotate(rotation)

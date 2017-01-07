@@ -36,9 +36,15 @@
 
 	if(shock_stage >= 10) tally += 3
 
+	if(aiming && aiming.aiming_at) tally += 5 // Iron sights make you slower, it's a well-known fact.
+
 	if(back)
 		tally += back.slowdown
 
+	if(l_hand && (l_hand.flags & HANDSLOW))
+		tally += l_hand.slowdown
+	if(r_hand && (r_hand.flags & HANDSLOW))
+		tally += r_hand.slowdown
 
 	if(FAT in src.mutations)
 		tally += 1.5
@@ -75,7 +81,7 @@
 			break
 
 	if(thrust)
-		if((movement_dir || thrust.stabilization_on) && thrust.allow_thrust(0.01, src))
+		if((movement_dir || thrust.stabilizers) && thrust.allow_thrust(0.01, src))
 			return 1
 	return 0
 

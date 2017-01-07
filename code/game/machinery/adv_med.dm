@@ -19,6 +19,13 @@
 	else
 		set_light(0)
 
+/obj/machinery/bodyscanner/process()
+	for(var/mob/M as mob in src) // makes sure that simple mobs don't get stuck inside a sleeper when they resist out of occupant's grasp
+		if(M == occupant)
+			continue
+		else
+			M.forceMove(src.loc)
+
 /obj/machinery/bodyscanner/New()
 	..()
 	component_parts = list()
@@ -59,11 +66,14 @@
 		else
 			dir = 4
 		playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
+		return
 
 	if(exchange_parts(user, G))
 		return
 
-	default_deconstruction_crowbar(G)
+	if(istype(G, /obj/item/weapon/crowbar))
+		default_deconstruction_crowbar(G)
+		return
 
 	if(istype(G, /obj/item/weapon/grab))
 		var/obj/item/weapon/grab/TYPECAST_YOUR_SHIT = G
@@ -147,52 +157,55 @@
 	add_fingerprint(usr)
 
 /obj/machinery/bodyscanner/proc/go_out()
-	if ((!( src.occupant ) || src.locked))
+	if(!occupant || locked)
 		return
-	if (src.occupant.client)
-		src.occupant.client.eye = src.occupant.client.mob
-		src.occupant.client.perspective = MOB_PERSPECTIVE
-	src.occupant.loc = src.loc
-	src.occupant = null
-	src.icon_state = "body_scanner_0"
-	return
+	if(occupant.client)
+		occupant.client.eye = occupant.client.mob
+		occupant.client.perspective = MOB_PERSPECTIVE
+	occupant.forceMove(loc)
+	occupant = null
+	icon_state = "body_scanner_0"
+	// eject trash the occupant dropped
+	for(var/atom/movable/A in contents - component_parts)
+		A.forceMove(loc)
 
 /obj/machinery/bodyscanner/ex_act(severity)
 	switch(severity)
 		if(1.0)
 			for(var/atom/movable/A as mob|obj in src)
-				A.loc = src.loc
-				ex_act(severity)
-				//Foreach goto(35)
-			//SN src = null
+				A.forceMove(src.loc)
+				A.ex_act(severity)
 			qdel(src)
 			return
 		if(2.0)
 			if (prob(50))
 				for(var/atom/movable/A as mob|obj in src)
-					A.loc = src.loc
-					ex_act(severity)
-					//Foreach goto(108)
-				//SN src = null
+					A.forceMove(src.loc)
+					A.ex_act(severity)
 				qdel(src)
 				return
 		if(3.0)
 			if (prob(25))
 				for(var/atom/movable/A as mob|obj in src)
-					A.loc = src.loc
-					ex_act(severity)
-					//Foreach goto(181)
-				//SN src = null
+					A.forceMove(src.loc)
+					A.ex_act(severity)
 				qdel(src)
 				return
-		else
-	return
 
 /obj/machinery/bodyscanner/blob_act()
 	if(prob(50))
-		for(var/atom/movable/A as mob|obj in src)
-			A.loc = src.loc
+		var/atom/movable/A = occupant
+		go_out()
+		A.blob_act()
 		qdel(src)
+
+/obj/machinery/bodyscanner/attack_animal(var/mob/living/simple_animal/M)//Stop putting hostile mobs in things guise
+	if(M.environment_smash)
+		M.do_attack_animation(src)
+		visible_message("<span class='danger'>[M.name] smashes [src] apart!</span>")
+		go_out()
+		qdel(src)
+	return
 
 /obj/machinery/body_scanconsole
 	var/obj/machinery/bodyscanner/connected
@@ -248,6 +261,13 @@
 /obj/machinery/body_scanconsole/blob_act()
 	if(prob(50))
 		qdel(src)
+
+/obj/machinery/body_scanconsole/attack_animal(var/mob/living/simple_animal/M)//Stop putting hostile mobs in things guise
+	if(M.environment_smash)
+		M.do_attack_animation(src)
+		visible_message("<span class='danger'>[M.name] smashes [src] apart!</span>")
+		qdel(src)
+	return
 
 /obj/machinery/body_scanconsole/proc/findscanner()
 	var/obj/machinery/bodyscanner/bodyscannernew = null
@@ -337,12 +357,13 @@
 			var/bloodData[0]
 			bloodData["hasBlood"] = 0
 			if(ishuman(H) && H.vessel && !(H.species && H.species.flags & NO_BLOOD))
-				var/blood_volume = round(H.vessel.get_reagent_amount("blood"))
+				var/blood_type = H.get_blood_name()
+				var/blood_volume = round(H.vessel.get_reagent_amount(blood_type))
 				bloodData["hasBlood"] = 1
 				bloodData["volume"] = blood_volume
-				bloodData["percent"] = round(((blood_volume / 560)*100))
+				bloodData["percent"] = round(((blood_volume / BLOOD_VOLUME_NORMAL)*100))
 				bloodData["pulse"] = H.get_pulse(GETPULSE_TOOL)
-				bloodData["bloodLevel"] = round(H.vessel.get_reagent_amount("blood"))
+				bloodData["bloodLevel"] = blood_volume
 				bloodData["bloodMax"] = H.max_blood
 			occupantData["blood"] = bloodData
 
@@ -510,9 +531,9 @@
 				dat += "Large growth detected in frontal lobe, possibly cancerous. Surgical removal is recommended.<br>"
 
 			if(occupant.vessel)
-				var/blood_volume = round(occupant.vessel.get_reagent_amount("blood"))
-				var/blood_percent =  blood_volume / 560
-				blood_percent *= 100
+				var/blood_type = occupant.get_blood_name()
+				var/blood_volume = round(occupant.vessel.get_reagent_amount(blood_type))
+				var/blood_percent =  blood_volume / BLOOD_VOLUME_NORMAL
 
 				extra_font = (blood_volume > 448 ? "<font color='blue'>" : "<font color='red'>")
 				dat += "[extra_font]\tBlood Level %: [blood_percent] ([blood_volume] units)</font><br>"

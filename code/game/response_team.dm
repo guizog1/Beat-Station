@@ -9,6 +9,7 @@ var/list/response_team_members = list()
 var/responseteam_age = 21 // Minimum account age to play as an ERT member
 var/datum/response_team/active_team = null
 var/send_emergency_team
+var/ert_request_answered = 0
 
 /client/proc/response_team()
 	set name = "Dispatch CentComm Response Team"
@@ -47,6 +48,7 @@ var/send_emergency_team
 	if(!ert_type)
 		return
 
+	ert_request_answered = 1
 	message_admins("[key_name_admin(usr)] is dispatching an Emergency Response Team", 1)
 	log_admin("[key_name(usr)] used Dispatch Emergency Response Team..")
 	trigger_armed_response_team(ert_type)
@@ -196,7 +198,7 @@ var/send_emergency_team
 	M.mind.current = M
 	M.mind.original = M
 	M.mind.assigned_role = "MODE"
-	M.mind.special_role = "Response Team"
+	M.mind.special_role = SPECIAL_ROLE_ERT
 	if(!(M.mind in ticker.minds))
 		ticker.minds += M.mind //Adds them to regular mind list.
 	M.loc = spawn_location
@@ -382,7 +384,7 @@ var/send_emergency_team
 			M.equip_to_slot_or_del(new /obj/item/clothing/shoes/combat(M), slot_shoes)
 			M.equip_to_slot_or_del(new /obj/item/clothing/gloves/color/black(M), slot_gloves)
 			M.equip_to_slot_or_del(new /obj/item/clothing/suit/armor/vest/ert/security(M), slot_wear_suit)
-			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/advtaser(M), slot_s_store)
+			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/gun/advtaser(M), slot_s_store)
 			M.equip_to_slot_or_del(new /obj/item/clothing/glasses/hud/security/sunglasses(M), slot_glasses)
 
 			M.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/ert/security(M), slot_in_backpack)
@@ -459,7 +461,7 @@ var/send_emergency_team
 			M.equip_to_slot_or_del(new /obj/item/clothing/shoes/combat(M), slot_shoes)
 			M.equip_to_slot_or_del(new /obj/item/clothing/gloves/color/black(M), slot_gloves)
 			M.equip_to_slot_or_del(new /obj/item/clothing/suit/space/rig/ert/security(M), slot_wear_suit)
-			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/advtaser(M), slot_s_store)
+			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/gun/advtaser(M), slot_s_store)
 			M.equip_to_slot_or_del(new /obj/item/clothing/glasses/hud/security/sunglasses(M), slot_glasses)
 
 			M.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/space/rig/ert/security(M), slot_in_backpack)
@@ -532,7 +534,7 @@ var/send_emergency_team
 			M.equip_to_slot_or_del(new /obj/item/weapon/rcd_ammo/large(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/weapon/rcd_ammo/large(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/weapon/rcd_ammo/large(M), slot_in_backpack)
-			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse_rifle/pistol(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse/pistol(M), slot_in_backpack)
 
 			M.equip_to_slot_or_del(new /obj/item/device/t_scanner/extended_range(M), slot_l_store)
 			M.equip_to_slot_or_del(new /obj/item/weapon/melee/classic_baton/telescopic(M), slot_r_store)
@@ -553,7 +555,7 @@ var/send_emergency_team
 				M.equip_to_slot_or_del(new /obj/item/weapon/storage/box/flashbangs(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/ionrifle/carbine(M), slot_in_backpack)
 
-			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse_rifle/carbine(M), slot_r_hand)
+			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse/carbine(M), slot_r_hand)
 
 		if("Medic")
 			M.equip_to_slot_or_del(new /obj/item/clothing/shoes/combat/swat(M), slot_shoes)
@@ -566,7 +568,7 @@ var/send_emergency_team
 			M.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/space/rig/ert/medical(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/sechailer/swat(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/weapon/storage/firstaid/surgery(M), slot_in_backpack)
-			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse_rifle/pistol(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse/pistol(M), slot_in_backpack)
 
 			M.equip_to_slot_or_del(new /obj/item/weapon/reagent_containers/hypospray/combat/nanites(src), slot_l_store)
 			M.equip_to_slot_or_del(new /obj/item/weapon/melee/classic_baton/telescopic(M), slot_r_store)
@@ -585,7 +587,7 @@ var/send_emergency_team
 			M.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/sechailer/swat(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/weapon/restraints/handcuffs(M), slot_in_backpack)
 			M.equip_to_slot_or_del(new /obj/item/weapon/storage/lockbox/loyalty(M), slot_in_backpack)
-			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse_rifle/pistol(M), slot_in_backpack)
+			M.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse/pistol(M), slot_in_backpack)
 
 			M.equip_to_slot_or_del(new /obj/item/weapon/pinpointer(M), slot_l_store)
 			M.equip_to_slot_or_del(new /obj/item/weapon/melee/classic_baton/telescopic(M), slot_r_store)

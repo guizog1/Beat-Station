@@ -28,29 +28,28 @@
 		for(var/obj/item/stack/sheet/O in T)
 			if (istype(O, /obj/item/stack/sheet/mineral/gold))
 				amt_gold += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/mineral/silver))
 				amt_silver += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/mineral/diamond))
 				amt_diamond += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/mineral/plasma))
 				amt_plasma += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/mineral/uranium))
 				amt_uranium += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/metal))
 				amt_iron += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/mineral/bananium))
 				amt_clown += 100 * O.amount
-				O.loc = null
+				qdel(O)
 			if (istype(O, /obj/item/stack/sheet/mineral/tranquillite))
 				amt_mime += 100 * O.amount
-				O.loc = null
-			return
+				qdel(O)
 
 
 /obj/machinery/mineral/mint/attack_hand(user as mob) //TODO: Adamantine coins! -Durandan

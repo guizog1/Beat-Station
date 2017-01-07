@@ -514,7 +514,7 @@
 	status = LIGHT_EMPTY
 	update()
 
-/obj/machinery/light/proc/broken(var/skip_sound_and_sparks = 0)
+/obj/machinery/light/proc/broken(skip_sound_and_sparks = 0)
 	if(status == LIGHT_EMPTY)
 		return
 
@@ -671,17 +671,19 @@
 	..()
 	if(istype(I, /obj/item/weapon/reagent_containers/syringe))
 		var/obj/item/weapon/reagent_containers/syringe/S = I
-
-		to_chat(user, "You inject the solution into the [src].")
-
-		if(S.reagents.has_reagent("plasma", 5))
-
-			log_admin("LOG: [user.name] ([user.ckey]) injected a light with plasma, rigging it to explode.")
-			message_admins("LOG: [user.name] ([user.ckey]) injected a light with plasma, rigging it to explode.")
-
-			rigged = 1
-
-		S.reagents.clear_reagents()
+		if(!rigged)
+			for(var/R in flammable_chems)
+				if(S.reagents.has_reagent(R, 15))
+					to_chat(user, "\red You inject the solution into the [src].")
+					log_admin("Light rigged by [user.name] ([user.ckey]) in ([x],[y],[z])")
+					message_admins("Light rigged by [key_name_admin(user)] in ([x],[y],[z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)",0,1)
+					rigged = 1
+					S.reagents.clear_reagents()
+					return
+			to_chat(user, "\red Why inject it in a light bulb?")
+		else
+			to_chat(user, "\red \The [src] is already rigged.")
+		return
 	else
 		..()
 	return
@@ -707,3 +709,12 @@
 		sharp = 1
 		playsound(src.loc, 'sound/effects/Glasshit.ogg', 75, 1)
 		update()
+
+/obj/item/weapon/light/suicide_act(mob/living/carbon/human/user)
+	user.visible_message("<span class=suicide>[user] touches \the [src], burning their hands off!</span>", "<span class=suicide>You touch \the [src], burning your hands off!</span>")
+
+	for(var/oname in list("l_hand", "r_hand"))
+		var/obj/item/organ/external/limb = user.get_organ(oname)
+		if(limb)
+			limb.droplimb(0, DROPLIMB_BURN)
+	return FIRELOSS

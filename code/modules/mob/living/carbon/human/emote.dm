@@ -28,8 +28,8 @@
 	act = lowertext(act)
 	switch(act)
 		//Cooldown-inducing emotes
-		if("ping", "pings", "buzz", "buzzes", "beep", "beeps", "yes", "no")
-			if (species.name == "Machine")		//Only Machines can beep, ping, and buzz
+		if("ping", "pings", "buzz", "buzzes", "beep", "beeps", "yes", "no", "buzz2")
+			if (species.name == "Machine")		//Only Machines can beep, ping, and buzz, yes, no, and make a silly sad trombone noise.
 				on_CD = handle_emote_CD()			//proc located in code\modules\mob\emote.dm
 			else								//Everyone else fails, skip the emote attempt
 				return
@@ -54,6 +54,8 @@
 			if(!found_slime_bodypart)								//Everyone else fails, skip the emote attempt
 				return
 		if("scream", "screams")
+			on_CD = handle_emote_CD(50) //longer cooldown
+		if("moan", "moans")
 			on_CD = handle_emote_CD(50) //longer cooldown
 		if("fart", "farts", "flip", "flips", "snap", "snaps")
 			on_CD = handle_emote_CD()				//proc located in code\modules\mob\emote.dm
@@ -84,6 +86,11 @@
 			else
 				message = "<B>[src]</B> pings."
 			playsound(src.loc, 'sound/machines/ping.ogg', 50, 0)
+			m_type = 2
+
+		if("buzz2")
+			message = "<B>[src]</B> emits an irritated buzzing sound."
+			playsound(src.loc, 'sound/machines/buzz-two.ogg', 50, 0)
 			m_type = 2
 
 		if("buzz", "buzzes")
@@ -317,8 +324,12 @@
 					if(lying || weakened)
 						message = "<B>[src]</B> flops and flails around on the floor."
 					else
-						var/obj/item/weapon/grab/G = get_active_hand()
+						var/obj/item/weapon/grab/G
+						if(istype(get_active_hand(), /obj/item/weapon/grab))
+							G = get_active_hand()
 						if(G && G.affecting)
+							if(buckled || G.affecting.buckled)
+								return
 							var/turf/oldloc = loc
 							var/turf/newloc = G.affecting.loc
 							if(isturf(oldloc) && isturf(newloc))
@@ -550,14 +561,6 @@
 					message = "<B>[src]</B> makes a loud noise."
 					m_type = 2
 
-		if ("moan", "moans")
-			if(miming)
-				message = "<B>[src]</B> appears to moan!"
-				m_type = 1
-			else
-				message = "<B>[src]</B> moans!"
-				m_type = 2
-
 		if ("johnny")
 			var/M
 			if (param)
@@ -766,6 +769,21 @@
 						playsound(src.loc, "[species.female_scream_sound]", 80, 1, 0, pitch = get_age_pitch())
 					else
 						playsound(src.loc, "[species.male_scream_sound]", 80, 1, 0, pitch = get_age_pitch()) //default to male screams if no gender is present.
+
+				else
+					message = "<B>[src]</B> makes a very loud noise."
+					m_type = 2
+
+		if ("moan", "moans")
+			if (miming)
+				message = "<B>[src]</B> appears to moan!"
+				m_type = 1
+			else
+				if (!muzzled)
+					message = "<B>[src]</B> moans!"
+					m_type = 2
+					//if(gender == FEMALE)
+					//	playsound(src.loc, "sound/forbidden/erp/moan_f[rand(1, 7)].ogg", 50, 1, 0, pitch = get_age_pitch())
 
 				else
 					message = "<B>[src]</B> makes a very loud noise."

@@ -23,7 +23,8 @@
 	update_icon()
 	return
 
-/obj/item/weapon/melee/baton/CheckParts()
+/obj/item/weapon/melee/baton/CheckParts(list/parts_list)
+	..()
 	bcell = locate(/obj/item/weapon/stock_parts/cell) in contents
 	update_icon()
 
@@ -132,6 +133,11 @@
 
 
 /obj/item/weapon/melee/baton/proc/baton_stun(mob/living/L, mob/user)
+	if(ishuman(L))
+		var/mob/living/carbon/human/H = L
+		if(H.check_shields(0, "[user]'s [name]", src, MELEE_ATTACK)) //No message; check_shields() handles that
+			playsound(L, 'sound/weapons/Genhit.ogg', 50, 1)
+			return
 	user.lastattacked = L
 	L.lastattacker = user
 
@@ -193,18 +199,10 @@
 /obj/item/weapon/melee/baton/cattleprod
 	name = "stunprod"
 	desc = "An improvised stun baton."
-	icon_state = "stunprod_nocell"
+	icon_state = "stunprod"
 	item_state = "prod"
 	force = 3
 	throwforce = 5
 	stunforce = 5
 	hitcost = 3750
 	slot_flags = null
-
-/obj/item/weapon/melee/baton/cattleprod/update_icon()
-	if(status)
-		icon_state = "stunprod_active"
-	else if(!bcell)
-		icon_state = "stunprod_nocell"
-	else
-		icon_state = "stunprod"

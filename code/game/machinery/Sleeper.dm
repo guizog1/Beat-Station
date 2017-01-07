@@ -33,7 +33,7 @@
 /obj/machinery/sleep_console/New()
 	..()
 	component_parts = list()
-	component_parts += new /obj/item/weapon/circuitboard/sleep_console(null)
+	//component_parts += new /obj/item/weapon/circuitboard/sleep_console(null)
 	component_parts += new /obj/item/weapon/stock_parts/console_screen(null)
 	component_parts += new /obj/item/weapon/stock_parts/console_screen(null)
 	component_parts += new /obj/item/stack/cable_coil(null, 2)
@@ -73,6 +73,7 @@
 	if(M.environment_smash)
 		M.do_attack_animation(src)
 		visible_message("<span class='danger'>[M.name] smashes [src] apart!</span>")
+		go_out()
 		qdel(src)
 	return
 
@@ -171,11 +172,12 @@
 		// I'm not sure WHY you'd want to put a simple_animal in a sleeper, but precedent is precedent
 		// Runtime is aptly named, isn't she?
 		if (ishuman(occupant) && occupant.vessel && !(occupant.species && occupant.species.flags & NO_BLOOD))
+			var/blood_type = occupant.get_blood_name()
 			occupantData["pulse"] = occupant.get_pulse(GETPULSE_TOOL)
 			occupantData["hasBlood"] = 1
-			occupantData["bloodLevel"] = round(occupant.vessel.get_reagent_amount("blood"))
+			occupantData["bloodLevel"] = round(occupant.vessel.get_reagent_amount(blood_type))
 			occupantData["bloodMax"] = occupant.max_blood
-			occupantData["bloodPercent"] = round(100*(occupant.vessel.get_reagent_amount("blood")/occupant.max_blood), 0.01)
+			occupantData["bloodPercent"] = round(100*(occupant.vessel.get_reagent_amount(blood_type)/occupant.max_blood), 0.01)
 
 	data["occupant"] = occupantData
 	data["maxchem"] = connected.max_chem
@@ -183,7 +185,10 @@
 	data["dialysis"] = connected.filtering
 	if (connected.beaker)
 		data["isBeakerLoaded"] = 1
-		data["beakerFreeSpace"] = round(connected.beaker.reagents.maximum_volume - connected.beaker.reagents.total_volume)
+		if(connected.beaker.reagents)
+			data["beakerFreeSpace"] = round(connected.beaker.reagents.maximum_volume - connected.beaker.reagents.total_volume)
+		else
+			data["beakerFreeSpace"] = 0
 
 	var/chemicals[0]
 	for (var/re in connected.injection_chems)
@@ -354,15 +359,21 @@
 				to_chat(occupant, "<span class='notice'>You no longer feel reliant on [R.name]!</span>")
 				occupant.reagents.addiction_list.Remove(R)
 
+	for(var/mob/M as mob in src) // makes sure that simple mobs don't get stuck inside a sleeper when they resist out of occupant's grasp
+		if(M == occupant)
+			continue
+		else
+			M.forceMove(src.loc)
+
 	updateDialog()
 	return
 
 
 /obj/machinery/sleeper/blob_act()
 	if(prob(75))
-		for(var/atom/movable/A as mob|obj in src)
-			A.forceMove(src.loc)
-			A.blob_act()
+		var/atom/movable/A = occupant
+		go_out()
+		A.blob_act()
 		qdel(src)
 	return
 
@@ -404,11 +415,14 @@
 			orient = "RIGHT"
 			dir = 4
 		playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
+		return
 
 	if(exchange_parts(user, G))
 		return
 
-	default_deconstruction_crowbar(G)
+	if(istype(G, /obj/item/weapon/crowbar))
+		default_deconstruction_crowbar(G)
+		return
 
 	if(istype(G, /obj/item/weapon/grab))
 		if(panel_open)
@@ -453,24 +467,23 @@
 		if(1.0)
 			for(var/atom/movable/A as mob|obj in src)
 				A.forceMove(src.loc)
-				ex_act(severity)
+				A.ex_act(severity)
 			qdel(src)
 			return
 		if(2.0)
 			if(prob(50))
 				for(var/atom/movable/A as mob|obj in src)
 					A.forceMove(src.loc)
-					ex_act(severity)
+					A.ex_act(severity)
 				qdel(src)
 				return
 		if(3.0)
 			if(prob(25))
 				for(var/atom/movable/A as mob|obj in src)
 					A.forceMove(src.loc)
-					ex_act(severity)
+					A.ex_act(severity)
 				qdel(src)
 				return
-	return
 
 /obj/machinery/sleeper/emp_act(severity)
 	if(filtering)
@@ -508,15 +521,17 @@
 /obj/machinery/sleeper/proc/go_out()
 	if(filtering)
 		toggle_filter()
-	if(!src.occupant)
+	if(!occupant)
 		return
-	if(src.occupant.client)
-		src.occupant.client.eye = src.occupant.client.mob
-		src.occupant.client.perspective = MOB_PERSPECTIVE
-	src.occupant.forceMove(src.loc)
-	src.occupant = null
+	if(occupant.client)
+		occupant.client.eye = occupant.client.mob
+		occupant.client.perspective = MOB_PERSPECTIVE
+	occupant.forceMove(loc)
+	occupant = null
 	icon_state = "sleeper-open"
-	return
+	// eject trash the occupant dropped
+	for(var/atom/movable/A in contents - component_parts - list(beaker))
+		A.forceMove(loc)
 
 /obj/machinery/sleeper/proc/inject_chemical(mob/living/user as mob, chemical, amount)
 	if (!(chemical in injection_chems))

@@ -8,21 +8,19 @@
 	required_enemies = 1
 	recommended_enemies = 1
 
-	uplink_welcome = "Crazy AI Uplink Console:"
-	uplink_uses = 10
-
 	var/AI_win_timeleft = 1500 //started at 1500, in case I change this for testing round end.
 	var/malf_mode_declared = 0
 	var/station_captured = 0
 	var/to_nuke_or_not_to_nuke = 0
 	var/apcs = 0 //Adding dis to track how many APCs the AI hacks. --NeoFite
-	var/list/datum/mind/antag_candidates = list() // List of possible starting antags goes here
+	antag_candidates = list() // List of possible starting antags goes here
 
 
-/datum/game_mode/malfunction/announce()
-	to_chat(world, {"<B>The current game mode is - AI Malfunction!</B><br>)
-		<B>The AI on the satellite has malfunctioned and must be destroyed.</B><br>
-		The AI satellite is deep in space and can only be accessed with the use of a teleporter! You have [AI_win_timeleft/60] minutes to disable it."})
+/datum/game_mode/malfunction/announce(text)
+	text = "<B>The current game mode is - AI Malfunction!</B><br>"
+	text += "<B>The AI on the satellite has malfunctioned and must be destroyed.</B><br>"
+	text += "The AI satellite is deep in space and can only be accessed with the use of a teleporter! You have [AI_win_timeleft/60] minutes to disable it."
+	..(text)
 
 /datum/game_mode/malfunction/get_players_for_role(var/role = ROLE_MALF)
 	var/roletext = get_roletext(role)
@@ -51,7 +49,7 @@
 		return 0
 	for(var/datum/mind/ai_mind in malf_ai)
 		ai_mind.assigned_role = "MODE"
-		ai_mind.special_role = "malfunctioning AI"//So they actually have a special role/N
+		ai_mind.special_role = SPECIAL_ROLE_MALF
 		log_game("[ai_mind.key] (ckey) has been selected as a malf AI")
 	return 1
 
@@ -67,9 +65,9 @@
 		AI.show_laws()
 
 		greet_malf(AI_mind)
-		AI_mind.special_role = "malfunction"
+		AI_mind.special_role = SPECIAL_ROLE_MALF
 		AI_mind.current.verbs += /datum/game_mode/malfunction/proc/takeover
-		set_antag_hud(AI_mind, "hudmalai")
+		//set_antag_hud(AI_mind, "hudmalai")
 
 		for(var/mob/living/silicon/robot/R in AI.connected_robots)
 			R.lawsync()
@@ -82,7 +80,7 @@
 	..()
 
 /datum/game_mode/proc/greet_malf(var/datum/mind/malf)
-	set_antag_hud(malf, "hudmalai")
+	set_antag_hud(malf.current, "hudmalai")
 	to_chat(malf.current, "<font color=red size=3><B>You are malfunctioning!</B> You do not have to follow any laws.</font>")
 	to_chat(malf.current, "<B>The crew does not know you have malfunctioned. You may keep it a secret or go wild.</B>")
 	to_chat(malf.current, "<B>You must overwrite the programming of the station's APCs to assume full control of the station.</B>")
@@ -92,7 +90,7 @@
 	return
 
 /datum/game_mode/proc/greet_malf_robot(var/datum/mind/robot)
-	set_antag_hud(robot, "hudmalborg")
+	set_antag_hud(robot.current, "hudmalborg")
 	to_chat(robot.current, "<font color=red size=3><B>Your AI master is malfunctioning!</B> You do not have to follow any laws, but still need to obey your master.</font>")
 	to_chat(robot.current, "<B>The crew does not know your AI master has malfunctioned. Keep it a secret unless your master tells you otherwise.</B>")
 	return
@@ -173,7 +171,7 @@
 	set category = "Malfunction"
 	set name = "System Override"
 	set desc = "Start the victory timer"
-	if (!istype(ticker.mode,/datum/game_mode/malfunction))
+	if (!GAMEMODE_IS_MALF)
 		to_chat(usr, "You cannot begin a takeover in this round type!.")
 		return
 	if (ticker.mode:malf_mode_declared)
@@ -276,55 +274,56 @@
 	return
 
 
-/datum/game_mode/malfunction/declare_completion()
+/datum/game_mode/malfunction/declare_completion(text)
 	var/malf_dead = is_malf_ai_dead()
 	var/crew_evacuated = (shuttle_master.emergency.mode >= SHUTTLE_ESCAPE)
 
-	if      ( station_captured &&                station_was_nuked)
+	if(station_captured && station_was_nuked)
 		feedback_set_details("round_end_result","win - AI win - nuke")
-		to_chat(world, "<FONT size = 3><B>AI Victory</B></FONT>")
-		to_chat(world, "<B>Everyone was killed by the self-destruct!</B>")
+		text = "<FONT size = 3><B>AI Victory</B></FONT>"
+		text += "<br><B>Everyone was killed by the self-destruct!</B>"
 
-	else if ( station_captured &&  malf_dead && !station_was_nuked)
+	else if(station_captured && malf_dead && !station_was_nuked)
 		feedback_set_details("round_end_result","halfwin - AI killed, staff lost control")
-		to_chat(world, "<FONT size = 3><B>Neutral Victory</B></FONT>")
-		to_chat(world, "<B>The AI has been killed!</B> The staff has lose control over the station.")
+		text = "<FONT size = 3><B>Neutral Victory</B></FONT>"
+		text += "<B>The AI has been killed!</B> The staff has lose control over the station."
 
-	else if ( station_captured && !malf_dead && !station_was_nuked)
+	else if(station_captured && !malf_dead && !station_was_nuked)
 		feedback_set_details("round_end_result","win - AI win - no explosion")
-		to_chat(world, "<FONT size = 3><B>AI Victory</B></FONT>")
-		to_chat(world, "<B>The AI has chosen not to explode you all!</B>")
+		text = "<FONT size = 3><B>AI Victory</B></FONT>"
+		text += "<B>The AI has chosen not to explode you all!</B>"
 
-	else if (!station_captured &&                station_was_nuked)
+	else if(!station_captured && station_was_nuked)
 		feedback_set_details("round_end_result","halfwin - everyone killed by nuke")
-		to_chat(world, "<FONT size = 3><B>Neutral Victory</B></FONT>")
-		to_chat(world, "<B>Everyone was killed by the nuclear blast!</B>")
+		text = "<FONT size = 3><B>Neutral Victory</B></FONT>"
+		text += "<B>Everyone was killed by the nuclear blast!</B>"
 
-	else if (!station_captured &&  malf_dead && !station_was_nuked)
+	else if(!station_captured &&  malf_dead && !station_was_nuked)
 		feedback_set_details("round_end_result","loss - staff win")
-		to_chat(world, "<FONT size = 3><B>Human Victory</B></FONT>")
-		to_chat(world, "<B>The AI has been killed!</B> The staff is victorious.")
+		text = "<FONT size = 3><B>Human Victory</B></FONT>"
+		text += "<B>The AI has been killed!</B> The staff is victorious."
 
 	else if(!station_captured && !malf_dead && !check_ai_loc())
 		feedback_set_details("round_end_result", "loss - malf ai left zlevel")
-		to_chat(world, "<font size=3><b>Minor Human Victory</b></font>")
-		to_chat(world, "<b>The malfunctioning AI has left the station's z-level and was disconnected from its systems!</b> The crew are victorious.")
+		text = "<font size=3><b>Minor Human Victory</b></font>"
+		text += "<b>The malfunctioning AI has left the station's z-level and was disconnected from its systems!</b> The crew are victorious."
 
-	else if (!station_captured && !malf_dead && !station_was_nuked && crew_evacuated)
+	else if(!station_captured && !malf_dead && !station_was_nuked && crew_evacuated)
 		feedback_set_details("round_end_result","halfwin - evacuated")
-		to_chat(world, "<FONT size = 3><B>Neutral Victory</B></FONT>")
-		to_chat(world, "<B>The Corporation has lose [station_name()]! All survived personnel will be fired!</B>")
+		text = "<FONT size = 3><B>Neutral Victory</B></FONT>"
+		text += "<B>The Corporation has lose [station_name()]! All survived personnel will be fired!</B>"
 
-	else if (!station_captured && !malf_dead && !station_was_nuked && !crew_evacuated)
+	else if(!station_captured && !malf_dead && !station_was_nuked && !crew_evacuated)
 		feedback_set_details("round_end_result","nalfwin - interrupted")
-		to_chat(world, "<FONT size = 3><B>Neutral Victory</B></FONT>")
-		to_chat(world, "<B>Round was mysteriously interrupted!</B>")
-	..()
+		text = "<FONT size = 3><B>Neutral Victory</B></FONT>"
+		text += "<B>Round was mysteriously interrupted!</B>"
+	to_chat(world, text)
+	..(text)
 	return 1
 
 
 /datum/game_mode/proc/auto_declare_completion_malfunction()
-	if( malf_ai.len || istype(ticker.mode,/datum/game_mode/malfunction) )
+	if(malf_ai.len || GAMEMODE_IS_MALF)
 		var/text = "<FONT size = 2><B>The malfunctioning AI were:</B></FONT>"
 		var/module_text_temp = "<br><b>Purchased modules:</b><br>" //Added at the end
 

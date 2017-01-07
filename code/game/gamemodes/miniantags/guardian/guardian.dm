@@ -70,7 +70,7 @@
 			visible_message("<span class='danger'>The [src] jumps back to its user.</span>")
 			Recall()
 
-/mob/living/simple_animal/hostile/guardian/death()
+/mob/living/simple_animal/hostile/guardian/death(gibbed)
 	..()
 	to_chat(summoner, "<span class='danger'><B>Your [name] died somehow!</span></B>")
 	summoner.death()
@@ -83,7 +83,7 @@
 			resulthealth = round((abs(config.health_threshold_dead - summoner.health) / abs(config.health_threshold_dead - summoner.maxHealth)) * 100)
 		else
 			resulthealth = round((summoner.health / summoner.maxHealth) * 100)
-		hud_used.guardianhealthdisplay.maptext = "<div align='center' valign='middle' style='position:relative; top:0px; left:6px'><font color='#efeeef'>[resulthealth]%</font></div>"
+		hud_used.healths.maptext = "<div align='center' valign='middle' style='position:relative; top:0px; left:6px'><font color='#efeeef'>[resulthealth]%</font></div>"
 
 
 /mob/living/simple_animal/hostile/guardian/adjustHealth(amount) //The spirit is invincible, but passes on damage to the summoner
@@ -785,7 +785,7 @@
 /obj/item/weapon/guardiancreator/tech
 	name = "holoparasite injector"
 	desc = "It contains alien nanoswarm of unknown origin. Though capable of near sorcerous feats via use of hardlight holograms and nanomachines, it requires an organic host as a home base and source of fuel."
-	icon = 'icons/obj/syringe.dmi'
+	icon = 'icons/obj/hypo.dmi'
 	icon_state = "combat_hypo"
 	theme = "tech"
 	mob_name = "Holoparasite"

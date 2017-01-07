@@ -43,6 +43,7 @@
 
 #define ui_borg_sensor "CENTER-3:16, SOUTH:5"	//borgs
 #define ui_borg_lamp "CENTER-4:16, SOUTH:5"		//borgs
+#define ui_borg_thrusters "CENTER-5:16, SOUTH:5"//borgs
 #define ui_inv1 "CENTER-2:16,SOUTH:5"			//borgs
 #define ui_inv2 "CENTER-1  :16,SOUTH:5"			//borgs
 #define ui_inv3 "CENTER  :16,SOUTH:5"			//borgs
@@ -65,6 +66,8 @@
 #define ui_zonesel "EAST-1:28,SOUTH:5"
 #define ui_acti_alt "EAST-1:28,SOUTH:5" //alternative intent switcher for when the interface is hidden (F12)
 
+#define ui_crafting	"EAST-2:10,SOUTH+1:7"
+
 #define ui_borg_pull "EAST-2:26,SOUTH+1:7"
 #define ui_borg_radio "EAST-1:28,SOUTH+1:7"
 #define ui_borg_intents "EAST-2:26,SOUTH:5"
@@ -79,8 +82,9 @@
 
 //Gun buttons
 #define ui_gun1 "EAST-2:26,SOUTH+2:7"
-#define ui_gun2 "EAST-1:28,SOUTH+3:7"
+#define ui_gun2 "EAST-1:28, SOUTH+3:7"
 #define ui_gun3 "EAST-2:26,SOUTH+3:7"
+#define ui_gun4 "EAST-3:24,SOUTH+2:7"
 #define ui_gun_select "EAST-1:28,SOUTH+2:7"
 
 //Upper-middle right (damage indicators)
@@ -108,19 +112,22 @@
 #define ui_construct_pull "EAST-1:28,SOUTH+1:10" //above the zone_sel icon
 
 //Pop-up inventory
-#define ui_shoes "WEST+1:8,SOUTH:5"
+#define ui_shoes		"WEST+1:8,SOUTH:5"
 
-#define ui_iclothing "WEST:6,SOUTH+1:7"
-#define ui_oclothing "WEST+1:8,SOUTH+1:7"
-#define ui_gloves "WEST+2:10,SOUTH+1:7"
+#define ui_iclothing	"WEST:6,SOUTH+3:11"
+#define ui_oclothing	"WEST+1:8,SOUTH+1:7"
+#define ui_gloves		"WEST+2:10,SOUTH+1:7"
 
 
-#define ui_glasses "WEST:6,SOUTH+2:9"
-#define ui_mask "WEST+1:8,SOUTH+2:9"
-#define ui_l_ear "WEST+2:10,SOUTH+2:9"
-#define ui_r_ear "WEST+2:10,SOUTH+3:11"
+#define ui_glasses		"WEST+1:8,SOUTH+3:11"
+#define ui_mask			"WEST+1:8,SOUTH+2:9"
+#define ui_l_ear		"WEST+2:10,SOUTH+2:9"
+#define ui_r_ear		"WEST+2:10,SOUTH+3:11"
 
-#define ui_head "WEST+1:8,SOUTH+3:11"
+#define ui_head			"WEST+1:8,SOUTH+4:13"
+
+#define ui_underpants	"WEST:6,SOUTH+1:7"
+#define ui_undershirt	"WEST:6,SOUTH+2:9"
 
 // AI
 

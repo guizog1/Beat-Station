@@ -45,22 +45,22 @@
 	var/list/modifiers = params2list(params)
 	if(modifiers["shift"] && modifiers["ctrl"])
 		CtrlShiftClickOn(A)
-		return
+		return 1
 	if(modifiers["shift"] && modifiers["alt"])
 		AltShiftClickOn(A)
 		return
 	if(modifiers["middle"])
 		MiddleClickOn(A)
-		return
+		return 1
 	if(modifiers["shift"])
 		ShiftClickOn(A)
-		return
+		return 0
 	if(modifiers["alt"]) // alt and alt-gr (rightalt)
 		AltClickOn(A)
-		return
+		return 1
 	if(modifiers["ctrl"])
 		CtrlClickOn(A)
-		return
+		return 1
 
 	if(stat || paralysis || stunned || weakened)
 		return
@@ -74,26 +74,28 @@
 		if(!locate(/turf) in list(A,A.loc)) // Prevents inventory from being drilled
 			return
 		var/obj/mecha/M = loc
-		return M.click_action(A,src)
+		return M.click_action(A, src, params)
 
 	if(restrained())
 		changeNext_move(CLICK_CD_HANDCUFFED) //Doing shit in cuffs shall be vey slow
 		RestrainedClickOn(A)
-		return
+		return 1
 
 	if(in_throw_mode)
 		throw_item(A)
-		return
+		trigger_aiming(TARGET_CAN_CLICK)
+		return 1
 
 	var/obj/item/W = get_active_hand()
 
 	if(W == A)
 		W.attack_self(src)
+		trigger_aiming(TARGET_CAN_CLICK)
 		if(hand)
 			update_inv_l_hand(0)
 		else
 			update_inv_r_hand(0)
-		return
+		return 1
 
 	// operate two STORAGE levels deep here (item in backpack in src; NOT item in box in backpack in src)
 	var/sdepth = A.storage_depth(src)
@@ -108,7 +110,8 @@
 				changeNext_move(CLICK_CD_MELEE)
 			UnarmedAttack(A, 1)
 
-		return
+		trigger_aiming(TARGET_CAN_CLICK)
+		return 1
 
 	if(!isturf(loc)) // This is going to stop you from telekinesing from inside a closet, but I don't shed many tears for that
 		return
@@ -119,25 +122,35 @@
 		if(A.Adjacent(src)) // see adjacent.dm
 			if(W)
 				// Return 1 in attackby() to prevent afterattack() effects (when safely moving items for example, params)
-				var/resolved = A.attackby(W,src,params)
+				var/resolved = A.attackby(W, src, params)
 				if(!resolved && A && W)
-					W.afterattack(A,src,1,params) // 1: clicking something Adjacent
+					W.afterattack(A, src, 1, params) // 1: clicking something Adjacent
 			else
 				if(ismob(A))
 					changeNext_move(CLICK_CD_MELEE)
 				UnarmedAttack(A, 1)
 
-			return
+			trigger_aiming(TARGET_CAN_CLICK)
+			return 1
 		else // non-adjacent click
 			if(W)
 				W.afterattack(A,src,0,params) // 0: not Adjacent
 			else
 				RangedAttack(A, params)
 
-	return
+			trigger_aiming(TARGET_CAN_CLICK)
+	return 1
 
 /mob/proc/changeNext_move(num)
 	next_move = world.time + num
+
+/mob/proc/setClickCooldown(var/timeout)
+	next_move = max(world.time + timeout, next_move)
+
+/mob/proc/canClick()
+	if(config.no_click_cooldown || next_move <= world.time)
+		return 1
+	return 0
 
 // Default behavior: ignore double clicks, consider them normal clicks instead
 /mob/proc/DblClickOn(var/atom/A, var/params)
@@ -167,9 +180,8 @@
 	animals lunging, etc.
 */
 /mob/proc/RangedAttack(var/atom/A, var/params)
-	if(ishuman(src) && (istype(src:gloves, /obj/item/clothing/gloves/color/yellow/power)) && a_intent == I_HARM)
-		PowerGlove(A)
-	if(!mutations.len) return
+	if(!mutations.len)
+		return
 	if((LASER in mutations) && a_intent == I_HARM)
 		LaserEyes(A) // moved into a proc below
 		return
@@ -264,12 +276,13 @@
 
 /atom/proc/AltClick(var/mob/user)
 	var/turf/T = get_turf(src)
-	if(T && user.TurfAdjacent(T))
-		if(user.listed_turf == T)
-			user.listed_turf = null
-		else
+	if(T)
+		if(user.TurfAdjacent(T))
 			user.listed_turf = T
 			user.client.statpanel = T.name
+			// If we had a method to force a `Stat` update, it would go here
+		else
+			user.listed_turf = null
 	return
 
 /mob/proc/TurfAdjacent(var/turf/T)
@@ -319,61 +332,8 @@
 	LE.current = T
 	LE.yo = U.y - T.y
 	LE.xo = U.x - T.x
-	spawn(1)
-		LE.process()
+	LE.fire()
 
-/mob/proc/PowerGlove(atom/A)
-	return
-
-/mob/living/carbon/human/PowerGlove(atom/A)
-	var/obj/item/clothing/gloves/color/yellow/power/G = src:gloves
-	var/time = 100
-	var/turf/T = get_turf(src)
-	var/turf/U = get_turf(A)
-	var/obj/structure/cable/cable = locate() in T
-	if(!cable || !istype(cable))
-		to_chat(src, "<span class='warning'>There is no cable here to power the gloves.</span>")
-		return
-	if(world.time < G.next_shock)
-		to_chat(src, "<span class='warning'>[G] aren't ready to shock again!</span>")
-		return
-	src.visible_message("<span class='warning'>[name] fires an arc of electricity!</span>", \
-	"<span class='warning'>You fire an arc of electricity!</span>", \
-	"You hear the loud crackle of electricity!")
-	var/datum/powernet/PN = cable.get_powernet()
-	var/available = 0
-	var/obj/item/projectile/beam/lightning/L = new /obj/item/projectile/beam/lightning/(get_turf(src))
-	if(PN)
-		available = PN.avail
-		L.damage = PN.get_electrocute_damage()
-		if(available >= 5000000)
-			L.damage = 205
-		if(L.damage >= 200)
-			time = 200
-		else if(L.damage >= 100)
-			time = 150
-		var/datum/effect/system/spark_spread/s = new /datum/effect/system/spark_spread
-		s.set_up(5, 1, src)
-		s.start()
-	if(L.damage <= 0)
-		qdel(L)
-	if(L)
-		playsound(get_turf(src), 'sound/effects/eleczap.ogg', 75, 1)
-		L.tang = L.adjustAngle(get_angle(U,T))
-		L.icon = midicon
-		L.icon_state = "[L.tang]"
-		L.firer = usr
-		L.def_zone = get_organ_target()
-		L.original = src
-		L.current = U
-		L.starting = U
-		L.yo = U.y - T.y
-		L.xo = U.x - T.x
-		spawn( 1 )
-			L.process()
-
-	next_move = world.time + 12
-	G.next_shock = world.time + time
 // Simple helper to face what you clicked on, in case it should be needed in more than one place
 /mob/proc/face_atom(var/atom/A)
 

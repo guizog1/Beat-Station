@@ -58,7 +58,9 @@
 		dat += "<BR>"
 		dat += "Safety Protocols are <font color=green> ENABLED </font><BR>"
 
-	user << browse(dat, "window=computer;size=400x500")
+	var/datum/browser/popup = new(user, "holodeck_computer", name, 400, 500)
+	popup.set_content(dat)
+	popup.open(0)
 	onclose(user, "computer")
 	return
 
@@ -250,7 +252,7 @@
 		var/area/targetsource = locate(/area/holodeck/source_emptycourt)
 		holographic_items = targetsource.copy_contents_to(linkedholodeck)
 
-/*		spawn(30)
+		/*spawn(30)
 			for(var/obj/effect/landmark/L in linkedholodeck)
 				if(L.name=="Atmospheric Test Start")
 					spawn(20)
@@ -373,7 +375,7 @@
 /obj/structure/table/holotable/wood
 	name = "table"
 	desc = "A square piece of wood standing on four wooden legs. It can not move."
-	icon = 'icons/obj/structures.dmi'
+	icon = 'icons/obj/smooth_structures/wood_table.dmi'
 	icon_state = "wood_table"
 
 /obj/item/clothing/gloves/boxing/hologlove
@@ -423,6 +425,7 @@
 	throwforce = 10
 	w_class = 4
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
+	block_chance = 50
 
 /obj/item/weapon/holo/claymore/blue
 	icon_state = "claymoreblue"
@@ -432,9 +435,6 @@
 	icon_state = "claymorered"
 	item_state = "claymorered"
 
-/obj/item/weapon/holo/claymore/IsShield()
-	return 1
-
 /obj/item/weapon/holo/esword
 	desc = "May the force be within you. Sorta"
 	icon_state = "sword0"
@@ -442,8 +442,9 @@
 	throw_speed = 1
 	throw_range = 5
 	throwforce = 0
-	w_class = 2.0
-	flags = NOSHIELD
+	w_class = 2
+	armour_penetration = 50
+	block_chance = 50
 	var/active = 0
 
 /obj/item/weapon/holo/esword/green/New()
@@ -452,9 +453,9 @@
 /obj/item/weapon/holo/esword/red/New()
 	item_color = "red"
 
-/obj/item/weapon/holo/esword/IsShield()
+/obj/item/weapon/holo/esword/hit_reaction(mob/living/carbon/human/owner, attack_text, final_block_chance)
 	if(active)
-		return 1
+		return ..()
 	return 0
 
 /obj/item/weapon/holo/esword/New()
@@ -479,6 +480,12 @@
 		H.update_inv_l_hand()
 		H.update_inv_r_hand()
 	add_fingerprint(user)
+	return
+
+/obj/structure/stool/holostool
+
+/obj/structure/stool/holostool/attackby(obj/item/weapon/W as obj, mob/user as mob, params)
+	to_chat(user, "<span class='warning'>It's a holostool! There are no bolts!</span>")
 	return
 
 //BASKETBALL OBJECTS

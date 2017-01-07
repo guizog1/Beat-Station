@@ -42,9 +42,42 @@
 	if(..())
 		return
 	if (src.z > 6)
-		to_chat(user, "\red <b>Unable to establish a connection</b>: \black You're too far away from the station!")
+		to_chat(user, "<span class='danger'>Unable to establish a connection</span>: You're too far away from the station!")
 		return
 	var/dat
+
+	// search javascript
+	var/head_content = {"
+	<script src="libraries.min.js"></script>
+	<script type='text/javascript'>
+
+	function updateSearch(){
+		var filter_text = document.getElementById('filter');
+		var filter = filter_text.value.toLowerCase();
+
+		if(complete_list != null && complete_list != ""){
+			var mtbl = document.getElementById("maintable_data_archive");
+			mtbl.innerHTML = complete_list;
+		}
+
+		if(filter.value == ""){
+			return;
+		}else{
+			$("#maintable_data").children("tbody").children("tr").children("td").children("input").filter(function(index)
+			{
+				return $(this)\[0\].value.toLowerCase().indexOf(filter) == -1
+			}).parent("td").parent("tr").hide()
+		}
+	}
+
+	function selectTextField(){
+		var filter_text = document.getElementById('filter');
+		filter_text.focus();
+		filter_text.select();
+	}
+
+	</script>
+"}
 
 	if (temp)
 		dat = text("<TT>[]</TT><BR><BR><A href='?src=\ref[];choice=Clear Screen'>Clear Screen</A>", temp, src)
@@ -56,43 +89,6 @@
 
 					//body tag start + onload and onkeypress (onkeyup) javascript event calls
 					dat += "<body onload='selectTextField(); updateSearch();' onkeyup='updateSearch();'>"
-					//search bar javascript
-					dat += {"
-
-		<head>
-			<script src="libraries.min.js"></script>
-			<script type='text/javascript'>
-
-				function updateSearch(){
-					var filter_text = document.getElementById('filter');
-					var filter = filter_text.value.toLowerCase();
-
-					if(complete_list != null && complete_list != ""){
-						var mtbl = document.getElementById("maintable_data_archive");
-						mtbl.innerHTML = complete_list;
-					}
-
-					if(filter.value == ""){
-						return;
-					}else{
-						$("#maintable_data").children("tbody").children("tr").children("td").children("input").filter(function(index)
-						{
-							return $(this)\[0\].value.toLowerCase().indexOf(filter) == -1
-						}).parent("td").parent("tr").hide()
-					}
-				}
-
-				function selectTextField(){
-					var filter_text = document.getElementById('filter');
-					filter_text.focus();
-					filter_text.select();
-				}
-
-			</script>
-		</head>
-
-
-	"}
 					dat += {"
 <p style='text-align:center;'>"}
 					dat += text("<A href='?src=\ref[];choice=New Record (General)'>New Record</A><BR>", src)
@@ -132,17 +128,17 @@
 							var/background
 							switch(crimstat)
 								if("*Arrest*")
-									background = "'background-color:#DC143C;'"
+									background = "'background-color:#890E26'"
 								if("Incarcerated")
-									background = "'background-color:#CD853F;'"
+									background = "'background-color:#743B03'"
 								if("Parolled")
-									background = "'background-color:#CD853F;'"
+									background = "'background-color:#743B03'"
 								if("Released")
-									background = "'background-color:#3BB9FF;'"
+									background = "'background-color:#216489'"
 								if("None")
-									background = "'background-color:#00FF7F;'"
+									background = "'background-color:#007f47'"
 								if("")
-									background = "'background-color:#FFFFFF;'"
+									background = "''"
 									crimstat = "No Record."
 							dat += "<tr style=[background]>"
 							dat += text("<td><input type='hidden' value='[] [] [] []'></input><A href='?src=\ref[];choice=Browse Record;d_rec=\ref[]'>[]</a></td>", R.fields["name"], R.fields["id"], R.fields["rank"], R.fields["fingerprint"], src, R, R.fields["name"])
@@ -203,7 +199,10 @@
 				else
 		else
 			dat += text("<A href='?src=\ref[];choice=Log In'>{Log In}</A>", src)
-	user << browse(text("<HEAD><TITLE>Security Records</TITLE></HEAD><TT>[]</TT>", dat), "window=secure_rec;size=600x400")
+	var/datum/browser/popup = new(user, "secure_rec", name, 600, 400)
+	popup.set_content(dat)
+	popup.add_head_content(head_content)
+	popup.open(0)
 	onclose(user, "secure_rec")
 	return
 
@@ -368,7 +367,6 @@ What a mess.*/
 					return
 				var/a2 = active2
 				var/t1 = copytext(trim(sanitize(input("Add Comment:", "Secure. records", null, null)  as message)),1,MAX_MESSAGE_LEN)
-				t1 = replace_special_characters(t1)
 				if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active2 != a2))
 					return
 				var/counter = 1
@@ -432,21 +430,18 @@ What a mess.*/
 					if("name")
 						if (istype(active1, /datum/data/record))
 							var/t1 = reject_bad_name(input("Please input name:", "Secure. records", active1.fields["name"], null)  as text)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !length(trim(t1)) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon)))) || active1 != a1)
 								return
 							active1.fields["name"] = t1
 					if("id")
 						if (istype(active2, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please input id:", "Secure. records", active1.fields["id"], null)  as text)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active1 != a1))
 								return
 							active1.fields["id"] = t1
 					if("fingerprint")
 						if (istype(active1, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please input fingerprint hash:", "Secure. records", active1.fields["fingerprint"], null)  as text)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active1 != a1))
 								return
 							active1.fields["fingerprint"] = t1
@@ -465,35 +460,30 @@ What a mess.*/
 					if("mi_crim")
 						if (istype(active2, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please input minor crimes list:", "Secure. records", active2.fields["mi_crim"], null)  as text)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active2 != a2))
 								return
 							active2.fields["mi_crim"] = t1
 					if("mi_crim_d")
 						if (istype(active2, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please summarize minor crimes:", "Secure. records", active2.fields["mi_crim_d"], null)  as message)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active2 != a2))
 								return
 							active2.fields["mi_crim_d"] = t1
 					if("ma_crim")
 						if (istype(active2, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please input major crimes list:", "Secure. records", active2.fields["ma_crim"], null)  as text)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active2 != a2))
 								return
 							active2.fields["ma_crim"] = t1
 					if("ma_crim_d")
 						if (istype(active2, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please summarize major crimes:", "Secure. records", active2.fields["ma_crim_d"], null)  as message)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active2 != a2))
 								return
 							active2.fields["ma_crim_d"] = t1
 					if("notes")
 						if (istype(active2, /datum/data/record))
 							var/t1 = copytext(html_encode(trim(input("Please summarize notes:", "Secure. records", html_decode(active2.fields["notes"]), null)  as message)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active2 != a2))
 								return
 							active2.fields["notes"] = t1
@@ -521,7 +511,6 @@ What a mess.*/
 					if("species")
 						if (istype(active1, /datum/data/record))
 							var/t1 = copytext(trim(sanitize(input("Please enter race:", "General records", active1.fields["species"], null)  as message)),1,MAX_MESSAGE_LEN)
-							t1 = replace_special_characters(t1)
 							if ((!( t1 ) || !( authenticated ) || usr.stat || usr.restrained() || (!in_range(src, usr) && (!istype(usr, /mob/living/silicon))) || active1 != a1))
 								return
 							active1.fields["species"] = t1

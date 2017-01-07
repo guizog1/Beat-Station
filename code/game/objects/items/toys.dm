@@ -141,7 +141,6 @@
 	item_state = "sword0"
 	var/active = 0.0
 	w_class = 2.0
-	flags = NOSHIELD
 	attack_verb = list("attacked", "struck", "hit")
 
 /obj/item/toy/sword/attack_self(mob/user as mob)
@@ -199,7 +198,7 @@
 	origin_tech = null
 	attack_verb = list("attacked", "struck", "hit")
 
-/obj/item/weapon/twohanded/dualsaber/toy/IsShield()
+/obj/item/weapon/twohanded/dualsaber/toy/hit_reaction()
 	return 0
 
 /obj/item/weapon/twohanded/dualsaber/toy/IsReflect()//Stops Toy Dualsabers from reflecting energy projectiles
@@ -531,11 +530,12 @@ obj/item/toy/cards/deck/MouseDrop(atom/over_object)
 					if(!remove_item_from_storage(M))
 						M.unEquip(src)
 					M.put_in_l_hand(src)
-				else if("r_hand")
+					to_chat(usr, "<span class='notice'>You pick up the deck.</span>")
+				if("r_hand")
 					if(!remove_item_from_storage(M))
 						M.unEquip(src)
 					M.put_in_r_hand(src)
-				to_chat(usr, "<span class='notice'>You pick up the deck.</span>")
+					to_chat(usr, "<span class='notice'>You pick up the deck.</span>")
 	else
 		to_chat(usr, "<span class='notice'>You can't reach it from here.</span>")
 
@@ -860,7 +860,7 @@ obj/item/toy/cards/deck/syndicate/black
 
 /obj/item/toy/minimeteor
 	name = "Mini-Meteor"
-	desc = "Relive the excitement of a meteor shower! SweetMeat-eor. Co is not responsible for any injuries, headaches or hearing loss caused by Mini-Meteor"
+	desc = "Relive the excitement of a meteor shower! SweetMeat-eor. Co is not responsible for any injuries, headaches or hearing loss caused by Mini-Meteor?"
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "minimeteor"
 	w_class = 2.0
@@ -1130,7 +1130,7 @@ obj/item/toy/cards/deck/syndicate/black
 		var/message = generate_ion_law()
 		to_chat(user, "<span class='notice'>You press the button on [src].</span>")
 		playsound(user, 'sound/machines/click.ogg', 20, 1)
-		visible_message("<span class='danger'>\icon[src] [message]</span>")
+		visible_message("<span class='danger'>[bicon(src)] [message]</span>")
 		cooldown = 1
 		spawn(30) cooldown = 0
 		return
@@ -1149,7 +1149,7 @@ obj/item/toy/cards/deck/syndicate/black
 		var/message = pick("You won't get away this time, Griffin!", "Stop right there, criminal!", "Hoot! Hoot!", "I am the night!")
 		to_chat(user, "<span class='notice'>You pull the string on the [src].</span>")
 		playsound(user, 'sound/misc/hoot.ogg', 25, 1)
-		visible_message("<span class='danger'>\icon[src] [message]</span>")
+		visible_message("<span class='danger'>[bicon(src)] [message]</span>")
 		cooldown = 1
 		spawn(30) cooldown = 0
 		return
@@ -1168,7 +1168,7 @@ obj/item/toy/cards/deck/syndicate/black
 		var/message = pick("You can't stop me, Owl!", "My plan is flawless! The vault is mine!", "Caaaawwww!", "You will never catch me!")
 		to_chat(user, "<span class='notice'>You pull the string on the [src].</span>")
 		playsound(user, 'sound/misc/caw.ogg', 25, 1)
-		visible_message("<span class='danger'>\icon[src] [message]</span>")
+		visible_message("<span class='danger'>[bicon(src)] [message]</span>")
 		cooldown = 1
 		spawn(30) cooldown = 0
 		return
@@ -1274,12 +1274,12 @@ obj/item/toy/cards/deck/syndicate/black
 
 /obj/item/toy/minigibber/attackby(var/obj/O, var/mob/user, params)
 	if(istype(O,/obj/item/toy/character) && O.loc == user)
-		to_chat(user, "<span class='notice'>You start feeding \the [O] \icon[O] into \the [src]'s mini-input.</span>")
+		to_chat(user, "<span class='notice'>You start feeding \the [O] [bicon(O)] into \the [src]'s mini-input.</span>")
 		if(do_after(user,10, target = src))
 			if(O.loc != user)
 				to_chat(user, "<span class='alert'>\The [O] is too far away to feed into \the [src]!</span>")
 			else
-				to_chat(user, "<span class='notice'>You feed \the [O] \icon[O] into \the [src]!</span>")
+				to_chat(user, "<span class='notice'>You feed \the [O] [bicon(O)] into \the [src]!</span>")
 				user.unEquip(O)
 				O.forceMove(src)
 				stored_minature = O
@@ -1305,7 +1305,7 @@ obj/item/toy/cards/deck/syndicate/black
 		user.visible_message("<span class='notice'>[user] pulls back the string on [src].</span>")
 		icon_state = "[initial(icon_state)]_used"
 		sleep(5)
-		audible_message("<span class='danger'>\icon[src] Hiss!</span>")
+		audible_message("<span class='danger'>[bicon(src)] Hiss!</span>")
 		var/list/possible_sounds = list('sound/voice/hiss1.ogg', 'sound/voice/hiss2.ogg', 'sound/voice/hiss3.ogg', 'sound/voice/hiss4.ogg')
 		playsound(get_turf(src), pick(possible_sounds), 50, 1)
 		spawn(45)
@@ -1318,7 +1318,7 @@ obj/item/toy/cards/deck/syndicate/black
 /obj/item/toy/russian_revolver
 	name = "russian revolver"
 	desc = "for fun and games!"
-	icon = 'icons/obj/gun.dmi'
+	icon = 'icons/obj/guns/projectile.dmi'
 	icon_state = "detective_gold"
 	item_state = "gun"
 	lefthand_file = 'icons/mob/inhands/guns_lefthand.dmi'
@@ -1431,7 +1431,7 @@ obj/item/toy/cards/deck/syndicate/black
 /obj/item/toy/figure/attack_self(mob/user as mob)
 	if(cooldown < world.time)
 		cooldown = (world.time + 30) //3 second cooldown
-		user.visible_message("<span class='notice'>\icon[src] The [src] says \"[toysay]\".</span>")
+		user.visible_message("<span class='notice'>[bicon(src)] The [src] says \"[toysay]\".</span>")
 		playsound(user, 'sound/machines/click.ogg', 20, 1)
 
 /obj/item/toy/figure/cmo
@@ -1632,7 +1632,7 @@ obj/item/toy/cards/deck/syndicate/black
 	if(!cooldown)
 		var/answer = pick(possible_answers)
 		user.visible_message("<span class='notice'>[user] focuses on their question and [use_action]...</span>")
-		user.visible_message("<span class='notice'>\icon[src] The [src] says \"[answer]\"</span>")
+		user.visible_message("<span class='notice'>[bicon(src)] The [src] says \"[answer]\"</span>")
 		spawn(30)
 			cooldown = 0
 		return

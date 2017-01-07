@@ -8,16 +8,14 @@
 	required_enemies = 1
 	recommended_enemies = 1
 
-	uplink_welcome = "Wizardly Uplink Console:"
-	uplink_uses = 20
-
 	var/use_huds = 0
 	var/finished = 0
 	var/but_wait_theres_more = 0
 
-/datum/game_mode/wizard/announce()
-	to_chat(world, "<B>The current game mode is - Wizard!</B>")
-	to_chat(world, "<B>There is a \red SPACE WIZARD\black on the station. You can't let him achieve his objective!</B>")
+/datum/game_mode/wizard/announce(text)
+	text = "<B>The current game mode is - Wizard!</B><br>"
+	text += "<B>There is a <font color='red'>SPACE WIZARD</font> on the station. You can't let him achieve his objective!</B>"
+	..(text)
 
 
 /datum/game_mode/wizard/can_start()//This could be better, will likely have to recode it later
@@ -31,7 +29,7 @@
 	wizards += wizard
 	modePlayer += wizard
 	wizard.assigned_role = "MODE" //So they aren't chosen for other jobs.
-	wizard.special_role = "Wizard"
+	wizard.special_role = SPECIAL_ROLE_WIZARD
 	wizard.original = wizard.current
 	if(wizardstart.len == 0)
 		to_chat(wizard.current, "<B>\red A starting location for you could not be found, please report this bug!</B>")
@@ -197,6 +195,7 @@
 	to_chat(wizard_mob, "You will find a list of available spells in your spell book. Choose your magic arsenal carefully.")
 	to_chat(wizard_mob, "In your pockets you will find a teleport scroll. Use it as needed.")
 	wizard_mob.mind.store_memory("<B>Remember:</B> do not forget to prepare your spells.")
+	wizard_mob.gene_stability += DEFAULT_GENE_STABILITY //magic
 	wizard_mob.update_icons()
 	return 1
 
@@ -227,11 +226,13 @@
 
 
 
-/datum/game_mode/wizard/declare_completion(var/ragin = 0)
+/datum/game_mode/wizard/declare_completion(ragin = 0)
+	var/text = ""
 	if(finished && !ragin)
 		feedback_set_details("round_end_result","loss - wizard killed")
-		to_chat(world, "\red <FONT size = 3><B> The wizard[(wizards.len>1)?"s":""] has been killed by the crew! The Space Wizards Federation has been taught a lesson they will not soon forget!</B></FONT>")
-	..()
+		text += "\red <FONT size = 3><B> The wizard[(wizards.len>1)?"s":""] has been killed by the crew! The Space Wizards Federation has been taught a lesson they will not soon forget!</B></FONT>"
+		to_chat(world, text)
+	..(text)
 	return 1
 
 
@@ -282,6 +283,7 @@
 			text += "<br>"
 
 		to_chat(world, text)
+		send_to_info_discord(html2discord(text))
 	return 1
 
 //OTHER PROCS

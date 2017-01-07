@@ -4,10 +4,13 @@
 #define HIDEJUMPSUIT	4	//APPLIES ONLY TO THE EXTERIOR SUIT!!
 #define HIDESHOES		8	//APPLIES ONLY TO THE EXTERIOR SUIT!!
 #define HIDETAIL 		16	//APPLIES ONLY TO THE EXTERIOR SUIT!!
-#define HIDEMASK	1	//APPLIES ONLY TO HELMETS/MASKS!!
-#define HIDEEARS	2	//APPLIES ONLY TO HELMETS/MASKS!! (ears means headsets and such)
-#define HIDEEYES	4	//APPLIES ONLY TO HELMETS/MASKS!! (eyes means glasses)
-#define HIDEFACE	8	//APPLIES ONLY TO HELMETS/MASKS!! Dictates whether we appear as unknown.
+
+#define HIDEMASK		1	//APPLIES ONLY TO HELMETS/MASKS!!
+#define HIDEEARS		2	//APPLIES ONLY TO HELMETS/MASKS!! (ears means headsets and such)
+#define HIDEEYES		4	//APPLIES ONLY TO HELMETS/MASKS!! (eyes means glasses)
+#define HIDEFACE		8	//APPLIES ONLY TO HELMETS/MASKS!! Dictates whether we appear as unknown.
+
+#define SHOWUNDERWEAR	1	//APPLIES ONLY TO JUMPSUITS!!
 
 //slots
 #define slot_back 1
@@ -32,7 +35,10 @@
 #define slot_r_ear 20
 #define slot_wear_pda 21
 #define slot_tie 22
-#define slots_amt 22
+#define slot_underpants 23
+#define slot_undershirt 24
+
+#define slots_amt 24
 
 //Cant seem to find a mob bitflags area other than the powers one
 
@@ -78,3 +84,5 @@
 
 #define BLOCKHEADHAIR 			4		// temporarily removes the user's hair overlay. Leaves facial hair.
 #define BLOCKHAIR				32768	// temporarily removes the user's hair, facial and otherwise.
+
+#define ONESIZEFITSALL 			1		// determines if something can be worn by a fatty or not.

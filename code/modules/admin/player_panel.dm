@@ -409,7 +409,7 @@
 	if (ticker && ticker.current_state >= GAME_STATE_PLAYING)
 		var/dat = "<html><head><title>Round Status</title></head><body><h1><B>Round Status</B></h1>"
 		dat += "Current Game Mode: <B>[ticker.mode.name]</B><BR>"
-		dat += "Round Duration: <B>[round(world.time / 36000)]:[add_zero(num2text(world.time / 600 % 60), 2)]:[add_zero(num2text(world.time / 10 % 60), 2)]</B><BR>"
+		dat += "Round Duration: <B>[round(ROUND_TIME / 36000)]:[add_zero(num2text(ROUND_TIME / 600 % 60), 2)]:[add_zero(num2text(ROUND_TIME / 10 % 60), 2)]</B><BR>"
 		dat += "<B>Emergency shuttle</B><BR>"
 		if(shuttle_master.emergency.mode < SHUTTLE_CALL)
 			dat += "<a href='?src=\ref[src];call_shuttle=1'>Call Shuttle</a><br>"
@@ -468,7 +468,7 @@
 					dat += "<tr><td><i>Head not found!</i></td></tr>"
 			dat += "</table>"
 
-		if(istype(ticker.mode, /datum/game_mode/blob))
+		if(GAMEMODE_IS_BLOB)
 			var/datum/game_mode/blob/mode = ticker.mode
 			dat += "<br><table cellspacing=5><tr><td><B>Blob</B></td><td></td><td></td></tr>"
 			dat += "<tr><td><i>Progress: [blobs.len]/[mode.blobwincount]</i></td></tr>"
@@ -496,6 +496,25 @@
 
 		if(ticker.mode.cult.len)
 			dat += check_role_table("Cultists", ticker.mode.cult, 0)
+
+		if(ticker.mode.red_deities.len || ticker.mode.red_deity_prophets.len || ticker.mode.blue_deity_prophets.len || ticker.mode.red_deity_followers.len || ticker.mode.blue_deity_followers.len)
+			if(ticker.mode.red_deities.len)
+				dat += check_role_table("Red Deity", ticker.mode.red_deities)
+
+			if(ticker.mode.blue_deities.len)
+				dat += check_role_table("Blue Deity", ticker.mode.blue_deities)
+
+			if(ticker.mode.red_deity_prophets.len)
+				dat += check_role_table("Red Deity Prophets", ticker.mode.red_deity_prophets)
+
+			if(ticker.mode.blue_deity_prophets.len)
+				dat += check_role_table("Blue Deity Prophets", ticker.mode.blue_deity_prophets)
+
+			if(ticker.mode.red_deity_followers.len)
+				dat += check_role_table("Red Deity Followers", ticker.mode.red_deity_followers)
+
+			if(ticker.mode.blue_deity_followers.len)
+				dat += check_role_table("Blue Deity Followers", ticker.mode.blue_deity_followers)
 
 		if(ticker.mode.traitors.len)
 			dat += check_role_table("Traitors", ticker.mode.traitors)

@@ -1,5 +1,5 @@
-#define LIGHT_DAM_THRESHOLD 4
-#define LIGHT_HEAL_THRESHOLD 2
+#define LIGHT_DAM_THRESHOLD 7
+#define LIGHT_HEAL_THRESHOLD 3
 #define LIGHT_DAMAGE_TAKEN 7
 
 /*
@@ -72,11 +72,12 @@ Made by Xhuis
 	required_enemies = 2
 	recommended_enemies = 2
 	restricted_jobs = list("AI", "Cyborg")
-	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Brig Physician", "Internal Affairs Agent")
+	protected_jobs = list("Security Officer", "Warden", "Detective", "Head of Security", "Captain", "Blueshield", "Nanotrasen Representative", "Security Pod Pilot", "Magistrate", "Brig Physician", "Internal Affairs Agent", "Nanotrasen Navy Officer", "Special Operations Officer")
 
-/datum/game_mode/shadowling/announce()
-	to_chat(world, "<b>The current game mode is - Shadowling!</b>")
-	to_chat(world, "<b>There are alien <span class='deadsay'>shadowlings</span> on the station. Crew: Kill the shadowlings before they can eat or enthrall the crew. Shadowlings: Enthrall the crew while remaining in hiding.</b>")
+/datum/game_mode/shadowling/announce(text)
+	text = "<b>The current game mode is - Shadowling!</b><br>"
+	text += "<b>There are alien <span class='deadsay'>shadowlings</span> on the station. Crew: Kill the shadowlings before they can eat or enthrall the crew. Shadowlings: Enthrall the crew while remaining in hiding.</b>"
+	..(text)
 
 /datum/game_mode/shadowling/pre_setup()
 	if(config.protect_roles_from_antagonist)
@@ -94,7 +95,7 @@ Made by Xhuis
 		shadows += shadow
 		possible_shadowlings -= shadow
 		modePlayer += shadow
-		shadow.special_role = "Shadowling"
+		shadow.special_role = SPECIAL_ROLE_SHADOWLING
 		shadow.restricted_roles = restricted_jobs
 		shadowlings--
 	return 1
@@ -145,7 +146,7 @@ Made by Xhuis
 		return 0
 	if(!(new_thrall_mind in shadowling_thralls))
 		shadowling_thralls += new_thrall_mind
-		new_thrall_mind.special_role = "shadowling thrall"
+		new_thrall_mind.special_role = SPECIAL_ROLE_SHADOWLING_THRALL
 		update_shadow_icons_added(new_thrall_mind)
 		new_thrall_mind.current.attack_log += "\[[time_stamp()]\] <span class='danger'>Became a thrall</span>"
 		new_thrall_mind.current.add_language("Shadowling Hivemind")
@@ -238,16 +239,17 @@ Made by Xhuis
 	return success
 
 
-/datum/game_mode/shadowling/declare_completion()
+/datum/game_mode/shadowling/declare_completion(text)
 	if(check_shadow_victory() && shuttle_master.emergency.mode >= SHUTTLE_ESCAPE) //Doesn't end instantly - this is hacky and I don't know of a better way ~X
-		to_chat(world, "<span class='greentext'><b>The shadowlings have ascended and taken over the station!</b></span>")
+		text = "<span class='greentext'><b>The shadowlings have ascended and taken over the station!</b></span>"
 	else if(shadowling_dead && !check_shadow_victory()) //If the shadowlings have ascended, they can not lose the round
-		to_chat(world, "<span class='redtext'><b>The shadowlings have been killed by the crew!</b></span>")
+		text = "<span class='redtext'><b>The shadowlings have been killed by the crew!</b></span>"
 	else if(!check_shadow_victory() && shuttle_master.emergency.mode >= SHUTTLE_ESCAPE)
-		to_chat(world, "<span class='redtext'><b>The crew escaped the station before the shadowlings could ascend!</b></span>")
+		text = "<span class='redtext'><b>The crew escaped the station before the shadowlings could ascend!</b></span>"
 	else
-		to_chat(world, "<span class='redtext'><b>The shadowlings have failed!</b></span>")
-	..()
+		text = "<span class='redtext'><b>The shadowlings have failed!</b></span>"
+	to_chat(world, text)
+	..(text)
 	return 1
 
 
@@ -284,6 +286,7 @@ Made by Xhuis
 				text += ")"
 	text += "<br>"
 	to_chat(world, text)
+	send_to_info_discord(html2discord(text))
 
 
 /*
@@ -315,7 +318,7 @@ Made by Xhuis
 	if(isturf(H.loc))
 		var/turf/T = H.loc
 		light_amount = T.get_lumcount() * 10
-		if(light_amount > LIGHT_DAM_THRESHOLD && !H.incorporeal_move) //Can survive in very small light levels. Also doesn't take damage while incorporeal, for shadow walk purposes
+		if(light_amount >= LIGHT_DAM_THRESHOLD && !H.incorporeal_move) //Can survive in very small light levels. Also doesn't take damage while incorporeal, for shadow walk purposes
 			H.take_overall_damage(0, LIGHT_DAMAGE_TAKEN)
 			if(H.stat != DEAD)
 				to_chat(H, "<span class='userdanger'>The light burns you!</span>")//Message spam to say "GET THE FUCK OUT"
